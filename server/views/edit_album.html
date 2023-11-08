@@ -1,0 +1,62 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div>
+    <h1 class="text-center">{{title}}</h1>
+    <form action="/album/edit_album_form" method="post" enctype="multipart/form-data">
+        <input type="hidden" value="{{album.album_id}}" name="album_id">
+        <div class="mb-3">
+            <label class="form-label">앨범명</label>
+            <input type="text" class="form-control" name="album_title" value="{{album.album_title}}">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">가수</label>
+            <input type="text" class="form-control" name="artist" value="{{album.artist}}">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">앨범 분류</label>
+            <input type="text" class="form-control" name="album_size" value="{{album.album_size}}">
+        </div>
+        <div class="mb-5">
+            <div class="d-flex">
+                <div class="col-3">
+                    <label>이미지 수정</label>
+                    <input type="checkbox" value="1" id="imgchk" name="imgchk">
+                </div>
+                <div class="col-3">
+                    <p>{{album.org_cover_image}}</p>
+                </div>
+                <div class="col-6">
+                    <input type="file" class="form-control M-hidden-input" name="cover_image" id="cover_image">
+                    <input type="hidden" name="before_cover_image" id="before_cover_image" value="{{album.cover_image}}">
+                </div>
+            </div>
+            <label class="form-label">발매일</label>
+            <input type="text" class="form-control" name="release_date" value="{{album.release_date_format}}">
+        </div>
+        <div class="text-center">
+            <a href="/album" class="btn btn-secondary">이전</a>
+            <button type="submit" class="btn btn-info">등록</button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
+
+{% block script %}
+<script>
+
+    const chkbox = document.querySelector("#imgchk");
+    const togglebox = document.querySelector("#cover_image");
+
+    chkbox.addEventListener("click", () => {
+        if(chkbox.checked){
+            togglebox.style.display = "block";
+        }
+        else{
+            togglebox.style.display = "none";
+        }
+    })
+
+</script>
+{% endblock %}

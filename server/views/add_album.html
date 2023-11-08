@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div>
+    <h1 class="text-center">{{title}}</h1>
+    <form action="/album/add_album_form" method="post" enctype="multipart/form-data">
+        <div class="mb-3">
+            <label class="form-label">앨범명</label>
+            <input type="text" class="form-control" name="album_title">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">가수</label>
+            <input type="text" class="form-control" name="artist">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">앨범 분류</label>
+            <input type="text" class="form-control" name="album_size">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">커버 이미지</label>
+            <input type="file" class="form-control" name="cover_image" id="cover_image">
+        </div>
+        <div class="mb-5">
+            <label class="form-label">발매일</label>
+            <input type="text" class="form-control" name="release_date">
+        </div>
+        <div class="text-center">
+            <a href="/album" class="btn btn-secondary">이전</a>
+            <button type="submit" class="btn btn-info">등록</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

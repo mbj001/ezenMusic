@@ -1,0 +1,97 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div>
+    <div class="d-flex align-items-center justify-content-between">
+        <div></div>
+        <h1 class="text-center">{{title}}</h1>
+        <div>
+            <a href="/" class="btn btn-secondary">이전</a>
+            <a href="/music/add_music" class="btn btn-info">음악 추가</a>
+        </div>
+    </div>
+    
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">제목</th>
+                <th scope="col">가수</th>
+                <th scope="col">지역</th>
+                <th scope="col">장르</th>
+                <th scope="col">테마</th>
+                <th scope="col">계절</th>
+                <th scope="col">작곡</th>
+                <th scope="col">작사</th>
+                <th scope="col">편곡</th>
+                <th scope="col">앨범명</th>
+                <!-- <th scope="col">가사</th> -->
+                <th scope="col">발매일</th>
+                <th scope="col">조회수</th>
+                <th scope="col">피쳐링</th>
+                <th>수정</th>
+                <th>삭제</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for music in Music %}
+            <tr>    
+                <th scope="row">{{music.id}}</th>
+                <td>{{music.title}}</td>
+                <td>{{music.artist}}</td>
+                <td>{{music.area}}</td>
+                <td>{{music.genre}}</td>
+                <td>{{music.theme}}</td>
+                <td>{{music.season}}</td>
+                <td>{{music.composer}}</td>
+                <td>{{music.lyricist}}</td>
+                <td>{{music.arranger}}</td>                
+                <td>{{music.album_title}}</td>
+                <!-- <td>{{music.lyrics}}</td> -->
+                <td>{{music.release_date_format}}</td>
+                <td>{{music.hit}}</td>
+                <td>{{music.featuring}}</td>
+                <td><a href="/music/edit/{{music.id}}" class="btn btn-info">수정</a></td>
+                <!-- <td><a href="/music/delete/{{music.id}}" class="btn btn-danger">삭제</a></td> -->
+                <td><button type="button" id="music_delete" name="music_delete" class="music_delete btn btn-danger" value="{{music.id}}">삭제</button></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+{% endblock %}
+
+{% block script %}
+<script>
+    const buttonQuery = document.querySelectorAll("#music_delete");
+    for(let i=0; i<buttonQuery.length; i++){
+        buttonQuery[i].addEventListener("click", function(e){
+            e.preventDefault();
+            let confirmVal = confirm("정말 삭제하시겠습니까?");
+            if(confirmVal){
+                $.ajax({
+                    url: "/music/delete/"+e.target.value,
+                    type: "GET",
+                    dataType: "json"
+                })
+                .done(function(data){
+                    if(data>0){
+                        alert("삭제 성공");
+                        location.href = "/music"
+                    }
+                    else{
+                        alert("삭제 실패");
+                    }
+                })
+            }
+            else{
+                location.href="/music";
+            }
+        })
+    }
+
+</script>
+{% endblock %}

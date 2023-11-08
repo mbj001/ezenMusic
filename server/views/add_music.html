@@ -1,0 +1,69 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div>
+    <h1 class="text-center">{{title}}</h1>
+    <form action="/music/add_music_form" method="post" class="form-group">
+        <div>
+            <label class="form-label">제목</label>
+            <input type="text" class="form-control" name="title">
+        </div>
+        <div>
+            <label class="form-label">가수</label>
+            <input type="text" class="form-control" name="artist">
+        </div>
+        <div>
+            <label class="form-label">국내 or 해외</label>
+            <input type="text" class="form-control" name="area">
+        </div>
+        <div>
+            <label class="form-label">장르</label>
+            <input type="text" class="form-control" name="genre">
+        </div>
+        <div>
+            <label class="form-label">테마</label>
+            <input type="text" class="form-control" name="theme">
+        </div>
+        <div>
+            <label class="form-label">계절(분위기)</label>
+            <input type="text" class="form-control" name="season">
+        </div>
+        <div>
+            <label class="form-label">작곡</label>
+            <input type="text" class="form-control" name="composer">
+        </div>
+        <div>
+            <label class="form-label">작사</label>
+            <input type="text" class="form-control" name="lyricist">
+        </div>
+        <div>
+            <label class="form-label">편곡</label>
+            <input type="text" class="form-control" name="arranger">
+        </div>
+        <div>
+            <label class="form-label">앨범명</label>
+            {% if albumTitle %}
+            <input type="text" class="form-control" name="album_title" value="{{albumTitle}}">
+            <input type="hidden" name="goToAlbuminfo" value="1">
+            {% else %}
+            <input type="text" class="form-control" name="album_title">
+            {% endif %}
+        </div>
+        <div>
+            <label class="form-label">가사</label>
+            <textarea class="form-control" name="lyrics" id="lyrics" cols="30" rows="10"></textarea>
+        </div>
+        <div>
+            <label class="form-label">조회수</label>
+            <input type="number" class="form-control" name="hit">
+        </div>
+        <div>
+            <label class="form-label">피쳐링</label>
+            <input type="text" class="form-control" name="featuring">
+        </div>
+        <div class="text-center mt-5 mb-5">
+            <button type="submit" class="btn btn-info">등록</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

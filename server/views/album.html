@@ -1,0 +1,85 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div>
+    <div class="d-flex align-items-center justify-content-between">
+        <div></div>
+        <h1 class="text-center">{{title}}</h1>
+        <div>
+            <a href="/" class="btn btn-secondary">이전</a>
+            <a href="/album/add_album" class="btn btn-info">앨범 추가</a>
+        </div>
+    </div>
+    
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">제목</th>
+                <th scope="col">가수</th>
+                <th scope="col">앨범 분류</th>
+                <th scope="col">원본이미지</th>
+                <th scope="col">서버이미지</th>
+                <th scope="col">이미지</th>                
+                <th scope="col">발매일</th>
+                <th scope="col">정보</th>
+                <th scope="col">수정</th>
+                <th scope="col">삭제</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for album in Album %}
+            <tr>    
+                <th scope="row">{{album.album_id}}</th>
+                <td>{{album.album_title}}</td>
+                <td>{{album.artist}}</td>
+                <td>{{album.album_size}}</td>
+                <td>{{album.org_cover_image}}</td>
+                <td>{{album.cover_image}}</td>
+                <td><img src="/image/album/{{album.cover_image}}" alt="cover_image" class="M-album-image"></td>
+                <td>{{album.release_date_format}}</td>
+                <td><a href="/album/view/{{album.album_title}}" class="btn btn-primary">정보</a></td>
+                <td><a href="/album/edit/{{album.album_id}}" class="btn btn-info">수정</a></td>
+                <!-- <td><a href="/music/delete/{{music.id}}" class="btn btn-danger">삭제</a></td> -->
+                <td><button type="button" id="album_delete" name="album_delete" class="btn btn-danger" value="{{album.album_id}}">삭제</button></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}
+
+
+{% block script %}
+<script>
+    const buttonQuery = document.querySelectorAll("#album_delete");
+    for(let i=0; i<buttonQuery.length; i++){
+        buttonQuery[i].addEventListener("click", function(e){
+            e.preventDefault();
+            let confirmVal = confirm("정말 삭제하시겠습니까?");
+            if(confirmVal){
+                $.ajax({
+                    url: "/album/delete/"+e.target.value,
+                    type: "GET",
+                    dataType: "json"
+                })
+                .done(function(data){
+                    if(data>0){
+                        alert("삭제 성공");
+                        location.href = "/album"
+                    }
+                    else{
+                        alert("삭제 실패");
+                    }
+                })
+            }
+            else{
+                location.href="/album";
+            }
+        })
+    }
+
+</script>
+{% endblock %}

@@ -1,0 +1,67 @@
+
+#################### Administrator Table (2023-11-08) ####################
+CREATE TABLE `flodb`.`administrator` (
+  `adminName` VARCHAR(30) NOT NULL,
+  `adminid` VARCHAR(45) NOT NULL,
+  `adminpw` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`adminid`));
+  
+  insert into administrator (adminName, adminid, adminpw) values ("관리자", "root", "1234");
+  select * from administrator;
+
+
+
+#################### Music Table (2023-11-08) ####################
+CREATE TABLE IF NOT EXISTS `flodb`.`Music` (
+  `id` VARCHAR(45) NOT NULL,
+  `title` VARCHAR(45) NULL,
+  `artist` VARCHAR(30) NULL,
+  `area` VARCHAR(20) NULL,
+  `genre` VARCHAR(30) NULL,
+  `theme` VARCHAR(30) NULL,
+  `season` VARCHAR(20) NULL,
+  `composer` VARCHAR(100) NULL,
+  `lyricist` VARCHAR(100) NULL,
+  `arranger` VARCHAR(100) NULL,
+  `album_title` VARCHAR(45) NULL,
+  `lyrics` LONGTEXT NULL,
+  `hit` INT NULL,
+  `featuring` VARCHAR(45) NULL,
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB;
+
+drop table music;
+select * from music;
+
+
+
+#################### Client Table (2023-11-08) ####################
+CREATE TABLE IF NOT EXISTS `flodb`.`Client` (
+  `username` VARCHAR(40) NOT NULL,
+  `userid` VARCHAR(45) NOT NULL,
+  `userpw` VARCHAR(45) NOT NULL,
+  `birth` DATE NULL,
+  `email` VARCHAR(45) NULL,
+  `phone` VARCHAR(45) NULL,
+  `ticket_date` DATE NULL,
+  `ticket_num` INT NULL,
+  `ticket_type` VARCHAR(45) NULL,
+  PRIMARY KEY (`userid`))
+ENGINE = InnoDB;
+
+
+
+#################### Album Table (2023-11-08) ####################
+CREATE TABLE IF NOT EXISTS `flodb`.`Album` (
+  `album_id` INT NOT NULL auto_increment,
+  `album_title` VARCHAR(45) NULL,
+  `artist` VARCHAR(45) NULL,
+  `album_size` VARCHAR(45) NULL,
+  `org_cover_image` VARCHAR(80) NULL,
+  `cover_image` VARCHAR(80) NULL,
+  `release_date` DATE NULL,
+  PRIMARY KEY (`album_id`))
+ENGINE = InnoDB;
+
+select * from album;
+drop table album;

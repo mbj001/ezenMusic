@@ -1,0 +1,282 @@
+{% extends "layout.html" %}
+
+{% block style %}
+<link rel="stylesheet" href="css/bootstrap.css">
+{% endblock %}
+
+{% block content %}
+<div>
+    <div class="row justify-content-center">
+        <a href="/">
+            <h1 class="col-12 text-primary text-center border border-3 border-dark border-left-0 border-right-0">{{title}}</h1>
+        </a>
+    </div>
+    <p>
+        # 
+    </p>
+    <div class="d-flex justify-content-between">
+        <a href="/" type="button" class="btn btn-outline-primary">메인</a>
+        <button type="button" class="btn btn-outline-dark L-btn-show-addForm">추가</button>
+    </div>
+    <form id="L-insert-client" class="row d-none bg-light p-3">
+        <div class="col-1"></div>
+        <div class="col-5">
+            <div class="form-group">
+                <label>이름</label>
+                <input type="text" id="username" name="username" placeholder="username" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>아이디</label>
+                <input type="text" id="userid" name="userid" placeholder="userid" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>비밀번호</label>
+                <input type="text" id="userpw" name="userpw" placeholder="userpw" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>생년월일 yyyy-mm-dd</label>
+                <input type="text" id="birth" name="birth" placeholder="birth" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>이메일</label>
+                <input type="text" id="email" name="email" placeholder="email" class="form-control">
+            </div>
+        </div>
+        <div class="col-5">
+            <div class="form-group">
+                <label>전화번호 000-0000-0000</label>
+            <input type="text" id="phone" name="phone" placeholder="phone" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>이용권 구매일 yyyy-mm-dd</label>
+                <input type="text" id="ticket_date" name="ticket_date" placeholder="ticket_date" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>남은 재생 가능 곡 수 (기간제 이용권일 경우 -1 저장)</label>
+                <input type="text" id="ticket_num" name="ticket_num" placeholder="ticket_num" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>이용권 select</label>
+                <select id="ticket_type" name="ticket_type" class="form-control" >
+                    <option value="1week">1주</option>
+                    <option value="2weeks">2주</option>
+                    <option value="1month">1달</option>
+                    <option value="50songs">50곡</option>
+                    <option value="100songs">100곡</option>
+                </select>
+            </div>
+            <div class="col-12 d-flex justify-content-between">
+                <button type="button" class="btn btn-outline-dark L-insert">등록</button>
+                <button type="button" class="btn btn-warning L-btn-close-addForm">닫기</button>
+            </div>
+        </div>
+        <div class="col-1"></div>
+    </form>
+    <div id="L-show-client-list" class="L-show-client-list">
+        <!--bootstrap table layout-->
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">username</th>
+                    <th scope="col" class="text-danger">userid(PK)</th>
+                    <th scope="col">userpw</th>
+                    <th scope="col">birth</th>
+                    <th scope="col">email</th>
+                    <th scope="col">phone</th>
+                    <th scope="col">ticket_date</th>
+                    <th scope="col">ticket_num</th>
+                    <th scope="col">ticket_type</th>
+                    <th scope="col">수정</th>
+                    <th scope="col">삭제</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for list in sqlData %}
+                <tr class="bg-light">    
+                    <th scope="row">{{loop.index}}</th>
+                    <td>{{list.username}}</td>
+                    <td class="text-danger">{{list.userid}}</td>
+                    <td>{{list.userpw}}</td>
+                    <td>{{list.birth}}</td>
+                    <td>{{list.email}}</td>
+                    <td>{{list.phone}}</td>
+                    <td>{{list.ticket_date}}</td>
+                    <td>{{list.ticket_num}}</td>
+                    <td>{{list.ticket_type}}</td>
+                    <td>
+                        <button type="button" class="btn btn-info L-btn-show-editForm" value="{{list.userid}}">수정</button>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-danger L-delete" value="{{list.userid}}">삭제</button>
+                    </td>
+                </tr>
+                <!-- edit form -->
+                    <tr class="d-none bg-white text-white">
+                        <th scope="row">></th>
+                        <td><input type="text" name="username{{loop.index}}" value="{{list.username}}" class="username_update form-control" /></td>
+                        <td><input type="text" name="userid{{loop.index}}" disabled value="{{list.userid}}" class="userid_update form-control"/></td>
+                        <td><input type="text" name="userpw{{loop.index}}" value="{{list.userpw}}" class="userpw_update form-control"/></td>
+                        <td><input type="text" name="birth{{loop.index}}" value="{{list.birth}}" class="birth_update form-control"/></td>
+                        <td><input type="text" name="email{{loop.index}}" value="{{list.email}}" class="email_update form-control"/></td>
+                        <td><input type="text" name="phone{{loop.index}}" value="{{list.phone}}" class="phone_update form-control"/></td>
+                        <td><input type="text" name="ticket_date{{loop.index}}" value="{{list.ticket_date}}" class="ticket_date_update form-control"/></td>
+                        <td><input type="text" name="ticket_num{{loop.index}}" value="{{list.ticket_num}}" class="ticket_num_update form-control"/></td>
+                        <td>
+                            <select name="ticket_type{{loop.index}}" class="ticket_type_update form-control" >
+                                <option value="{{list.ticket_type}}" selected>{{list.ticket_type}}</option>
+                                <option value="1week">1주</option>
+                                <option value="2weeks">2주</option>
+                                <option value="1month">1달</option>
+                                <option value="50songs">50곡</option>
+                                <option value="100songs">100곡</option>
+                            </select>
+                        </td>
+                        <td><button type="button" class="btn btn-outline-dark L-btn-close-editForm">닫기</button></td>
+                        <td><button type="button" class="btn btn-outline-dark L-update">완료</button></td>
+                    </tr>
+                <!-- edit form -->
+                {% endfor %}
+            </tbody> 
+        </table>
+    </div>
+    <!--bootstrap table layout-->
+</div>
+
+{% endblock %}
+
+{% block script %}
+<script>
+    $(function(){
+        $(".L-btn-show-editForm").click(function(e){
+            e.preventDefault();
+            $(this).parents("tr").next().removeClass("d-none");
+        });
+        $(".L-btn-close-editForm").click(function(e){
+            e.preventDefault();
+            $(this).parents("tr").addClass("d-none");
+        });
+        $(".L-btn-show-addForm").click(function(e){
+            e.preventDefault();
+            $("#L-insert-client").removeClass("d-none");
+            $(".L-btn-show-addForm").addClass("d-none");
+        });
+        $(".L-btn-close-addForm").click(function(e){
+            e.preventDefault();
+            $("#L-insert-client").addClass("d-none");
+            $(".L-btn-show-addForm").removeClass("d-none");
+        });
+        $("#ticket_type").change(function(){
+            console.log($('#ticket_type option:selected').text());
+        })
+
+        //############################################
+        //################### CRUD ###################
+        //################## INSERT ##################
+        $(".L-insert").click(function(e){
+            e.preventDefault();
+            const insertConfirm = confirm("이대로 추가할까용");
+            if(insertConfirm == true){
+                const sendData = {
+                username : $("#username").val(),
+                userid : $("#userid").val(),
+                userpw : $("#userpw").val(),
+                birth : $("#birth").val(),
+                email : $("#email").val(),
+                phone : $("#phone").val(),
+                ticket_date : $("#ticket_date").val(),
+                ticket_num : $("#ticket_num").val(),
+                ticket_type : $("#ticket_type").val()
+                };
+                $.ajax({
+                    type: "post",
+                    url: "/client/insert",
+                    dataType: "json",
+                    data: sendData,
+                    success: function(rs){
+                        if(rs == 1){
+                            alert("등록 ok");
+                            location.href="/client";
+                        }else{
+                            alert("에러: sql error");
+                        }
+                    },
+                    error: function(err){
+                        alert('에러: ajax did not success' +err );
+                    }
+                });
+            }else{
+                console.log("등록 취소");
+            }
+        });
+        //################## DELETE ##################
+        $(".L-delete").click(function(e){
+            e.preventDefault();
+            const deleteConfirm = confirm("정말 삭제할까용");
+            if(deleteConfirm == true){
+                const deleteId = $(this).val();
+                const sendData = {
+                    userid: deleteId
+                };
+                console.log(deleteId);
+                $.ajax({
+                    type: "post",
+                    url: "/client/delete",
+                    dataType: "json",
+                    data: sendData,
+                    success: function(rs){
+                        if(rs == 1){
+                            alert("삭제 ok");
+                            location.href="/client";
+                        }else{
+                            alert("sql 에러!");
+                        }
+                    },
+                    error: function(err){
+                        alert('에러: ajax did not success' +err );
+                    }
+                });
+            }else{
+                console.log("삭제 취소");
+            }
+        });
+        //################## UPDATE ##################
+        $(".L-update").click(function(e){
+            e.preventDefault();
+            const updateConfirm = confirm("이대로 업데이트할까용");
+            if(updateConfirm == true){
+                const sendData = {
+                    username : $(this).parents("td").siblings().find(".username_update").val(),
+                    userid : $(this).parents("td").siblings().find(".userid_update").val(),
+                    userpw : $(this).parents("td").siblings().find(".userpw_update").val(),
+                    birth : $(this).parents("td").siblings().find(".birth_update").val(),
+                    email : $(this).parents("td").siblings().find(".email_update").val(),
+                    phone : $(this).parents("td").siblings().find(".phone_update").val(),
+                    ticket_date : $(this).parents("td").siblings().find(".ticket_date_update").val(),
+                    ticket_num : $(this).parents("td").siblings().find(".ticket_num_update").val(),
+                    ticket_type : $(this).parents("td").siblings().find(".ticket_type_update").val()
+                };
+                $.ajax({
+                    type: "post",
+                    url: "/client/update",
+                    dataType: "json",
+                    data: sendData,
+                    success: function(rs){
+                        if(rs == 1){
+                            alert("업데이트 ok");
+                            location.href="/client";
+                        }else{
+                            alert("sql 에러!");
+                        }
+                    },
+                    error: function(err){
+                        alert('에러: ajax did not success' +err );
+                    }
+                });
+            }else{
+                console.log("업데이트 취소");
+            }
+        });
+    });
+</script>
+{% endblock %}
