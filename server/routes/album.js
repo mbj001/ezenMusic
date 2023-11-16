@@ -36,9 +36,9 @@ router.get("/add_album", (req, res) => {
 router.post("/add_album_form", upload.single("cover_image"), (req, res) => {
     console.log("routes => album.js => router.post('/add_album_form')");
 
-    const insert_album_query = `insert into album (album_title, artist, album_size, org_cover_image, cover_image, release_date) values (?, ?, ?, ?, ?, ?);`;
+    const insert_album_query = `insert into album (album_title, artist, album_size, org_cover_image, cover_image, release_date, intro, publisher, agency) values (?, ?, ?, ?, ?, ?, ?, ?, ?);`;
 
-    conn.query(insert_album_query, [req.body.album_title, req.body.artist, req.body.album_size, req.file.originalname, req.file.filename, req.body.release_date], (err, insert_album_result, fields) => {
+    conn.query(insert_album_query, [req.body.album_title, req.body.artist, req.body.album_size, req.file.originalname, req.file.filename, req.body.release_date, req.body.intro, req.body.publisher, req.body.agency], (err, insert_album_result, fields) => {
         if(err){
             console.error(err)
         }
@@ -81,10 +81,11 @@ router.get("/edit/:id", (req, res) => {
 
 router.post("/edit_album_form", upload.single("cover_image"), (req, res) => {
     console.log("routes => album.js => router.post('/edit_album_form')");
+    console.log(req.body);
     if(req.body.imgchk){
-        const update_album_query = `update album set ?, ?, ?, ?, ?, ? where ?;`;
+        const update_album_query = `update album set ?, ?, ?, ?, ?, ?, ?, ?, ? where ?;`;
         
-        conn.query(update_album_query, [{album_title: req.body.album_title}, {artist: req.body.artist}, {album_size: req.body.album_size}, {org_cover_image: req.file.originalname}, {cover_image: req.file.filename}, {release_date: req.body.release_date}, {album_id: req.body.album_id}], (err, update_album_result, fields) => {
+        conn.query(update_album_query, [{album_title: req.body.album_title}, {artist: req.body.artist}, {album_size: req.body.album_size}, {org_cover_image: req.file.originalname}, {cover_image: req.file.filename}, {release_date: req.body.release_date}, {intro: req.body.intro}, {publisher: req.body.publisher}, {agency: req.body.agency}, {album_id: req.body.album_id}], (err, update_album_result, fields) => {
             if(err){
                 console.error(err);
             }
@@ -96,9 +97,9 @@ router.post("/edit_album_form", upload.single("cover_image"), (req, res) => {
         })
     }
     else{
-        const update_album_query = `update album set ?, ?, ?, ? where ?;`;
+        const update_album_query = `update album set ?, ?, ?, ?, ?, ?, ? where ?;`;
         
-        conn.query(update_album_query, [{album_title: req.body.album_title}, {artist: req.body.artist}, {album_size: req.body.album_size}, {release_date: req.body.release_date}, {album_id: req.body.album_id}], (err, update_album_result, fields) => {
+        conn.query(update_album_query, [{album_title: req.body.album_title}, {artist: req.body.artist}, {album_size: req.body.album_size}, {release_date: req.body.release_date}, {intro: req.body.intro}, {publisher: req.body.publisher}, {agency: req.body.agency}, {album_id: req.body.album_id}], (err, update_album_result, fields) => {
             if(err){
                 console.error(err);
             }

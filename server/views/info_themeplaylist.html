@@ -1,0 +1,87 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div>
+    <div class="d-flex align-items-center justify-content-between mb-5">
+        <div>
+            <h1 class="">번호 : {{num}}</h1>
+            <h1 class="">테마 : {{themetitle}}</h1>
+        </div>
+        <div>
+            <a href="/themeplaylist" class="btn btn-secondary">이전</a>
+            
+        </div>
+    </div>
+    
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">노래 ID</th>
+                <th scope="col">제목</th>
+
+                <!-- <th>수정</th> -->
+                <th>삭제</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for music in ListMusic %}
+            <tr>    
+                <th scope="row">{{music.id}}</th>
+                <th scope="row">{{music.title}}</th>
+                <th scope="row">{{music.artist}}</th>
+                <!-- <td>{{music.title}}</td> -->
+
+                <!-- <td><a href="/themeplaylist/edit_music/{{num}}&{{music.num}}" class="btn btn-info">수정</a></td> -->
+                <!-- <td><a href="/music/delete/{{music.id}}" class="btn btn-danger">삭제</a></td> -->
+                <td><button type="button" id="music_delete" name="music_delete" class="music_delete btn btn-danger" value="{{num}}&{{music.id}}">삭제</button></td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <form action="/themeplaylist/add_theme_music" method="post">
+                    <th scope="row"><input type="text" placeholder="노래번호" name="id" class="form-control"></th>
+                    <input type="hidden" name="num" value="{{num}}">
+                    <th></th>
+                    <th></th>
+                    <!-- <th><a href="/themeplaylist/add_theme_music/{{num}}" class="btn btn-info">추가</a></th> -->
+                    <th><button type="submit" class="btn btn-info">추가</button></th>
+                </form>
+            </tr>
+        </tbody>
+    </table>
+
+</div>
+
+
+{% endblock %}
+
+{% block script %}
+<script>
+    const buttonQuery = document.querySelectorAll("#music_delete");
+    for(let i=0; i<buttonQuery.length; i++){
+        buttonQuery[i].addEventListener("click", function(e){
+            e.preventDefault();
+            let confirmVal = confirm("정말 삭제하시겠습니까?");
+            if(confirmVal){
+                $.ajax({
+                    url: "/themeplaylist/delete_music/"+e.target.value,
+                    type: "GET",
+                    dataType: "json"
+                })
+                .done(function(data){
+                    if(data>0){
+                        alert("삭제 성공");
+                        location.href = "/themeplaylist"
+                    }
+                    else{
+                        alert("삭제 실패");
+                    }
+                })
+            }
+            else{
+                location.href="/music";
+            }
+        })
+    }
+
+</script>
+{% endblock %}

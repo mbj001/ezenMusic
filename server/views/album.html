@@ -19,8 +19,10 @@
                 <th scope="col">제목</th>
                 <th scope="col">가수</th>
                 <th scope="col">앨범 분류</th>
+                <th scope="col">발매사</th>
+                <th scope="col">기획사</th>                
                 <th scope="col">원본이미지</th>
-                <th scope="col">서버이미지</th>
+                <!-- <th scope="col">서버이미지</th> -->
                 <th scope="col">이미지</th>                
                 <th scope="col">발매일</th>
                 <th scope="col">정보</th>
@@ -35,8 +37,10 @@
                 <td>{{album.album_title}}</td>
                 <td>{{album.artist}}</td>
                 <td>{{album.album_size}}</td>
+                <td>{{album.publisher}}</td>
+                <td>{{album.agency}}</td>
                 <td>{{album.org_cover_image}}</td>
-                <td>{{album.cover_image}}</td>
+                <!-- <td>{{album.cover_image}}</td> -->
                 <td><img src="/image/album/{{album.cover_image}}" alt="cover_image" class="M-album-image"></td>
                 <td>{{album.release_date_format}}</td>
                 <td><a href="/album/view/{{album.album_title}}" class="btn btn-primary">정보</a></td>

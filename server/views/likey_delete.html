@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h1>좋아요 삭제 (테스트 용)</h1>
+<a href="/likey/likey_view">돌아가기</a>
+
+<!--bootstrap table layout-->
+<form action="/likey/likey_view/likey_delete/{{title}}" method="post">
+    <label for="">노래 삭제</label>
+    <input type="number" name="del_num" id="del_num" placeholder="{{num}}">
+
+    <button type="submit">삭제</button>
+</form>
+<!--bootstrap table layout-->
+
+{% endblock %}

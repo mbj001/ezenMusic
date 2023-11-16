@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+:root{
+    /* color setting */
+    --main-background-white: #ffffff;
+    --main-background-black: #000000;
+
+    --main-text-white: #ffffff;
+    --main-text-black: #000000;
+    --main-text-gray: #5e5e5e;
+    --main-text-gray-lighter: #a5a5a5; 
+    --main-text-gray-darker: #333333;
+
+    --pagination-dot: #3f3fff;
+    
+    --main-theme-color: #3f3fff;
+
+    --purchase-box-color: #f4f5f8;
+    /* size setting */
+    --font-size: 18px;
+}
+/************* Default CSS *************/
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    /* border: 1px solid #fff; */
+}
+html{
+    scroll-behavior: smooth;
+    scroll-padding-top: 75px;
+}
+body, body>div{
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 400;
+    /* overflow-x: hidden; */
+    position: relative;
+}
+h1, h2, h3, h4, h5, h6{
+    margin: 0;
+    padding: 0;
+    line-height: normal;
+}
+p, a, ul, li, button{
+    margin: 0;
+    padding: 0;
+    line-height: normal;
+    text-decoration: none;
+}
+ul, li{
+    list-style: none;
+}
+a:hover{
+    text-decoration: none;
+}
+img{
+    width: 100%;
+    height: auto;
+}
+button{
+    border: 0;
+    background-color: transparent;
+}
+input:focus, textarea:focus, select:focus{
+    outline: none;
+}
+body::-webkit-scrollbar, div::-webkit-scrollbar{
+    /* display: block; */
+}
+/************* Settings for Responsible *************/
+

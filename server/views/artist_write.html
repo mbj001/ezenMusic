@@ -1,0 +1,110 @@
+<!--
+    num : 아티스트 넘버
+    class :그룹/싱글
+    singer: 아티스트 이름
+    gender:성별 
+    genre:장르
+-->
+{% extends "layout.html" %}
+{% block style %}
+<link rel="stylesheet" href="css/bootstrap.css">
+<!-- <link rel="stylesheet" href="css/client.css"> -->
+{% endblock %}
+
+{% block content %}
+<!--bootstrap table layout-->
+<div class="container">
+    <h1>{{title}}</h1>
+    <div class="d-flex justify-content-end my-5">
+        <a href="/artist" class="btn btn-primary mx-2">List</a>
+        <button type="button" class="btn btn-outline-dark A-insert">추가</button>
+     </div>
+    <div class="artist_list">
+         <form action="/artist/artist_write" method="POST" name="form" id="form">
+        <table class="table">
+      <thead>
+        <tr>
+            <th scope="col">num</th>
+            <th scope="col">singer</th>
+            <th scope="col">class</th>
+            <th scope="col">gender</th>
+            <th scope="col">genre</th>
+            <th scope="col">action</th>
+        </tr>
+      </thead>
+     <!--loop-->
+     <tbody class="artist-table">
+        {% for rs in row %}
+        <tr class="input_list">
+            <td>{{rs.num}}</td>
+            <td>{{rs.artist}}</td>
+            <td>{{rs.artist_class}}</td>
+            <td>{{rs.artist_gender}}</td>
+            <td>{{rs.genre}}</td>
+        </tr>
+            <tr class="insert_list">
+                <th scope="col"><input type="number" id="artist_num"> </th>
+                <th scope="col"><input type="text" id="artist" name="artist"></th>
+                <th scope="col"><input type="text" id="artist_class" name="artist_class"></th>
+                <th scope="col"><input type="text" id="artist_gender" name="artist_gender"></th>
+                <th scope="col"><input type="text" id="genre" name="genre"></th>
+                <th scope="col"><button type="submit" class="insertok">저장</button></th>
+            </tr>
+            {% endfor %}
+          </tbody>
+        <!--loop-->
+        </table>
+        </form>
+    </div>
+</div>
+
+<!--bootstrap table layout-->
+
+{% endblock %}
+{% block script %}
+<script>
+    $(function(){
+        const Addinsert = `            
+        <tr class="insert_list">
+                <th scope="col"><input type="text" placeholder="자동증가 입력X" ></th>
+                <th scope="col"><input type="text" id="artist" name="artist"></th>
+                <th scope="col"><input type="text" id="artist_class" name="artist_class"></th>
+                <th scope="col"><input type="text" id="artist_gender" name="artist_gender"></th>
+                <th scope="col"><input type="text" id="artist_genre" name="artist_genre"></th>
+                <th scope="col"><button type="submit">저장</button></th>
+            </tr>`;
+        $(".A-insert").click(function(){
+            $(".artist-table").html(Addinsert); 
+        })
+
+        ////// insert /////
+        $(".insertok").click(function(e){
+            e.preventDefault();
+            const sendData = {
+                num: $("#artist_num").val(),
+                artist: $("#artist").val(),
+                artist_class: $("#artist_class").val(),
+                artist_gender: $("#artist_gender").val(),
+                artist_genre: $("#artist_genre").val()
+            };
+$.ajax({
+    type:"POST",
+    url:"/artist_write",
+    data:sendData,
+    dataType:"JSON",
+    success:function(rs){
+        if(rs==1){
+            alert("등록 성공")
+            location.href="/artist"
+        }else{
+            alert("등록실패")
+        }
+    },
+    error: function(err){
+        alert("에러 ajax success"+err);
+    }
+})
+        })
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div>
+    <div class="d-flex align-items-center justify-content-between">
+        <div></div>
+        <h1 class="text-center">{{title}}</h1>
+        <div>
+            <a href="/" class="btn btn-secondary">이전</a>
+            <a href="/themeplaylist/add_themeplaylist" class="btn btn-info">테마 추가</a>
+        </div>
+    </div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">제목</th>
+                <th scope="col">설명</th>            
+                <th scope="col">등록일</th>
+                <th scope="col">이미지 파일명</th>               
+                <th scope="col">이미지</th>               
+                <th scope="col">정보</th>
+                <th scope="col">수정</th>
+                <th scope="col">삭제</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for playlist in result %}
+            <tr>    
+                <th scope="row">{{playlist.num}}</th>
+                <td>{{playlist.themetitle}}</td>
+                <td>{{playlist.description}}</td>
+                <td>{{playlist.release_date_format}}</td>
+                <td>{{playlist.org_cover_image}}</td>
+                <td><img src="/image/themeplaylist/{{playlist.cover_image}}" alt="cover_image" class="M-album-image"></td>
+                <td><a href="/themeplaylist/view/{{playlist.num}}" class="btn btn-primary">정보</a></td>
+                <td><a href="/album/edit/{{album.album_id}}" class="btn btn-info">수정</a></td>
+                <!-- <td><a href="/music/delete/{{music.id}}" class="btn btn-danger">삭제</a></td> -->
+                <td><button type="button" id="themeplaylist_delete" name="themeplaylist_delete" class="btn btn-danger" value="{{playlist.num}}">삭제</button></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}
+
+{% block script %}
+<script>
+    const buttonQuery = document.querySelectorAll("#themeplaylist_delete");
+    for(let i=0; i<buttonQuery.length; i++){
+        buttonQuery[i].addEventListener("click", function(e){
+            e.preventDefault();
+            let confirmVal = confirm("정말 삭제하시겠습니까?");
+            if(confirmVal){
+                $.ajax({
+                    url: "/themeplaylist/delete/"+e.target.value,
+                    type: "GET",
+                    dataType: "json"
+                })
+                .done(function(data){
+                    if(data>0){
+                        alert("삭제 성공");
+                        location.href = "/themeplaylist"
+                    }
+                    else{
+                        alert("삭제 실패");
+                    }
+                })
+            }
+            else{
+                location.href="/album";
+            }
+        })
+    }
+
+</script>
+{% endblock %}

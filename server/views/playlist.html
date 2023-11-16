@@ -1,9 +1,63 @@
 {% extends "layout.html" %}
 
+{% block style %}
+<style>
+    .btn{
+        float: right;
+    }
+    .btn a{
+        text-decoration: none;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 
-<div>
-    <p>{{title}}</p>
-</div>
+<h1>{{title}}</h1>
+<a href="/" class="btn btn-secondary">목록</a>
+
+<!--bootstrap table layout-->
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">userid(PK)</th>
+            <th scope="col">
+                <form action="/playlist/insert" method="post">
+                    <input type="text" name="userid" id="" required>
+                    <button type="submit">
+                        추가
+                    </button>
+                </form>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for list in row %}
+        <tr>    
+            <th scope="row">{{loop.index}}</th>
+            <!-- <th scope="row">{{list.userid}}</th> -->
+            
+            <!-- {% if list.userid == null %}
+            {% else %}
+                <td>
+                    <a href="/playlist/playlist_name_view/{{list.userid}}">{{list.userid}}</a>
+                </td>
+            {% endif %} -->
+
+            
+            <td>
+                {% if list.userid == null %}
+                    null값
+                {% else %}
+                    <a href="/playlist/playlist_name_view/{{list.userid}}">{{list.userid}}</a>
+                {% endif %}
+
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<!--bootstrap table layout-->
 
 {% endblock %}

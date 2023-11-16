@@ -17,7 +17,7 @@
             <label class="form-label">앨범 분류</label>
             <input type="text" class="form-control" name="album_size" value="{{album.album_size}}">
         </div>
-        <div class="mb-5">
+        <div class="mb-3">
             <div class="d-flex">
                 <div class="col-3">
                     <label>이미지 수정</label>
@@ -33,6 +33,18 @@
             </div>
             <label class="form-label">발매일</label>
             <input type="text" class="form-control" name="release_date" value="{{album.release_date_format}}">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">발매사</label>
+            <input type="text" class="form-control" name="publisher" value="{{album.publisher}}">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">기획사</label>
+            <input type="text" class="form-control" name="agency" value="{{album.agency}}">
+        </div>        
+        <div class="mb-5">
+            <label class="form-label">상세정보</label>
+            <textarea type="text" class="form-control" name="intro" cols="30" rows="10">{{album.intro}}</textarea>
         </div>
         <div class="text-center">
             <a href="/album" class="btn btn-secondary">이전</a>

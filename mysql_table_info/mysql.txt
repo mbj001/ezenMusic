@@ -1,0 +1,135 @@
+######################### administrator #########################
+
+CREATE TABLE `administrator` (
+  `adminName` varchar(30) NOT NULL,
+  `adminid` varchar(45) NOT NULL,
+  `adminpw` varchar(45) NOT NULL,
+  PRIMARY KEY (`adminid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
+
+######################### album #########################
+
+CREATE TABLE `album` (
+  `album_id` int NOT NULL AUTO_INCREMENT,
+  `album_title` varchar(45) DEFAULT NULL,
+  `artist` varchar(45) DEFAULT NULL,
+  `album_size` varchar(45) DEFAULT NULL,
+  `org_cover_image` varchar(80) DEFAULT NULL,
+  `cover_image` varchar(80) DEFAULT NULL,
+  `release_date` date DEFAULT NULL,
+  `intro` longtext,
+  `publisher` varchar(50) DEFAULT NULL,
+  `agency` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`album_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8mb3;
+
+
+
+######################### artist #########################
+
+CREATE TABLE `artist` (
+  `artist_num` int NOT NULL AUTO_INCREMENT,
+  `org_artist_img` varchar(80) DEFAULT NULL,
+  `artist_img` varchar(80) DEFAULT NULL,
+  `artist` varchar(30) NOT NULL,
+  `artist_class` varchar(45) DEFAULT NULL,
+  `artist_gender` varchar(45) DEFAULT NULL,
+  `genre` varchar(30) DEFAULT NULL,
+  PRIMARY KEY (`artist_num`)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb3;
+
+
+
+######################### client #########################
+
+CREATE TABLE `client` (
+  `username` varchar(40) NOT NULL,
+  `userid` varchar(45) NOT NULL,
+  `userpw` varchar(45) NOT NULL,
+  `birth` date DEFAULT NULL,
+  `email` varchar(45) DEFAULT NULL,
+  `phone` varchar(45) DEFAULT NULL,
+  `ticket_date` date DEFAULT NULL,
+  `ticket_num` int DEFAULT NULL,
+  `ticket_type` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`userid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
+
+######################### genre_table #########################
+CREATE TABLE `genre_table` (
+  `genre_id` int NOT NULL AUTO_INCREMENT,
+  `area` varchar(45) DEFAULT NULL,
+  `genre` varchar(45) DEFAULT NULL,
+  `devision` varchar(45) DEFAULT NULL,
+  `full_genre` varchar(45) DEFAULT NULL,
+  `org_cover_image` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`genre_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb3;
+
+
+######################### likey #########################
+
+CREATE TABLE `likey` (
+  `userid` varchar(40) NOT NULL,
+  `music_list` json DEFAULT NULL,
+  PRIMARY KEY (`userid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
+
+
+
+######################### music #########################
+CREATE TABLE `music` (
+  `id` varchar(45) NOT NULL,
+  `title` varchar(45) DEFAULT NULL,
+  `artist` varchar(30) DEFAULT NULL,
+  `area` varchar(20) DEFAULT NULL,
+  `genre` varchar(30) DEFAULT NULL,
+  `theme` varchar(30) DEFAULT NULL,
+  `season` varchar(20) DEFAULT NULL,
+  `composer` varchar(100) DEFAULT NULL,
+  `lyricist` varchar(100) DEFAULT NULL,
+  `arranger` varchar(100) DEFAULT NULL,
+  `album_title` varchar(45) DEFAULT NULL,
+  `lyrics` longtext,
+  `hit` int DEFAULT NULL,
+  `featuring` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
+
+######################### playlist #########################
+CREATE TABLE `playlist` (
+  `num` int NOT NULL AUTO_INCREMENT,
+  `userid` varchar(45) DEFAULT NULL,
+  `playlist_name` varchar(45) DEFAULT NULL,
+  `music` json DEFAULT NULL,
+  `org_cover_image` varchar(80) DEFAULT NULL,
+  `cover_image` varchar(80) DEFAULT NULL,
+  PRIMARY KEY (`num`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
+
+######################### sessions #########################
+CREATE TABLE `sessions` (
+  `session_id` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `expires` int unsigned NOT NULL,
+  `data` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
+  PRIMARY KEY (`session_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
+
+######################### theme playlist #########################
+CREATE TABLE `themeplaylist` (
+  `num` int NOT NULL AUTO_INCREMENT,
+  `themetitle` varchar(45) DEFAULT NULL,
+  `description` varchar(100) DEFAULT NULL,
+  `music` json DEFAULT NULL,
+  `org_cover_image` varchar(80) DEFAULT NULL,
+  `cover_image` varchar(80) DEFAULT NULL,
+  `release_date` date DEFAULT NULL,
+  PRIMARY KEY (`num`)
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb3;
+

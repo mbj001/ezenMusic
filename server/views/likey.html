@@ -1,9 +1,48 @@
 {% extends "layout.html" %}
 
+{% block style %}
+<style>
+    .btn{
+        float: right;
+    }
+    .btn a{
+        text-decoration: none;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 
-<div>
-    <p>{{title}}</p>
-</div>
+<h1>{{title}}</h1>
+
+<!--bootstrap table layout-->
+<table class="table">
+    <a href="/" class="btn btn-secondary">메인</a>
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">조회 가능 아이디</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for list in row %}
+        <tr>    
+            <th scope="row">{{loop.index}}</th>
+            <!-- <th scope="row">{{list.userid}}</th> -->
+            
+            <td>
+                <a href="/likey/likey_view/{{list.userid}}">{{list.userid}}</a>
+                <a href="likey/likey_insert/{{list.userid}}" class="text-white">
+                    <button type="button" class="btn btn-info">
+                        ♥ 추가
+                    </button>
+                </a>
+
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<!--bootstrap table layout-->
 
 {% endblock %}

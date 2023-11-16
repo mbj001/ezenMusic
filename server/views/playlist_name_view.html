@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+{% block style %}
+
+{% endblock %}
+{% block content %}
+
+<h1>재생목록</h1>
+<h2 class="text-danger">ID : {{title}}</h2>
+<a href="/playlist" class="btn btn-secondary">돌아가기</a>
+
+<!--bootstrap table layout-->
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">재생목록 이름</th>
+            <th scope="col">
+                <form action="/playlist/playlist_name_view/insert" method="post">
+                    <input type="text" name="playlist_name" required>
+                    <input type="hidden" name="userid" id="" value="{{title}}">
+                    <button type="submit">추가</button>
+                </form>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for r in row %}
+        <tr>    
+            <th scope="row">{{loop.index}}</th>
+            <!-- <td>{{k_music_title}}</td> -->
+            <td>{{r.playlist_name}}</td>
+            <td class="float-right">
+                <a href="/playlist/playlist_name_view/playlist_list_view/{{r.playlist_name}}&{{userid}}" class="text-white" name="{{r.playlist_name}}">
+                    <button type="button" class="btn btn-primary">
+                        조회하기
+                    </button>
+                </a>
+                <form action="/playlist/playlist_name_view/delete/{{r.playlist_name}}" method="post">
+                    <input type="hidden" name="userid" value="{{userid}}">
+                    <button type="submit" class="btn btn-danger">
+                        삭제하기
+                    </button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<!--bootstrap table layout-->
+
+{% endblock %}

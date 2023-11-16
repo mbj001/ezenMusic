@@ -1,9 +1,58 @@
+<!--
+    num : 아티스트 넘버
+    class :그룹/싱글
+    singer: 아티스트 이름
+    gender:성별 
+    genre:장르
+-->
 {% extends "layout.html" %}
 
 {% block content %}
-
-<div>
-    <p>{{title}}</p>
+{% block style %}
+<link rel="stylesheet" href="css/bootstrap.css">
+<!-- <link rel="stylesheet" href="css/client.css"> -->
+{% endblock %}
+<!--bootstrap table layout-->
+<div class="container">
+    <h1>{{title}}</h1>
+    <div class="d-flex justify-content-end my-5">
+        <a href="/" class="btn btn-primary mx-2">Home</a>
+        <a href="/artist/artist_write" class="btn btn-success">Artist create</a>
+     </div>
 </div>
+<form action="/artist" method="POST"  class="row">
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">num</th>
+            <th scope="col">artist</th>
+            <th scope="col">class</th>
+            <th scope="col">gender</th>
+            <th scope="col">genre</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for rs in row %}
+        <tr class="table">    
+                <td id="artist_num">{{rs.artist_num}}</td>
+                <td>{{rs.artist}}</td>
+                <td>{{rs.artist_class}}</td>
+                <td>{{rs.artist_gender}}</td>
+                <td>{{rs.genre}}</td>
+                <td><a href="/artist/artist_edit/{{rs.artist_num}}" class="editbtn">수정</a></td>
+                <td><button type="submit" class="delbtn">삭제</button></td>
+        </tr>
+        <input type="hidden" id="artist_num" name="artist_num" value="{{rs.artist_num}}"/>
+        {% endfor %}
+    </tbody>
+</table>
+</form>
+</div>
+
+<!--bootstrap table layout-->
+
+{% endblock %}
+
+{% block script %}
 
 {% endblock %}

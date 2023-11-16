@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h1>{{title}}님의 좋아요 추가 (테스트 용)</h1>
+
+<!--bootstrap table layout-->
+<form action="/likey/likey_insert/{{title}}" method="post">
+    <label for="">노래 추가</label>
+    <input type="number" name="add_list" id="add_list">
+
+    <button type="submit">추가</button>
+</form>
+<!--bootstrap table layout-->
+
+{% endblock %}

@@ -1,0 +1,10 @@
+[{"genre_id":1, "area":"kpop", "genre":"ballade", "devision":"\uc778\uae30", "full_genre":"\uad6d\ub0b4 \ubc1c\ub77c\ub4dc", "org_cover_image":"genre01.jpg"},
+ {"genre_id":2, "area":"kpop", "genre":"ballade", "devision":"\ucd5c\uc2e0", "full_genre":"\uad6d\ub0b4 \ubc1c\ub77c\ub4dc", "org_cover_image":"genre02.jpg"},
+ {"genre_id":3, "area":"pop", "genre":"pop", "devision":"\uc778\uae30", "full_genre":"\ud574\uc678 \ud31d", "org_cover_image":"genre03.jpg"},
+ {"genre_id":4, "area":"pop", "genre":"pop", "devision":"\ucd5c\uc2e0", "full_genre":"\ud574\uc678 \ud31d", "org_cover_image":"genre04.jpg"},
+ {"genre_id":5, "area":"kpop", "genre":"dance", "devision":"\uc778\uae30", "full_genre":"\uad6d\ub0b4 \ub304\uc2a4/\uc77c\ub809", "org_cover_image":"genre05.jpg"},
+ {"genre_id":6, "area":"kpop", "genre":"dance", "devision":"\ucd5c\uc2e0", "full_genre":"\uad6d\ub0b4 \ub304\uc2a4/\uc77c\ub809", "org_cover_image":"genre06.jpg"},
+ {"genre_id":7, "area":"kpop", "genre":"R&B", "devision":"\uc778\uae30", "full_genre":"\uad6d\ub0b4 \uc54c\uc564\ube44", "org_cover_image":"genre07.jpg"},
+ {"genre_id":8, "area":"kpop", "genre":"R&B", "devision":"\ucd5c\uc2e0", "full_genre":"\uad6d\ub0b4 \uc54c\uc564\ube44", "org_cover_image":"genre08.jpg"},
+ {"genre_id":9, "area":"pop", "genre":"hiphop", "devision":"\uc778\uae30", "full_genre":"\ud574\uc678 \ud799\ud569", "org_cover_image":"genre09.jpg"},
+ {"genre_id":10, "area":"pop", "genre":"hiphop", "devision":"\ucd5c\uc2e0", "full_genre":"\ud574\uc678 \ud799\ud569", "org_cover_image":"genre10.jpg"}]
