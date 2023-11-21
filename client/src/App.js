@@ -11,6 +11,7 @@ export const SetAppContext = createContext();
 
 const App = () => {
     const [ isSessionValid, setIsSessionValid ] = useState(window.localStorage.getItem('login'));
+    console.log(isSessionValid);
 
     const initializeSessions = async() => {
         console.log('초기화');
@@ -19,7 +20,7 @@ const App = () => {
         console.log(initSession);
         // console.log(typeof(getCookie('client.sid')));
         // console.log(typeof(window.localStorage.getItem('login')));
-        /**
+        /** 
          * localstorage = false 인데 브라우저에 쿠키 존재할 경우
          * 쿠키에 저장되어있는 값들 서버에 보내고 해당 토큰과 일치하는 세션 있는지 확인후 삭제 요청
          * 서버에 해당 토큰과 일치하는 세션 없다? ok 그럼 그냥 쿠키 삭제
@@ -28,6 +29,7 @@ const App = () => {
          */
         if((window.localStorage.getItem('login') === 'false') && (getCookie('client.sid') || getCookie('connect.sid'))){ 
             //로컬스토리지 false 인데 쿠키 하나라도 존재 -> 서버에 삭제요청 후 브라우저 쿠키도 삭제
+            console.log('여기');
             const removeInvalidSessions = await axios.post('http://localhost:8080/verifiedClient/removeInvalidSessions', {token: getCookie('connect.sid'), clientsid: getCookie('client.sid')});
             console.log(removeInvalidSessions);
             removeCookie('connect.sid');

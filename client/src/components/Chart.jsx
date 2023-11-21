@@ -5,6 +5,7 @@ import { StyledBrowser, StyledTableth } from '../pages/Browse';
 import { Link } from 'react-router-dom';
 import { RiPlayLine, RiPlayFill, RiPlayListAddFill, RiFolderAddLine, RiMore2Line, RiMusic2Line, RiAlbumLine, RiMicLine, RiHeart3Line, RiProhibitedLine } from "react-icons/ri";
 import MusicListCard from '../card/MusicListCard';
+import MusicListHeader from '../card/MusicListHeader';
 
 function Chart({genre_id}) {
 
@@ -12,6 +13,7 @@ function Chart({genre_id}) {
     const [chartlist, setChartlist] = useState([]);
     const [firstchartImg, setFirstchartImg] = useState("");
     const [totalNum, setTotalNum] = useState(0)
+    const [allcheckVal, setAllcheckVal] = useState(false);
 
 
     useEffect(() => {
@@ -38,7 +40,7 @@ function Chart({genre_id}) {
         <>
         {
             chartinfo.map((item, index) => (
-                <StyledDetail>
+                <StyledDetail key={index} className='md:w-[1000px] xl:w-[1280px] 2xl:w-[1440px]'>
                     <div className="mb-[40px]">
                         <div className="flex items-center p-[30px]">
                             <img src={"/image/album/"+firstchartImg} alt="cover_image" className="w-[230px] h-[230px] rounded-[25px]" />
@@ -55,36 +57,14 @@ function Chart({genre_id}) {
                         </div>
                         
                     </div>
-                     <div className="mb-[40px]">
-                        {/* {
-                            initNum === ""?
-                                <div>
-                                    <Link to={"/detail/channel/" + item.num + ""} className="active rounded-[20px] px-[15px] py-[7px] mr-[10px] text-gray-600 font-normal" onClick={(e) => setInitNum("")}>곡</Link>
-                                    <Link to={"/detail/channel/" + item.num + "/comments"} className="rounded-[20px] px-[15px] py-[7px] mr-[10px] text-gray-600 font-normal" onClick={(e) => setInitNum("comments")}>댓글</Link>
-                                </div>
-                                :
-                                <div>
-                                    <Link to={"/detail/channel/" + item.num + ""} className="rounded-[20px] px-[15px] py-[7px] mr-[10px] text-gray-600 font-normal" onClick={(e) => setInitNum("")}>곡</Link>
-                                    <Link to={"/detail/channel/" + item.num + "/comments"} className="active rounded-[20px] px-[15px] py-[7px] mr-[10px] text-gray-600 font-normal" onClick={(e) => setInitNum("comments")}>댓글</Link>
-                                </div>
-
-                        } */}
+                    <div className="mb-[40px]">
                     </div>
-                    {/*
-                    {
-                        initNum === "details"?
-                            <Details id={item.id} title={item.title} composer={item.composer} lyricist={item.lyricist} arranger={item.arranger} lyrics={item.lyrics}/>
-                            :
-                            <Similar genre={item.genre} music_id={item.id}/>
-                    } */}
                 </StyledDetail>
             ))
         }
-        <StyledBrowser className="relative">
+        <StyledBrowser className="relative md:w-[1000px] xl:w-[1280px] 2xl:w-[1440px]">
             <div className="mb-3">
                 <div className="flex items-center cursor-pointer">
-                    {/* <p className="chart-title">EzenMusic 차트</p>
-                    <p className="text-slate-400 text-[12px] ml-[10px]">24시간 집계 (16시 기준)</p> */}
                     <RiPlayLine className="all-play-icon absolute top-[2px] left-[0px]"/>
                     <p className="ml-[25px] text-[14px] text-gray-500">전체듣기</p>
                 </div>
@@ -92,21 +72,11 @@ function Chart({genre_id}) {
             <div>
                 <hr className="text-gray-500"/>
                 <table className="table table-hover">
-                    <thead className="h-[50px] align-middle ">
-                        <tr className="">
-                            <StyledTableth scope="col" className="text-center w-[5%]"><input type="checkbox" /></StyledTableth>
-                            <StyledTableth scope="col"><p>곡/앨범</p></StyledTableth>
-                            <StyledTableth scope="col"><p>아티스트</p></StyledTableth>
-                            <StyledTableth scope="col" className="text-center"><p>듣기</p></StyledTableth>
-                            <StyledTableth scope="col" className="text-center"><p>재생목록</p></StyledTableth>
-                            <StyledTableth scope="col" className="text-center"><p>내 리스트</p></StyledTableth>
-                            <StyledTableth scope="col" className="text-center"><p>더보기</p></StyledTableth>
-                        </tr>
-                    </thead>
+                    <MusicListHeader lank={false} setAllcheckVal={setAllcheckVal} />
                     <tbody>
                         {
                             chartlist.map((item, index) => (
-                                <MusicListCard title={item.title} album_title={item.album_title} artist={item.artist} img={item.org_cover_image} music_id={item.id} />
+                                <MusicListCard key={index} title={item.title} album_title={item.album_title} artist_num={item.artist_num} artist={item.artist} img={item.org_cover_image} music_id={item.id} album_id={item.album_id} check_all={allcheckVal} />
                             ))
                         }
                     </tbody>

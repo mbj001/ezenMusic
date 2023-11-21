@@ -10,6 +10,7 @@ import Album from '../components/Album';
 import Channel from '../components/Channel';
 import Chart from '../components/Chart';
 import Artist from "../components/Artist";
+import DetailMylist from '../components/DetailMylist';
 
 function Detail() {
     
@@ -22,7 +23,7 @@ function Detail() {
     }
     else if(track === "album"){
         return (
-            <Album music_id={music_id} details={details} />
+            <Album album_id={music_id} details={details} />
         )
     }
     else if(track === "channel"){
@@ -40,7 +41,11 @@ function Detail() {
             <Artist  details={details} music_id={music_id}/>
         )
     }
-
+    else if(track === "detailmylist"){
+        return (
+            <DetailMylist playlist_id={music_id} />
+        )
+    }
     
 }
 

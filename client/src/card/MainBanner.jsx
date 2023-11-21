@@ -14,12 +14,6 @@ import MainBannerMusic from './MainBannerMusic';
 const MainBanner = () => {
     const [themeplaylist, setThemeplaylist] = useState([]);
     const [thememusic, setThememusic] = useState([]);
-    // const [themeplaylist, setThemeplaylist] = useRef([]);
-    // const [thememusic, setThememusic] = useRef([]);
-    let array = [];
-    let array2;
-
-
 
     useEffect(() => {
         Axios.get("http://localhost:8080/ezenmusic/mainbanner")
@@ -29,7 +23,6 @@ const MainBanner = () => {
         .catch((err) => {
             console.log("에러");
         })
-
     }, [])
 
 
@@ -78,28 +71,6 @@ const MainBanner = () => {
                         )
                     })
                 }
-                {/* loop */}
-
-                {/* <SwiperSlide className='slide2'>
-                    <StyledLink to={""}>
-                        슬라이드2
-                    </StyledLink>
-                </SwiperSlide>
-                <SwiperSlide className='slide3'>
-                    <StyledLink to={""}>
-                        슬라이드3
-                    </StyledLink>
-                </SwiperSlide>
-                <SwiperSlide className='slide4'>
-                    <StyledLink to={""}>
-                        슬라이드4
-                    </StyledLink>
-                </SwiperSlide>
-                <SwiperSlide className='slide5'>
-                    <StyledLink to={""}>
-                        슬라이드5
-                    </StyledLink>
-                </SwiperSlide> */}
             </Swiper>
         </StyledBanner>
     )

@@ -7,13 +7,13 @@ function MainBannerMusic({num}) {
     const [thememusic, setThememusic] = useState([]);
 
     useEffect(() => {
-            Axios.get("http://localhost:8080/ezenmusic/mainbannermusic/" + num)
-            .then(({data}) => {
-                setThememusic(data);
-            })
-            .catch((err) => {
-                console.log("에러");
-            })
+        Axios.get("http://localhost:8080/ezenmusic/mainbannermusic/" + num)
+        .then(({data}) => {
+            setThememusic(data);
+        })
+        .catch((err) => {
+            console.log("에러");
+        })
     },[])
     return (
         <>

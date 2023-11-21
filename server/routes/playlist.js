@@ -168,6 +168,32 @@ router.post('/playlist_name_view/playlist_list_view/delete/:music', (req, res) =
 
 // })
 
-router.get('plalylist_name_view/playlise_list_view')
+
+router.get('/storage/mylist/:userid', (req, res) =>{
+    console.log("routes => playlist.js => router.get('/storage/mylist/:userid')");
+    const {userid} = req.params;
+    const sql = `select num, playlist_name, playlist from playlist where userid = ${userid}`;
+    conn.query(sql, (err, row) =>{
+        if(err){
+            console.log(err);
+        }else{
+            // console.log(row);
+            res.send(row);
+        }
+    })
+});
+
+router.get('/detail/detailmylist/:num', (req, res) =>{
+    const {num} = req.params;
+    const sql = `select playlist_name, playlist, thumbnail_music from playlist where num = ${num}`;
+    conn.query(sql, (err, row) =>{
+        if(err){
+            console.log(err);
+        }else{
+            // console.log(row);
+            res.send(row);
+        }
+    })
+})
 
 module.exports = router;

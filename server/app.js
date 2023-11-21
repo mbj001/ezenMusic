@@ -108,14 +108,16 @@ app.use(passport.session());
 passportConfig();
 
 app.use("/", MainRouter);
-app.use("/album", AlbumRouter);
-app.use("/artist", ArtistRouter);
-app.use("/client", ClientRouter);
+app.use("/album", isLoggedIn, AlbumRouter);
+app.use("/artist", isLoggedIn, ArtistRouter);
+app.use("/client", isLoggedIn, ClientRouter);
 app.use("/likey", LikeyRouter);
-app.use("/music", MusicRouter);
+// app.use("/likey", isLoggedIn, LikeyRouter);
+app.use("/music", isLoggedIn, MusicRouter);
 app.use("/playlist", PlaylistRouter);
+// app.use("/playlist", isLoggedIn, PlaylistRouter);
 app.use("/ezenmusic", EzenmusicRouter);
-app.use("/themeplaylist", ThemeplaylistRouter);
+app.use("/themeplaylist", isLoggedIn, ThemeplaylistRouter);
 app.use("/guest", GuestRouter);
 app.use('/verifiedClient', verify, VerifiedRouter);
 

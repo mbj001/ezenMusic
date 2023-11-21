@@ -60,6 +60,7 @@ const SignIn = () => {
             isAdmin: 'client'
         };
         const recievedData = await axios.post(`http://localhost:8080/login`,sendDataToServer);
+        console.log("Login ReciveData");
         console.log(recievedData);
         if(recievedData.data.loginSucceed){
             console.log('로그인 성공!!!');

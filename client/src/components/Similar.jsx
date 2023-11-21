@@ -11,7 +11,6 @@ function Similar({genre, music_id}) {
     useEffect(() => {
         Axios.get("http://localhost:8080/ezenmusic/similar/"+genre)
         .then(({data}) => {
-            console.log("**")
             setSimilarMusic(data);
         })
         .catch((err) => {
@@ -23,8 +22,6 @@ function Similar({genre, music_id}) {
         <StyledBrowser className="relative">
             <div className="mb-3">
                 <div className="flex items-center cursor-pointer">
-                    {/* <p className="chart-title">EzenMusic 차트</p>
-                    <p className="text-slate-400 text-[12px] ml-[10px]">24시간 집계 (16시 기준)</p> */}
                     <RiPlayLine className="all-play-icon absolute top-[2px] left-[0px]"/>
                     <p className="ml-[25px] text-[14px] text-gray-500">전체듣기</p>
                 </div>
@@ -46,7 +43,7 @@ function Similar({genre, music_id}) {
                     <tbody>
                         {
                             similarMusic.map((item, index) => (
-                                <MusicListCard title={item.title} album_title={item.album_title} artist={item.artist} img={item.org_cover_image} music_id={item.id} />
+                                <MusicListCard key={index} title={item.title} album_id={item.album_id} artist_num={item.artist_num} album_title={item.album_title} artist={item.artist} img={item.org_cover_image} music_id={item.id} />
                             ))
                         }
                     </tbody>

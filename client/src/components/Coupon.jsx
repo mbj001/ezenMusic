@@ -23,7 +23,7 @@ const Coupon = () => {
     return (
         <div>
             {
-                !loginStatus ? 
+                loginStatus === 'false' ? 
                 <div className='flex flex-col align-items-center justify-center my-[150px]'>
                     <EmptyMusic />
                     <p className='font-semibold my-2'>로그인해주세요</p>

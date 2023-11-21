@@ -52,23 +52,23 @@ function Header() {
                 
                 <div className='header-link-area flex align-items-center justify-start px-10'>
                     <div className=''>
-                        <Link to="/browse" className="header-chart-link mr-10">
-                            둘러보기
+                        <Link to="/browse" className="header-chart-link mr-8">
+                            <span className="text-[15px]">둘러보기</span>
                         </Link>
                     </div>
                     <div className=''>
-                        <Link to="/storage" className="header-chart-link mr-10">
-                            보관함
+                        <Link to="/storage/mylist" className="header-chart-link mr-8">
+                            <span className="text-[15px]">보관함</span>
                         </Link>
                     </div>
                     <div className=''>
                         <Link to="/purchase/voucher" className="header-chart-link">
-                            이용권
+                            <span className="text-[15px]">이용권</span>
                         </Link>
                     </div>
                 </div>
 
-                <form className="search-box col-6 position-relative">
+                <form className="search-box col-6 position-relative mt-[2px]">
                     <RiSearchLine />
                     <form action={"/search/all"} onSubmit={searchSubmit}>
                         <input type="text" id='search' name="keyward" className="block col-4 header-search" placeholder='검색어를 입력하세요' value={inputVal} onChange={(e) => setInputVal(e.target.value)} />
@@ -81,13 +81,13 @@ function Header() {
             <div className='header-right-side'>
                 { 
                     loginStatus ==='false' ?             
-                    <Link to="/signin" className="header-login-link">로그인</Link>
+                    <Link to="/signin" className="header-login-link text-[12px]">로그인</Link>
                     :
                     <button type='button' onClick={logout} className="header-login-link">로그아웃</button>
                 }
                 {
                     loginStatus === 'false' ?             
-                    <Link to="/signup" className="header-login-link">회원가입</Link>
+                    <Link to="/signup" className="header-login-link text-[12px]">회원가입</Link>
                     :
                     <Link to="/myinfo/password" className="header-login-link">내정보</Link>
                     
@@ -98,12 +98,15 @@ function Header() {
 }
 
 export default Header
+const HeaderCover = styled.div`
+    width: 100vw;
+    padding: 0 80px;
+`;
 
 const StyledHeader = styled.div`
-    width: 1440px;
     min-width: 950px;
     height: 100px;
-    margin: 0 auto;
+    margin: 0px auto;
     position: sticky; 
     top: 0;
     left: 0;
@@ -137,7 +140,8 @@ const StyledHeader = styled.div`
                 left: 10px;
             }
             .header-search{
-                border: 1px solid var(--main-text-gray);;
+                // border: 1px solid var(--main-text-gray);;
+                border: 1px solid #dbdbdb;
                 border-radius: 20px;
                 padding-left: 30px;
                 padding-top: 5px;
@@ -152,7 +156,7 @@ const StyledHeader = styled.div`
         .header-login-link{
             color: var(--main-text-gray);
             text-decoration: none;
-            font-size: 14px;
+            // font-size: 14px;
             margin-left: 30px;
             &:hover{
                 color: var(--main-theme-color);

@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 function Details({id, title, composer, lyricist, arranger, lyrics}) {
 
     return (
-    <StyledDetails>
+    <StyledDetails className='md:w-[1000px] xl:w-[1280px] 2xl:w-[1440px]'>
 
         <div>
             <p><span className="mr-[15px]">곡명</span> <span className="text-gray-600 font-normal text-[14px]">{title}</span></p>
@@ -52,7 +52,7 @@ function Details({id, title, composer, lyricist, arranger, lyrics}) {
 }
 
 const StyledDetails = styled.div`
-    width: 1440px;
+    // width: 1440px;
     margin: 0 auto;
 
     img{

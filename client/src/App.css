@@ -17,10 +17,13 @@
     --pagination-dot: #3f3fff;
     
     --main-theme-color: #3f3fff;
-
+    --kakao-theme-color: #FEE500;
     --purchase-box-color: #f4f5f8;
     /* size setting */
     --font-size: 18px;
+    
+    /* --swiper-navigation-size: 12px; */
+
 }
 /************* Default CSS *************/
 *{
@@ -69,6 +72,7 @@ input:focus, textarea:focus, select:focus{
 }
 body::-webkit-scrollbar, div::-webkit-scrollbar{
     /* display: block; */
+    /* color: rgb(196, 196, 196); */
 }
 /************* Settings for Responsible *************/
 

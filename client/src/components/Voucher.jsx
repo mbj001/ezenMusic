@@ -155,7 +155,6 @@ const Voucher = () => {
                                         <BuyButton>구매</BuyButton>
                                     </div>
                                 </div>
-                                
                             </div>
                         </div>
                     </div>

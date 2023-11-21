@@ -26,10 +26,13 @@ module.exports = () =>{
                 password: process.env.MYSQL_PASS,
                 database: process.env.MYSQL_DB,
             });
+            console.log(configLogin);
             if(configLogin.isAdmin === 'administrator'){
                 const selectAdminQuery = `SELECT adminid, adminpw FROM administrator WHERE adminid = '${inputAdminId}'`;
                 const [selectedInfo] = await pool.query(selectAdminQuery);
+                console.log("*");
                 if(selectedInfo){
+                    
                     if(selectedInfo[0].adminpw == inputAdminPw){ 
                         console.log(selectedInfo);
                         verifiedUserInfo.id = selectedInfo[0].adminid;

@@ -1,63 +1,59 @@
 import React, {useState, useEffect} from 'react'
 import Axios from 'axios'
-import MusicListCard from '../card/MusicListCard';
+import ArtistAlbumTrack from '../card/ArtistAlbumTrack';
 import styled from 'styled-components';
 import { RiPlayLine, RiPlayFill, RiPlayListAddFill, RiFolderAddLine, RiMore2Line, RiArrowDownSLine, RiArrowUpSLine } from "react-icons/ri";
 import { StyledBrowser, StyledTableth } from '../pages/Browse';
+import { Link } from "react-router-dom";
 
 
-function ArtistTrack({artist_num, music_id}) {
 
-    const [artistTrackMusic, setartistTrackMusic] = useState([]);
+function ArtistAlbum({detail, artist, artist_num}) {
 
-    console.log(music_id);
-
+    const [artistAlbumtrack, setartistAlbumtrack] = useState([]);
     useEffect(() => {
-        Axios.get("http://localhost:8080/ezenmusic/detail/artist/artistalbum" +music_id)
-        .then(({data}) => {
-            console.log("**")
-            setartistTrackMusic(data);
+        Axios.get("http://localhost:8080/ezenmusic/detail/artist/albumtrack/"+ artist)
+            .then(({ data }) => {
+                setartistAlbumtrack(data)
+            })
+            .catch((err) => {
+            console.error(err)
         })
-        .catch((err) => {
-            {}
-        })
-    }, [])
+    },[])
 
     return (
         <StyledBrowser className="relative">
             <div className="mb-3">
                 <div className="flex items-center cursor-pointer">
-                    {/* <p className="chart-title">EzenMusic 차트</p>
-                    <p className="text-slate-400 text-[12px] ml-[10px]">24시간 집계 (16시 기준)</p> */}
-                    <RiPlayLine className="all-play-icon absolute top-[2px] left-[0px]"/>
-                    <p className="ml-[25px] text-[14px] text-gray-500">전체듣기</p>
                 </div>
             </div>
-            <div>
-                <hr className="text-gray-500"/>
-                <table className="table table-hover">
-                    <thead className="h-[50px] align-middle ">
-                        <tr className="">
-                            <StyledTableth scope="col" className="text-center w-[5%]"><input type="checkbox" /></StyledTableth>
-                            <StyledTableth scope="col"><p>곡/앨범</p></StyledTableth>
-                            <StyledTableth scope="col"><p>아티스트</p></StyledTableth>
-                            <StyledTableth scope="col" className="text-center"><p>듣기</p></StyledTableth>
-                            <StyledTableth scope="col" className="text-center"><p>재생목록</p></StyledTableth>
-                            <StyledTableth scope="col" className="text-center"><p>내 리스트</p></StyledTableth>
-                            <StyledTableth scope="col" className="text-center"><p>더보기</p></StyledTableth>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {
-                            artistTrackMusic.map((item, index) => (
-                                <MusicListCard title={item.title} album_title={item.album_title} artist={item.artist} img={item.org_cover_image} music_id={item.id} />
-                            ))
+            <div className="artist_Album_track relative">
+                <StyledAlbum className="absolute">
+                        <button type="submit" className="m-3 rounded-[20px] mr-[10px] text-gray-500 cursor-pointer hover:text-blue-500">전체</button>
+                        <button type="submit" className="m-3 rounded-[20px] mr-[10px] text-gray-500 cursor-pointer hover:text-blue-500">최신순</button>
+                        <button type="submit" className="m-3 rounded-[20px] mr-[10px] text-gray-500 cursor-pointer hover:text-blue-500">인기순</button>
+                        <button type="submit" className="m-3 rounded-[20px] mr-[10px] text-gray-500 cursor-pointer hover:text-blue-500">가나다순</button>
+                </StyledAlbum>
+                <ul className="block">
+                {
+                    artistAlbumtrack.map((item, index) => (
+                        <ArtistAlbumTrack key={index} title={item.title} album_title={item.album_title} artist_num={artist_num} artist={item.artist} img={item.org_cover_image} album_id={item.album_id}/>
+                    ))
                         }
-                    </tbody>
-                </table>
+                </ul>
             </div>
+
         </StyledBrowser>
     )
 }
-
-export default ArtistTrack
+const StyledAlbum = styled.div`
+    font-size: 16px;
+    font-weight: 400;
+    right: 0;
+    /* text-decoration: none;
+    list-style: none; */
+`
+const StyledAlbumUl = styled.ul`
+    
+`
+export default ArtistAlbum

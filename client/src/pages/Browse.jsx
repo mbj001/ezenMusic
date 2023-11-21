@@ -2,6 +2,7 @@ import React, {useState, useEffect} from 'react'
 import styled from 'styled-components'
 import { RiPlayLine, RiPlayFill, RiPlayListAddFill, RiFolderAddLine, RiMore2Line, RiArrowDownSLine, RiArrowUpSLine } from "react-icons/ri";
 import MusicListCard from '../card/MusicListCard';
+import MusicListHeader from '../card/MusicListHeader';
 import GenreCard from '../card/GenreCard';
 import { genreData, chartData } from '../data/playlistData';
 import { Link, useParams } from 'react-router-dom';
@@ -11,13 +12,14 @@ const Browse = () => {
 
     const [showMore, setShowMore] = useState(false);
     const [flochartData, setFlochartData] = useState([]);
+    const [allcheckVal, setAllcheckVal] = useState(false);
 
     let activeNum = useParams().genre_num;
     
     if(!activeNum){
         activeNum = "1";
     }
-    
+
     useEffect(() => {
         Axios.get("http://localhost:8080/ezenmusic/flochart/"+activeNum)
         .then(({data}) => {
@@ -31,19 +33,18 @@ const Browse = () => {
 
     return (
         <>
-        <div className="w-[1440px] m-auto flex flex-wrap mt-4 mb-5">
+        <div className="md:w-[1000px] xl:w-[1280px] 2xl:w-[1440px] m-auto flex flex-wrap mt-4 mb-5">
             {
                 genreData.map((item, index) => (
-                    
                     parseInt(activeNum) === parseInt(item.genre_num) ?
-                    <Link to={"/browse/"+item.genre_num}><GenreCard genre={item.genre} active="true" /></Link>
+                    <Link key={index} to={"/browse/"+item.genre_num}><GenreCard genre={item.genre} active="true" /></Link>
                     :
-                    <Link to={"/browse/"+item.genre_num}><GenreCard genre={item.genre} /></Link>
+                    <Link key={index} to={"/browse/"+item.genre_num}><GenreCard genre={item.genre} /></Link>
                 ))
             }
         </div>
 
-        <StyledBrowser className="relative">
+        <StyledBrowser className="relative md:w-[1000px] xl:w-[1280px] 2xl:w-[1440px]">
             <div className="mb-3">
                 <div className="flex items-center">
                     <p className="chart-title">EzenMusic 차트</p>
@@ -57,27 +58,16 @@ const Browse = () => {
             <div>
                 <hr className="text-gray-500"/>
                 <table className="table table-hover">
-                    <thead className="h-[50px] align-middle ">
-                        <tr className="">
-                            <StyledTableth scope="col" className="text-center w-[5%]"><input type="checkbox" /></StyledTableth>
-                            <StyledTableth scope="col" className="text-center w-[8%]"><p>순위</p></StyledTableth>
-                            <StyledTableth scope="col"><p>곡/앨범</p></StyledTableth>
-                            <StyledTableth scope="col"><p>아티스트</p></StyledTableth>
-                            <StyledTableth scope="col" className="text-center"><p>듣기</p></StyledTableth>
-                            <StyledTableth scope="col" className="text-center"><p>재생목록</p></StyledTableth>
-                            <StyledTableth scope="col" className="text-center"><p>내 리스트</p></StyledTableth>
-                            <StyledTableth scope="col" className="text-center"><p>더보기</p></StyledTableth>
-                        </tr>
-                    </thead>
+                    <MusicListHeader lank={true} setAllcheckVal={setAllcheckVal} />
                     <tbody>
                         {
                             showMore?
                             flochartData.map((item, index) => (
-                                <MusicListCard lank={index+1} title={item.title} album_title={item.album_title} artist={item.artist} img={item.org_cover_image} music_id={item.id}/>
+                                <MusicListCard key={index} lank={index+1} title={item.title} album_title={item.album_title} artist_num={item.artist_num} artist={item.artist} img={item.org_cover_image} music_id={item.id} album_id={item.album_id} check_all={allcheckVal}/>
                             ))
                             :
                             flochartData.map((item, index) => (
-                                <MusicListCard lank={index+1} title={item.title} album_title={item.album_title} artist={item.artist} img={item.org_cover_image} music_id={item.id}/>
+                                <MusicListCard key={index} lank={index+1} title={item.title} album_title={item.album_title} artist_num={item.artist_num} artist={item.artist} img={item.org_cover_image} music_id={item.id} album_id={item.album_id} check_all={allcheckVal}/>
                             )).filter((item, index) => (index < 10))
                         }
                     </tbody>
@@ -114,7 +104,7 @@ export const StyledTableth = styled.th`
 
 
 export const StyledBrowser = styled.div`
-    width: 1440px;
+    // width: 1440px;
     margin: 0 auto;
     // border: 1px solid black;
 

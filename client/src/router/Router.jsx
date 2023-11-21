@@ -27,7 +27,9 @@ import ChangePhone from '../components/ChangePhone';
 import EmailSignUp from '../components/EmailSignUp';
 import KakaoSignUp from '../components/KakaoSignUp';
 // import PostTest from '../pages/PostTest';
-
+import Likey from '../components/Likey';
+import Mylist from '../components/Mylist';
+import DetailMylist from '../components/DetailMylist';
 
 const Router = () => {
     return (
@@ -49,7 +51,10 @@ const Router = () => {
                             <Route path=":music_id" element={<Detail />} />
                         </Route> */}
                     </Route>
-                    <Route path='/storage' element={ <Storage /> } />
+                    <Route path='/storage' element={<Storage />} >
+                        <Route path='mylist' element={ <Mylist /> } /> 
+                        <Route path='likey' element={ <Likey /> } />
+                    </Route>
                     <Route path='/purchase' element={ <Purchase /> } >
                         <Route path='voucher' element={ <Voucher/> } />
                         <Route path='promotion' element={ <Promotion/> } />

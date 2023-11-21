@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import Axios from 'axios';
 import styled from 'styled-components';
 import { RiPlayLine, RiPlayFill, RiPlayListAddFill, RiFolderAddLine, RiMore2Line, RiMusic2Line, RiAlbumLine, RiMicLine, RiHeart3Line, RiProhibitedLine } from "react-icons/ri";
@@ -11,7 +11,7 @@ function Track({music_id, details}) {
     const [detailMusic, setDetailMusic] = useState([]);
 
     const [initNum, setInitNum] = useState();
-
+    
     if(!initNum){
         setInitNum(details);
     }
@@ -32,14 +32,14 @@ function Track({music_id, details}) {
         <>
         {
             detailMusic.map((item, index) => (
-                <StyledDetail>
+                <StyledDetail key={index} className='md:w-[1000px] xl:w-[1280px] 2xl:w-[1440px]'>
                     <div>
                         <div className="flex items-center p-[30px]">
                             <img src={"/image/album/"+item.org_cover_image} alt="cover_image" className="w-[230px] h-[230px] rounded-[10px]" />
                             <div className="m-[30px]">
                                 <p className="detail-title mb-[10px]">{item.title}</p>
                                 <p className="font-normal">{item.artist}</p>
-                                <Link to={"/detail/album/" + music_id + "/albumtrack"}><p className="font-light text-gray-600">{item.album_title}</p></Link>
+                                <Link to={"/detail/album/" + item.album_id + "/albumtrack"}><p className="font-light text-gray-600">{item.album_title}</p></Link>
                                 <div className="flex mt-[50px] ">
                                     <RiPlayListAddFill className="mr-[10px] text-[24px] text-gray-500 cursor-pointer hover:text-blue-500" />
                                     <RiFolderAddLine className="mx-[10px] text-[24px] text-gray-500 cursor-pointer hover:text-blue-500" />
@@ -81,7 +81,7 @@ function Track({music_id, details}) {
 export default Track
 
 export const StyledDetail = styled.div`
-    width: 1440px;
+    // width: 1440px;
     margin: 0 auto;
 
     .detail-title{

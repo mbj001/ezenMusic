@@ -12,7 +12,7 @@
         </a>
     </div>
     <p>
-        # 
+        <a href="/logout" class="btn btn-outline-dark">로그아웃</a>
     </p>
     <div class="d-flex justify-content-between">
         <a href="/" type="button" class="btn btn-outline-primary">메인</a>
@@ -58,9 +58,11 @@
             <div class="form-group">
                 <label>이용권 select</label>
                 <select id="ticket_type" name="ticket_type" class="form-control" >
+                    <option value="none">이용권 없음</option>
+                    <option value="1day">1일</option>
                     <option value="1week">1주</option>
                     <option value="2weeks">2주</option>
-                    <option value="1month">1달</option>
+                    <option value="1month">1개월</option>
                     <option value="50songs">50곡</option>
                     <option value="100songs">100곡</option>
                 </select>
@@ -125,9 +127,11 @@
                         <td>
                             <select name="ticket_type{{loop.index}}" class="ticket_type_update form-control" >
                                 <option value="{{list.ticket_type}}" selected>{{list.ticket_type}}</option>
+                                <option value="none">이용권 없음</option>
+                                <option value="1day">1일</option>
                                 <option value="1week">1주</option>
                                 <option value="2weeks">2주</option>
-                                <option value="1month">1달</option>
+                                <option value="1month">1개월</option>
                                 <option value="50songs">50곡</option>
                                 <option value="100songs">100곡</option>
                             </select>
