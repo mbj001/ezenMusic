@@ -5,39 +5,41 @@ import styled from 'styled-components';
 import axios from 'axios'
 import { AppContext } from '../App'
 import { getCookie } from '../config/cookie'
-import { logoutMethod } from '../methods/logout'
+import { sessionExpiredLogoutMethod } from '../methods/sessionExpired';
 import { Link, NavLink, Outlet } from 'react-router-dom';
+import { voucherSwitch } from '../methods/voucherSwitch';
+import WithDraw from '../modal/WithDraw';
 
 const MyInfo = () => {
-    const isSessionValid = Boolean(useContext(AppContext));
+    const isSessionValid = JSON.parse(useContext(AppContext));
     const [ userData, setUserData ] = useState('');
     const [ userTicket, setUserTicket ] = useState(true);
-    console.log('isSessionValid: '+isSessionValid);
+    const [ withdrawModalOpen, setWithdrawModalOpen ] = useState(false);
+    // console.log('isSessionValid: '+isSessionValid);
     
     const getdata = async () =>{
         const id = getCookie('client.sid');
         const token = getCookie('connect.sid');
-        await axios.post(`http://localhost:8080/verifiedClient/info`,{userid: id, token: token}).then((res)=>{
-            if(res.data.valid == false){
-                console.log('세션이 만료되어 자동 로그아웃됩니다.');
-                logoutMethod(true);
+        await axios.post(`http://localhost:8080/verifiedClient/info`,{id: id, token: token}).then((res)=>{
+            if(res.data.valid === false){
+                // console.log('세션이 만료되어 자동 로그아웃됩니다.');
+                sessionExpiredLogoutMethod(true);
             }else{
-                const clientDataFromServer = res.data;
-                if(clientDataFromServer.ticket_type === 'none'){
-                    clientDataFromServer.ticket_type = '이용권 없음'
-                    setUserTicket(false);
-                }
+                const clientDataFromServer = res.data;   
+                console.log(clientDataFromServer);             
+                clientDataFromServer.plan_type = voucherSwitch(clientDataFromServer.plan_type);
                 setUserData(clientDataFromServer);
             }
         }).catch((error)=>{console.log(error)});
+    }
+    const withdraw = () => {
+        setWithdrawModalOpen(true);
     }
 
     useEffect(()=>{
         getdata();
     },[]);
-    useEffect(()=>{
-        console.log(userData);
-    }, [userData]);
+
     return (
         <WiderMainStyledSection>
             {
@@ -50,12 +52,12 @@ const MyInfo = () => {
                                 {userData.email}
                             </div>
                             <div className='user-ticket'>
-                                {userData.ticket_type}
+                                {userData.plan_type}
                             </div>
                         </div>
                         
                         {
-                            !userTicket ? 
+                            userData.purchase === 0 ? 
                             <div className='move-purchase-link w-[100px]'>
                                 <Link to={'../purchase/voucher'}>이용권 구매</Link>
                             </div>
@@ -73,7 +75,10 @@ const MyInfo = () => {
                             </NavLink>
                         </div>
                         <div className='withdraw'>
-                            회원탈퇴
+                            <button onClick={withdraw}>
+                                회원탈퇴
+                            </button>
+                            {withdrawModalOpen && <WithDraw setModalOpen={setWithdrawModalOpen}/>}
                         </div>
                     </ChangeUserInfo>
                     <Outlet />
@@ -157,5 +162,13 @@ const ChangeUserInfo = styled.div`
     .nav-menu.active{
         background-color: var(--main-theme-color);
         color: var(--main-text-white);
+    }
+    .withdraw{
+        &:hover{
+            color: var(--main-theme-color);
+        }
+        button{
+
+        }
     }
 `;

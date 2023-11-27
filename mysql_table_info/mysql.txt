@@ -22,7 +22,7 @@ CREATE TABLE `album` (
   `publisher` varchar(50) DEFAULT NULL,
   `agency` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`album_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8mb3;
 
 
 
@@ -37,27 +37,25 @@ CREATE TABLE `artist` (
   `artist_gender` varchar(45) DEFAULT NULL,
   `genre` varchar(30) DEFAULT NULL,
   PRIMARY KEY (`artist_num`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb3;
 
 
 
-######################### client #########################
+######################### expired_voucher #######################
 
-CREATE TABLE `client` (
-  `username` varchar(40) NOT NULL,
-  `userid` varchar(45) NOT NULL,
-  `userpw` varchar(45) NOT NULL,
-  `birth` date DEFAULT NULL,
-  `email` varchar(45) DEFAULT NULL,
-  `phone` varchar(45) DEFAULT NULL,
-  `ticket_date` date DEFAULT NULL,
-  `ticket_num` int DEFAULT NULL,
-  `ticket_type` varchar(45) DEFAULT NULL,
-  PRIMARY KEY (`userid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+CREATE TABLE `expired_voucher` (
+  `num` int NOT NULL AUTO_INCREMENT,
+  `user_id` varchar(45) DEFAULT NULL,
+  `purchase_date` datetime NOT NULL,
+  `renewal_date` datetime NOT NULL,
+  `plan_type` varchar(45) NOT NULL,
+  `remaining_number` int DEFAULT NULL,
+  PRIMARY KEY (`num`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3
 
 
 ######################### genre_table #########################
+
 CREATE TABLE `genre_table` (
   `genre_id` int NOT NULL AUTO_INCREMENT,
   `area` varchar(45) DEFAULT NULL,
@@ -72,15 +70,30 @@ CREATE TABLE `genre_table` (
 ######################### likey #########################
 
 CREATE TABLE `likey` (
+  `likey_id` int NOT NULL AUTO_INCREMENT,
   `userid` varchar(40) NOT NULL,
+  `division` varchar(40) NOT NULL,
   `music_list` json DEFAULT NULL,
-  PRIMARY KEY (`userid`)
+  PRIMARY KEY (`likey_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb3;
+
+
+######################### member #######################
+
+CREATE TABLE `member` (
+  `user_id` varchar(45) NOT NULL,
+  `name` varchar(40) NOT NULL,
+  `password` varchar(100) DEFAULT NULL,
+  `birth` date NOT NULL,
+  `email` varchar(45) NOT NULL,
+  `phone` varchar(45) NOT NULL,
+  `purchase` tinyint(1) DEFAULT NULL,
+  PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 
-
-
 ######################### music #########################
+
 CREATE TABLE `music` (
   `id` varchar(45) NOT NULL,
   `title` varchar(45) DEFAULT NULL,
@@ -100,19 +113,30 @@ CREATE TABLE `music` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 
-######################### playlist #########################
-CREATE TABLE `playlist` (
-  `num` int NOT NULL AUTO_INCREMENT,
-  `userid` varchar(45) DEFAULT NULL,
-  `playlist_name` varchar(45) DEFAULT NULL,
-  `music` json DEFAULT NULL,
-  `org_cover_image` varchar(80) DEFAULT NULL,
-  `cover_image` varchar(80) DEFAULT NULL,
-  PRIMARY KEY (`num`)
+######################### playerlist #########################
+
+CREATE TABLE `playerlist` (
+  `userid` varchar(45) NOT NULL,
+  `now_play_music` varchar(45) NOT NULL,
+  `music_list` json DEFAULT NULL,
+  PRIMARY KEY (`userid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 
+######################### playlist #########################
+
+CREATE TABLE `playlist` (
+  `playlist_id` int NOT NULL AUTO_INCREMENT,
+  `userid` varchar(45) DEFAULT NULL,
+  `playlist_name` varchar(45) DEFAULT NULL,
+  `thumbnail_image` varchar(100) DEFAULT NULL,
+  `playlist` json DEFAULT NULL,
+  PRIMARY KEY (`playlist_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb3;
+
+
 ######################### sessions #########################
+
 CREATE TABLE `sessions` (
   `session_id` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `expires` int unsigned NOT NULL,
@@ -121,7 +145,20 @@ CREATE TABLE `sessions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 
+######################### standby_voucher ######################
+
+CREATE TABLE `standby_voucher` (
+  `user_id` varchar(45) NOT NULL,
+  `purchase_date` datetime NOT NULL,
+  `renewal_date` datetime NOT NULL,
+  `plan_type` varchar(45) NOT NULL,
+  `remaining_number` int DEFAULT NULL,
+  PRIMARY KEY (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
+
 ######################### theme playlist #########################
+
 CREATE TABLE `themeplaylist` (
   `num` int NOT NULL AUTO_INCREMENT,
   `themetitle` varchar(45) DEFAULT NULL,
@@ -131,5 +168,17 @@ CREATE TABLE `themeplaylist` (
   `cover_image` varchar(80) DEFAULT NULL,
   `release_date` date DEFAULT NULL,
   PRIMARY KEY (`num`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb3;
+
+
+######################### voucher ############################
+
+CREATE TABLE `voucher` (
+  `user_id` varchar(45) NOT NULL,
+  `purchase_date` datetime NOT NULL,
+  `renewal_date` datetime NOT NULL,
+  `plan_type` varchar(45) NOT NULL,
+  `remaining_number` int DEFAULT NULL,
+  PRIMARY KEY (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 

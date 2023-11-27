@@ -2,8 +2,7 @@ import React, {useState, useEffect} from 'react'
 import Axios from "axios"
 import { Swiper, SwiperSlide } from 'swiper/react';
 import styled from 'styled-components';
-// import { StyledBanner, StyledLink } from './MainBanner';
-import { FreeMode, Navigation, Pagination } from 'swiper/modules';
+import { FreeMode, Navigation } from 'swiper/modules';
 import { Link } from 'react-router-dom';
 
 import 'swiper/css';
@@ -65,14 +64,14 @@ function TodayReleaseBanner() {
                                 <img src={"/image/album/" + moodplaylist_first[index].org_cover_image} alt="" className="todayimg w-[100%] h-[100%] m-auto rounded-[10px]" />
                             </div>
                             <p className="text-[14px]">{moodplaylist_first[index].album_title}</p>
-                            <p className="text-[13px] text-gray-400">{moodplaylist_first[index].artist}</p>
+                            <p className="text-[13px] text-gray">{moodplaylist_first[index].artist}</p>
                         </StyledMoodLink>
                         <StyledMoodLink to={"/detail/album/" + moodplaylist_twice[index].album_id + "/albumtrack"} className='row mb-[30px]'>
                             <div className="mb-[10px] col">
                                 <img src={"/image/album/" + moodplaylist_twice[index].org_cover_image} alt="" className="todayimg w-[100%] h-[100%] m-auto rounded-[10px]" />
                             </div>
                             <p className="text-[14px]">{moodplaylist_twice[index].album_title}</p>
-                            <p className="text-[13px] text-gray-400">{moodplaylist_twice[index].artist}</p>
+                            <p className="text-[13px] text-gray">{moodplaylist_twice[index].artist}</p>
                         </StyledMoodLink>
                     </SwiperSlide>
                 ))

@@ -24,10 +24,18 @@ function SearchLyrics({keyward, page}) {
             else{
                 setHaslyrics(true);
                 if(page === "all"){
-                    for(let i=0; i<5; i++){
-                        array.push(data[i])
+                    if(data.length < 5){
+                        for(let i=0; i<data.length; i++){
+                            array.push(data[i]);
+                        }
                     }
-                    setSearchLyrics(array);
+                    else{
+                        for(let i=0; i<5; i++){
+                            array.push(data[i]);
+                        }
+                        setSearchLyrics(array);
+                        console.log(array);
+                    }
                 }
                 else{
                     setSearchLyrics(data);

@@ -6,7 +6,8 @@ import { Link } from 'react-router-dom'
 import axios from 'axios'
 import { AppContext, SetAppContext } from '../App'
 import LoginFailure from '../modal/LoginFailure'
-import { getCookie, setCookie } from '../config/cookie'
+import { setCookie } from '../config/cookie'
+import Loading from '../components/Loading'
 
 const SignIn = () => {
     const isSessionValid = useContext(AppContext); 
@@ -25,6 +26,7 @@ const SignIn = () => {
     const passwordInput = useRef();
     const iconRef = useRef();
     const checkBoxRef = useRef();
+
     const showpass = (e) =>{ 
         e.preventDefault();
         iconRef.current.classList.toggle('d-none');
@@ -34,7 +36,6 @@ const SignIn = () => {
             passwordInput.current.type = 'password';
         }
     }
-    
 
     const loginSubmit = async(e) => {
         e.preventDefault();
@@ -60,7 +61,6 @@ const SignIn = () => {
             isAdmin: 'client'
         };
         const recievedData = await axios.post(`http://localhost:8080/login`,sendDataToServer);
-        console.log("Login ReciveData");
         console.log(recievedData);
         if(recievedData.data.loginSucceed){
             console.log('로그인 성공!!!');
@@ -120,6 +120,7 @@ const SignIn = () => {
 
     return (
         <MainStyledSection>
+            {loading && <Loading />}
             {modalOpen && <LoginFailure setModalOpen={setModalOpen}/>}
             <div className="h-[700px] flex align-items-center justify-center pt-10">
                 <LoginFormCover className='login-form border-2 w-[700px] h-[600px]'>
@@ -142,7 +143,7 @@ const SignIn = () => {
                                     <input type="checkbox" id='rememberId' name='remember-id' className='remember-login-info' ref={checkBoxRef}/>
                                     <span className='ml-5 text-md'>아이디 저장</span>
                                 </div>
-                                <button type='submit' id='loginButton' className='submit-able'>
+                                <button type='submit' id='loginButton' className={ idInput.current?.value && userInputPassword !== '' ? 'submit-able active' : 'submit-able'}>
                                     로그인
                                 </button>
                             </form>

@@ -36,21 +36,6 @@ router.get("/playlist_name_view/:userid", (req, res) =>{
         if(err){
             console.log(err);
         }else{
-            // console.log(row[0].playlist_name);
-            // console.log(userid);
-            // const playlist = Object.values(row[0].playlist_name);
-            // // string 타입으로 반환되어 comma로 구분한 배열로 변경
-            // console.log(typeof(playlist[0]));
-            // const arr = playlist[0].split(',');
-
-            // console.log(Array.isArray(arr));
-            // console.log(arr);
-            // console.log(typeof(arr));
-            let playlist;
-            // for(i = 0; i < ; i++){
-            //     row[0].playlist_name;
-            //     console.log(row);
-            // }
             console.log(row);
 
             res.render('playlist_name_view', {title: userid, userid, row});
@@ -146,33 +131,14 @@ router.post('/playlist_name_view/playlist_list_view/delete/:music', (req, res) =
     })
 })
 
-// router.get('/playlist_name_view/playlist_list_view/:playlist_name', (req, res) =>{
-//     const {playlist_name} = req.params;
-//     console.log(playlist_name)
-    
-//     const finding_playlist_name_sql = `select playlist_list from playlist where playlist_name = ?`;
-    
-//     conn.query(finding_playlist_name_sql, [playlist_name], (err, row, fields) =>{
-//         if(err){
-//             console.log(error);
-//         }else{
-//             console.log(row[0].playlist_name[1] );
-//             list = row[0].playlist_name;
-//             for(i = 0; i < list.length; i ++){
-//                 console.log(list[i]);
-//             }
-//             const finding_playlist_list_sql = `select playlist from playlist where playlist_name = ${list}`;
-//         }
-//     })
-//     res.render('playlist_list_view', {title: 'userid', row});
 
-// })
-
+// 클라이언트 단
 
 router.get('/storage/mylist/:userid', (req, res) =>{
     console.log("routes => playlist.js => router.get('/storage/mylist/:userid')");
     const {userid} = req.params;
-    const sql = `select num, playlist_name, playlist from playlist where userid = ${userid}`;
+    console.log(userid)
+    const sql = `select playlist_id, playlist_name, playlist from playlist where userid = ${userid}`;
     conn.query(sql, (err, row) =>{
         if(err){
             console.log(err);
@@ -183,15 +149,145 @@ router.get('/storage/mylist/:userid', (req, res) =>{
     })
 });
 
-router.get('/detail/detailmylist/:num', (req, res) =>{
-    const {num} = req.params;
-    const sql = `select playlist_name, playlist, thumbnail_music from playlist where num = ${num}`;
+router.get('/detail/detailmylist/:playlist_id', (req, res) =>{
+    console.log("routes => playlist.js => router.get('/detail/detailmylist:userid')");
+    const {playlist_id} = req.params;
+    const sql = `select playlist_name, playlist, thumbnail_image from playlist where playlist_id = ${playlist_id}`;
     conn.query(sql, (err, row) =>{
         if(err){
             console.log(err);
         }else{
             // console.log(row);
             res.send(row);
+        }
+    })
+})
+
+router.post(`/storage/mylist/`, (req, res) =>{
+    console.log(`routes => playlist.js => router.post('/storage/mylist')`);
+    const {userid} = req.body;
+    let {date} = req.body;
+    // console.log(req.body);
+    const select_playlist_sql = `select playlist_name from playlist where userid = '${userid}'`;
+    conn.query(select_playlist_sql, (err, select_playlist_result) =>{
+        console.log(select_playlist_result);
+        for(i = 0; i < select_playlist_result.length; i++){
+            if(date == select_playlist_result[i].playlist_name){
+                date = `${date}(${i + 1})` 
+            };
+        }
+        let insert_playlist_sql = "insert into playlist(userid, playlist_name) values('" + userid + "', '" + date + "')";
+        // console.log(insert_playlist_sql);
+        conn.query(insert_playlist_sql, (err, insert_playlist_result) =>{
+            // console.log(insert_playlist_result);
+            let select_playlist_sql2 = `select playlist_id from playlist where userid = '${userid}'`
+            conn.query(select_playlist_sql2, (err, select_playlist_result2) =>{
+                // console.log(select_playlist_result2);
+                res.send(select_playlist_result2);
+            })
+        })
+    })
+});
+
+
+router.post(`/browse/addplaylist/`, (req, res) =>{
+    console.log(`routes => playlist.js => router.post('/browse/addplaylist')`);
+    // console.log(req.body);
+    // const {userid} = req.params;
+    const select_playlist_sql = `select * from playlist where ?`
+    conn.query(select_playlist_sql, [{userid: req.body.userid}], (err, select_playlist_sql_result) =>{
+        if(err){
+            console.log(err);
+        }else{
+            // console.log('11');
+            // console.log(select_playlist_sql_result.length);
+            let selected = "where playlist_id = " + select_playlist_sql_result[0].playlist_id;
+            if(select_playlist_sql_result.length <= 1){
+                const select_playlistname_thumbnailimage_sql = `select playlist_name, thumbnail_image from playlist ${selected}`;
+                conn.query(select_playlistname_thumbnailimage_sql, (err, row) =>{
+                    res.send(row);
+                    // console.log(row);
+                })
+            }else{
+                for(i=1; i < select_playlist_sql_result.length; i++)(
+                    selected += " or playlist_id = " + select_playlist_sql_result[i].playlist_id
+                )
+                const select_playlistname_thumbnailimage_sql = `select playlist_name, thumbnail_image from playlist ${selected}`;
+                conn.query(select_playlistname_thumbnailimage_sql, (err, row) =>{
+                    // console.log(select_playlistname_thumbnailimage_sql)
+                    res.send(row);
+                    console.log(row);
+                })
+            }
+            // console.log(selected);
+
+            // res.send(select_playlist_sql_result);
+        }
+    })
+});
+
+router.post('/browse/addmusictoplaylist/', (req, res) =>{
+    console.log(`routes => playlist.js => router.post('/browse/addmusictoplaylist')`);
+    // console.log(req.body)
+    const {userid, music_id, thumbnail_image, playlist_name} = req.body;
+
+    const sql = `select thumbnail_image, playlist from playlist where ? and ?`
+    conn.query(sql, [{userid}, {playlist_name}], (err, row) =>{
+        if(err){
+            console.log(err);
+        }else{
+            // console.log(playlist_name)
+            // console.log(row);
+
+            // 만약 재생목록이 방금 생성되어 데이터가 없을 때는 push가 안돼서 나타나는 오류를 위한 if문
+            if(row[0].thumbnail_image == null && row[0].playlist == null){
+                // console.log('여기냐?')
+                const sql2 = `update playlist set thumbnail_image = '${thumbnail_image}', playlist = '[${Number(music_id)}]' where userid = '${userid}' and playlist_name = '${playlist_name}'`;
+
+                conn.query(sql2, (err, row) =>{
+                    // console.log(row)
+                    res.send('플레이리스트 추가됨');
+                })
+            }else{
+                
+                let array = row[0].playlist;
+
+                for(let i=0; i<row[0].playlist.length; i++){
+
+                    if( Number(music_id) === row[0].playlist.length ) {
+                        array.splice(i, 1);
+                    }
+                }
+
+                array.push(Number(music_id));
+
+                // console.log(row);
+                // const sql2 = `update playlist set thumbnail_image = '${thumbnail_image}', playlist = '[${row[0].playlist}]' where userid = '${userid}' and playlist_name = '${playlist_name}'`;
+                const sql2 = `update playlist set thumbnail_image = '${thumbnail_image}', playlist = '[${array}]' where userid = '${userid}' and playlist_name = '${playlist_name}'`;
+                // console.log(sql2);
+                conn.query(sql2, (err, row) =>{
+                    // console.log(row)
+                    res.send('플레이리스트 추가됨');
+                })
+            }
+
+        }
+    })
+})
+
+router.post('/browse/addnewmusicandplaylist/', (req, res) =>{
+    console.log(`routes => playlist.js => router.post('/browse/addnewmusicandplaylist')`);
+    const {userid, playlist_name, music_id, thumbnail_image} = req.body;
+    // console.log(req.body);
+
+    const insert_playlist_query = `insert into playlist (userid, playlist_name, thumbnail_image, playlist) values (?, ?, ?, "[?]")`
+    conn.query(insert_playlist_query, [userid, playlist_name, thumbnail_image, Number(music_id)], (err, insert_playlist_result, fields) => {
+        if(err){
+            console.error(err);
+        }
+        else{
+            // console.log(insert_playlist_query);
+            res.json(1);
         }
     })
 })

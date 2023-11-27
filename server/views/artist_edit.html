@@ -19,11 +19,12 @@
         <a href="/artist" class="btn btn-primary mx-2">List</a>
      </div>
     <div class="artist_list">
-         <form action="/artist/artist_edit/{{artist_num}}" method="POST" name="form" id="form">
+         <form action="/artist/artist_edit/{{artist_num}}" method="POST" name="form" id="form" enctype="multipart/form-data">
         <table class="table">
       <thead>
         <tr>
             <th scope="col">num</th>
+            <th scope="col">image</th>
             <th scope="col">singer</th>
             <th scope="col">class</th>
             <th scope="col">gender</th>
@@ -36,6 +37,7 @@
         {% for rs in row %}
         <tr class="insert_list">
             <th scope="col"><input type="text" placeholder="자동증가 입력X" value="{{rs.artist_num}}"></th>
+            <th scope="col"><input type="file" id="artist_img" name="artist_img" value="{{req.body.filename}}"></th>
             <th scope="col"><input type="text" id="artist" name="artist" value="{{rs.artist}}"></th>
             <th scope="col"><input type="text" id="artist_class" name="artist_class" value="{{rs.artist_class}}"></th>
             <th scope="col"><input type="text" id="artist_gender" name="artist_gender" value="{{rs.artist_gender}}"></th>

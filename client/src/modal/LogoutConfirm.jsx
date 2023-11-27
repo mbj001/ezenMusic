@@ -33,7 +33,7 @@ const StyledModal = styled.div`
     z-index: 99999999999999999999999999999999;
     background-color: rgba(0,0,0,0.6);
     .modal-box{
-        position: absolute;
+        position: fixed;
         top: 40%;
         left: 50%;
         transform: translate(-50%, -50%);

@@ -56,10 +56,10 @@ function SearchAlbum({keyward, page}) {
                     
                     <Link to={"/detail/album/"+item.album_id+"/albumtrack"}><img src={"/image/album/"+item.org_cover_image} alt="cover_image" className="w-[175px] h-[175px] rounded-[10px]" /></Link>
                     <div className="ml-[20px]">
-                        <Link to={"/detail/album/"+item.album_id+"/albumtrack"}><p className="font-bold mb-[5px] hover:text-blue-500">{item.album_title}</p></Link>
+                        <Link to={"/detail/album/"+item.album_id+"/albumtrack"}><p className="font-bold mb-[5px] hover-text-blue">{item.album_title}</p></Link>
                         <Link to="#"><p className="text-[14px] mb-[20px] flex items-center">{item.artist}<RiArrowRightSLine className="text-[18px] mt-[3px]" /></p></Link>
                         <p className="text-[13px]">{item.album_size}</p>
-                        <p className="text-[13px] text-gray-500">{item.release_date_format}</p>
+                        <p className="text-[13px] text-gray">{item.release_date_format}</p>
                     </div>
                 </div>
             ))

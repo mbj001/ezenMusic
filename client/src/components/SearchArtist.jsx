@@ -49,7 +49,7 @@ function SearchArtist({keyward, page}) {
                         <img src={"/image/artist/" + item.org_artist_img} alt="artist_img" className="w-[170px] h-[170px] rounded-[50%]"/>
                         <div className="pl-[20px]">
                             <p className="font-bold mb-[10px]">{item.artist}</p>
-                            <p className="text-[11px] text-gray-500 mb-[20px]">{item.artist_class} <span className="mx-[5px]">|</span> {item.artist_gender}</p>
+                            <p className="text-[11px] text-gray mb-[20px]">{item.artist_class} <span className="mx-[5px]">|</span> {item.artist_gender}</p>
                             <div className="flex items-center">
                                 <RiPlayLine className="mt-[2px] mr-[5px] text-[18px]"/>
                                 <p className="text-[13px]">인기곡 듣기</p>

@@ -20,7 +20,7 @@ module.exports = () =>{
             console.log("deserializeUser");
             
             if(req.body?.clientLogin){
-                const selectClientQuery = `SELECT * FROM client WHERE userid = '${req.body.userid}'`;
+                const selectClientQuery = `SELECT * FROM member WHERE user_id = '${req.body.userid}'`;
                 const [clientInfo] = await pool.query(selectClientQuery);
                 done(null, clientInfo);
             }else{

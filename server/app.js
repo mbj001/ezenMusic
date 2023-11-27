@@ -13,6 +13,7 @@
 // npm install express-session
 // npm install express-mysql-session
 // npm install passport-local
+// npm install node-schedule
 
 const express= require("express");
 const path = require("path");
@@ -37,9 +38,90 @@ const ThemeplaylistRouter = require("./routes/themeplaylist")
 const EzenmusicRouter = require("./routes/ezenmusic");
 const GuestRouter = require('./routes/guest');
 const VerifiedRouter = require('./routes/verifiedClient');
+const PlayerHandleRouter = require("./routes/playerHandle");
+
 const { isLoggedIn, isNotLoggedIn} = require("./middleWares/index");
 const passportConfig = require("./passport");
 const {verify} = require('./middleWares/verifyClient');
+const schedule = require('node-schedule');
+const conn = require("./config/mysql");
+
+
+
+const AutoCheckExpiredData = schedule.scheduleJob('1 * * * * *', function() {
+	// console.log("1분에 한번씩 실행");
+    // 만료된 세션 존재하면 여기서 삭제
+
+    // 기간 만료된 이용권은 expired_voucher 테이블로 이동하고 standby_voucher 테이블에 사용대기 이용권 존재하면 가져옴
+    const findExpiredVoucherQuery = `SELECT user_id FROM voucher WHERE renewal_date - now() < 0`;
+    conn.query(findExpiredVoucherQuery, (error, expiredVoucher, fields)=>{
+        if(error){console.log(error)}
+        else{
+            if(expiredVoucher.length >= 1){
+                //뽑아온 데이터가 존재할 경우
+                expiredVoucher.forEach((data)=>{
+                    //loop
+                    // voucher -> expired_voucher 이동
+                    const relocateExpiredVoucherQuery = `INSERT INTO expired_voucher (user_id, purchase_date, renewal_date, plan_type, remaining_number) (SELECT * FROM voucher WHERE user_id = '${data.id}')`;
+                    conn.query(relocateExpiredVoucherQuery, (error, result, fields)=>{
+                        if(error){console.log(error)}
+                        else{
+                            // expired_voucher 로 이동 성공 후 voucher의 기존 데이터 삭제
+                            // 삭제후에 standby_voucher 에 데이터 있으면 voucher로 가져오고 없으면 그냥 삭제 + member purhcase = false
+                            const removeVoucherQuery = `DELETE FROM voucher WHERE user_id = '${data.id}'`;
+                            conn.query(removeVoucherQuery, (error, result, fields)=>{
+                                if(error){console.log(error)}
+                                else{
+                                    const checkStandbyVoucherQuery = `SELECT EXISTS (SELECT * FROM standby_voucher WHERE user_id = '${data.id}') AS isExist`;
+                                    conn.query(checkStandbyVoucherQuery, (error, isExist, fields)=>{
+                                        if(error){console.log(error)}
+                                        else{
+                                            if(isExist[0].isExist){
+                                                const relocateStanbyVoucherQuery = `INSERT INTO voucher (user_id, purchase_date, renewal_date, plan_type, remaining_number) (SELECT * FROM standby_voucher WHERE user_id = '${data.id}')`;
+                                                conn.query(relocateStanbyVoucherQuery, (error, result, fields)=>{
+                                                    if(error){console.log(error)}
+                                                    else{
+                                                        console.log(`${data.id} 's standby_voucher data relocated to voucher !!`);
+                                                        const removeStandbyVoucherQuery = `DELETE FROM standby_voucher WHERE user_id = '${data.id}'`;
+                                                        conn.query(removeStandbyVoucherQuery, (error, result, fields)=>{
+                                                            if(error){console.log(error)}
+                                                            else{
+                                                                console.log(`removed ${data.id} 's standbyVoucher data !!`);
+                                                            }
+                                                        })
+                                                    }
+                                                });
+                                            }else{
+                                                const resetMemberPurchaseQuery = `UPDATE member SET purchase = 0 WHERE user_id = '${data.id}'`;
+                                                conn.query(resetMemberPurchaseQuery, (error, result, fields)=>{
+                                                    if(error){console.log(error)}
+                                                    else{
+                                                        console.log(`${data.id} 's purchase data updated : false`);
+                                                    }
+                                                })
+                                            }
+                                        }
+                                    })
+                                }
+                            });
+                            
+                            // conn.query(`delete from voucher WHERE id = '${data.id}'`, (error, result, fields)=>{
+                            //     if(error){console.log(error)}
+                            //     else{
+                            //         console.log('Relocated expired voucher data !!');
+                            //     }
+                            // })
+                        }
+                    })
+                })
+            }else{
+                //뽑아온 데이터 없음
+                console.log('There is no expired voucher data in database !!');
+            }
+        }
+    })
+});
+
 
 
 try{
@@ -120,6 +202,7 @@ app.use("/ezenmusic", EzenmusicRouter);
 app.use("/themeplaylist", isLoggedIn, ThemeplaylistRouter);
 app.use("/guest", GuestRouter);
 app.use('/verifiedClient', verify, VerifiedRouter);
+app.use("/playerHandle", PlayerHandleRouter);
 
 
 // 에러처리

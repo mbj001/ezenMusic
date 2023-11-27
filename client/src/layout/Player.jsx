@@ -9,12 +9,20 @@ import { FaRandom } from "react-icons/fa";
 import { PiShuffleLight, PiShuffleFill } from "react-icons/pi";
 import { RiPlayList2Fill } from "react-icons/ri";
 import { IoMdPause, IoIosHeartEmpty } from "react-icons/io";
+// import PlayerBanner from '../card/PlayerBanner';
 
 function Player({listenMusic, showPlaylistFunc}) {
 
     const [playBtn, setPlayBtn] = useState(false);
     const btnRef = useRef([]);
     const playbar = useRef(null);
+
+    // const [playerBannerOn, setPlayerBannerOn] = useState(false);
+
+    // useEffect(() => {
+    //     setPlayerBannerOn(true);
+    // }, [playerBannerOn])
+
 
     useEffect(() => {
         function handleClickOutside(e){
@@ -34,15 +42,16 @@ function Player({listenMusic, showPlaylistFunc}) {
     }, [btnRef, playbar])
     
     return (
+        <>
     <StyledPlayerBar className="flex justify-between items-center px-[30px]" ref={playbar}>
         <div className="flex items-center justify-between w-[100%]">
             <div className="col-2 flex items-center">
                 <img src={"/image/album/" + listenMusic.org_cover_image} alt="image" className="w-[45px] h-[45px] rounded-[5px]" />
                 <div className="ml-[10px]">
                     <p className="text-[14px] text-white my-[2px]"><Link to={"/detail/track/" + listenMusic.id + "/details"}>{listenMusic.title}</Link></p>
-                    <p className="text-[10px] text-gray-400">{listenMusic.artist}</p>
+                    <p className="text-[10px] text-gray">{listenMusic.artist}</p>
                 </div>
-                <div ref={element => btnRef.current[7] = element}><IoIosHeartEmpty className="text-gray-600 text-[26px] hover:text-white ml-[15px]"/></div>
+                <div ref={element => btnRef.current[7] = element}><IoIosHeartEmpty className="text-gray text-[26px] hover:text-white ml-[15px]"/></div>
             </div>
             <div className="col-8 justify-center flex items-center">
                 <div ref={element => btnRef.current[0] = element}><BsRepeat className="player-icon text-white text-[20px] mr-[15px] cursor-pointer" /></div>
@@ -57,12 +66,13 @@ function Player({listenMusic, showPlaylistFunc}) {
                 <div ref={element => btnRef.current[4] = element}><PiShuffleFill className="player-icon text-white text-[20px] ml-[20px] cursor-pointer" /></div>
             </div>
             <div className="col-2 justify-end flex items-center">
-                <div ref={element => btnRef.current[5] = element}><IoVolumeHigh className="text-gray-400 text-[22px] mr-[10px] hover:text-white" /></div>
+                <div ref={element => btnRef.current[5] = element}><IoVolumeHigh className="text-gray text-[22px] mr-[10px] hover:text-white" /></div>
                 <div ref={element => btnRef.current[6] = element} className="mt-[-10px]"><input type="range" className="input-range" /></div>
-                <RiPlayList2Fill className="text-gray-500 text-[30px] ml-[30px] cursor-pointer hover:text-white"/>
+                <RiPlayList2Fill className="text-gray text-[30px] ml-[30px] cursor-pointer hover:text-white"/>
             </div>
         </div>
     </StyledPlayerBar>
+        </>
     )
 }
 
@@ -98,7 +108,7 @@ const StyledPlayerBar = styled.div`
       input[type="range"]::-webkit-slider-runnable-track {
         // height: 10px;
         -webkit-appearance: none;
-        color: gray;
+        color: var(--main-text-gray);
         // margin-top: 15px;
       }
       

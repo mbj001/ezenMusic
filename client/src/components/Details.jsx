@@ -7,11 +7,11 @@ function Details({id, title, composer, lyricist, arranger, lyrics}) {
     <StyledDetails className='md:w-[1000px] xl:w-[1280px] 2xl:w-[1440px]'>
 
         <div>
-            <p><span className="mr-[15px]">곡명</span> <span className="text-gray-600 font-normal text-[14px]">{title}</span></p>
+            <p><span className="mr-[15px]">곡명</span> <span className="text-gray font-normal text-[14px]">{title}</span></p>
             <div className="my-[10px]">
             {
                 composer?
-                <p><span className="mr-[15px]">작곡</span> <span className="text-gray-600 font-normal text-[14px]">{composer}</span></p>
+                <p><span className="mr-[15px]">작곡</span> <span className="text-gray font-normal text-[14px]">{composer}</span></p>
                 :
                 ""
             }
@@ -19,7 +19,7 @@ function Details({id, title, composer, lyricist, arranger, lyrics}) {
             <div className="my-[10px]">
             {
                 lyricist?
-                <p><span className="mr-[15px]">작사</span> <span className="text-gray-600 font-normal text-[14px]">{lyricist}</span></p>
+                <p><span className="mr-[15px]">작사</span> <span className="text-gray font-normal text-[14px]">{lyricist}</span></p>
                 :
                 ""
             }
@@ -27,7 +27,7 @@ function Details({id, title, composer, lyricist, arranger, lyrics}) {
             <div className="my-[10px]">
             {
                 arranger?
-                <p><span className="mr-[15px]">편곡</span> <span className="text-gray-600 font-normal text-[14px]">{arranger}</span></p>
+                <p><span className="mr-[15px]">편곡</span> <span className="text-gray font-normal text-[14px]">{arranger}</span></p>
                 :
                 ""
             }
@@ -36,13 +36,13 @@ function Details({id, title, composer, lyricist, arranger, lyrics}) {
         <div className="mt-[50px]">
                 {
                     lyrics?
-                    <p className="lyrics text-gray-600 font-normal text-[14px] leading-[26px]">{lyrics}</p>
+                    <p className="lyrics text-gray font-normal text-[14px] leading-[26px]">{lyrics}</p>
                     :
                     <div className="text-center mt-[100px]">
                         <img src="/image/nolyrics.svg" alt="notintroimage" className="m-auto"/>
                         <div>
                             <p>앗!</p>
-                            <p className="text-[14px] text-gray-400 mt-[10px]">등록된 가사가 없어요.</p>
+                            <p className="text-[14px] text-gray mt-[10px]">등록된 가사가 없어요.</p>
                         </div>
                     </div>
                 }
@@ -70,7 +70,7 @@ const StyledDetails = styled.div`
     }
 
     .active{
-        background-color: blue;
+        background-color: var(--main-theme-color);
         color: white
     }
 `

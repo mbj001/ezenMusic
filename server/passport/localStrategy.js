@@ -1,6 +1,6 @@
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
-
+const bcrypt = require('bcrypt');
 const mysql2 = require("mysql2/promise");
 require("dotenv").config();
 
@@ -47,13 +47,15 @@ module.exports = () =>{
                 }
             }else if(configLogin.isAdmin === 'client'){
                 console.log('localstrategy -> client login');
-                // console.log(inputAdminId);
-                const selectClientQuery = `SELECT userid, userpw FROM client WHERE userid = '${inputAdminId}'`;
+                const selectClientQuery = `SELECT user_id, password FROM member WHERE user_id = '${inputAdminId}'`;
                 const [selectedInfo] = await pool.query(selectClientQuery);
                 console.log(selectedInfo);
-                if(selectedInfo[0]?.userid){
-                    if(selectedInfo[0]?.userpw == inputAdminPw){ 
-                        verifiedUserInfo.id = selectedInfo[0].userid;
+                console.log(inputAdminPw);
+                if(selectedInfo[0]?.user_id){
+                    const doesMatch = await bcrypt.compare(inputAdminPw, selectedInfo[0].password);
+                    console.log(doesMatch)
+                    if(doesMatch){ 
+                        verifiedUserInfo.id = selectedInfo[0].user_id;
                         verifiedUserInfo.isAdmin = 'client';
                         done(null, verifiedUserInfo);
                     }else{

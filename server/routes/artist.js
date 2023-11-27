@@ -1,6 +1,9 @@
 const express = require("express");
 const conn = require("../config/mysql");
+const { single } = require("../upload/upload");
 const router = express.Router();
+const upload = require("../upload/upload")
+const fs = require('fs-extra');
 //
 router.get("/", (req, res) => {
     let setCountsql = `SET @count=0`;
@@ -18,7 +21,7 @@ router.get("/", (req, res) => {
                 })
             }
         })
-    console.log("routes => artist.js => router.get('/')");
+    console.log("routes => artist.js => router.get('/artist')");
     let sql = `select * from artist order by artist_num desc`;
     conn.query(sql, (err, row, fields) => {
         if (err) {
@@ -61,24 +64,20 @@ router.get("/", (req, res) => {
     
 
 router.get("/artist_write", (req, res) => {
+    console.log("routes => artist.js => router.get('/artist_write')")
     res.render("artist_write", { title: "아티스트 추가" });
 })
  // insert
 
-.post("/artist_write", (req, res, next) => {
+.post("/artist_write", upload.single("artist_img"), (req, res) => {
     console.log("routes => artist.js => router.post('/artist_write')");
-    const rs = {
-        artist_num: req.body.artist_num,
-        artist: req.body.artist,
-        artist_class: req.body.artist_class,
-        artist_gender: req.body.artist_gender,
-        artist_genre: req.body.artist_genre
-    }
-    const insertrs = `insert into artist(artist,artist_class,artist_gender,genre) values('${rs.artist}', '${rs.artist_class}', '${rs.artist_gender}', '${rs.artist_genre}');`;
-    conn.query(insertrs, (err, rs) => {
+    const insertrs = `insert into artist (org_artist_img, artist_img, artist, artist_class, artist_gender, genre) values (?,?,?,?,?,?)`;
+    conn.query(insertrs, [req.file.originalname, req.file.filename, req.body.artist, req.body.artist_class, req.body.artist_gender, req.body.artist_genre],(err, rs, fields) => {
         if(err) {
-            console.log(err)
+            console.error(err)
         } else {
+            console.log("아티스트 등록성공")
+            fs.moveSync("./image/tmp/"+req.file.filename, "./image/artist/"+req.file.filename);
             res.redirect("/artist");
         }
     })
@@ -88,6 +87,10 @@ router.get("/artist_write", (req, res) => {
 router.get('/artist_edit/:num', (req, res) => {
     console.log("routes => artist.js => router.get ('/artist_edit/:num')")
     const { num } = req.params;
+    console.log("num: " + num);
+    console.log("typeof(num): " + typeof(num));
+    console.log("parseInt(num): " + parseInt(num));
+    console.log("typeof(parseInt(num)): " + typeof(parseInt(num)));
     let sql = `select * from artist where artist_num = ?`;
     conn.query(sql,[num], (err, row, fields) => {
         if (err) {
@@ -128,22 +131,24 @@ router.get('/artist_edit/:num', (req, res) => {
 // })
     
 // MBJ
-router.post("/artist_edit/:num", (req, res) => {
-        console.log("Data 전송")
-        const { num } = req.params;
-        const rs = req.body;
-    console.log(rs);
-    const sql = `update artist set ?, ?, ?, ? where artist_num = ?`;
-        // conn.query(sql, updateParams, [num], (err, res, fields) => {
-        conn.query(sql, [{ artist: rs.artist }, { artist_class: rs.artist_class }, {artist_gender: rs.artist_gender}, {genre: rs.artist_genre}, num], (err, res, fields) => {
-            if (err) {
-                console.error(err)
-            } else {
-                console.log("업데이트 성공")
-            }
-        })
-        res.redirect("/artist")
-    })
+// router.post("/artist_edit/:num", (req, res) => {
+//         console.log("Data 전송")
+//         const { num } = req.params;
+//         const rs = req.body;
+
+        
+//     console.log(rs);
+//     const sql = `update artist set ?,?,?,?,?,?,? where artist_num = ?`;
+//         // conn.query(sql, updateParams, [num], (err, res, fields) => {
+//         // conn.query(sql, [{org_artist_img: req.body.originalname},{artist_img: req.body.filename},{ artist: rs.artist }, { artist_class: rs.artist_class }, {artist_gender: rs.artist_gender}, {genre: rs.artist_genre}, num], (err, res, fields) => {
+//         //     if (err) {
+//         //         console.error(err)
+//         //     } else {
+//         //         console.log("업데이트 성공")
+//         //     }
+//         // })
+//         // res.redirect("/artist") 
+//     })
 
 // update
 

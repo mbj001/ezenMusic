@@ -2,7 +2,6 @@ import React, {useState, useEffect} from 'react'
 import Axios from "axios"
 import { Swiper, SwiperSlide } from 'swiper/react';
 import styled from 'styled-components';
-// import { StyledBanner, StyledLink } from './MainBanner';
 import { FreeMode, Navigation, Pagination } from 'swiper/modules';
 import { Link } from 'react-router-dom';
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import MainStyledSection from '../layout/MainStyledSection'
 import styled from 'styled-components'
 import { AiOutlineMail } from "react-icons/ai";
@@ -24,9 +24,9 @@ const SignUp = () => {
                         <SignUpWithEmail to={'email'} className='sign-up-with-email mt-12 flex flex-row align-items-center justify-center'>
                             <AiOutlineMail/>이메일 아이디로 가입하기
                         </SignUpWithEmail>
-                        {/* <SignUpWithKakao to={'kakao'} onClick={setChoiceWay('kakao')} className='sign-up-with-kakao mt-4 flex flex-row align-items-center justify-center'>
+                        <SignUpWithKakao to={'kakao'}  className='sign-up-with-kakao mt-4 flex flex-row align-items-center justify-center'>
                             <RiKakaoTalkFill/>카카오 계정으로 로그인
-                        </SignUpWithKakao> */}
+                        </SignUpWithKakao>
                     </div>
                 </div>
             </div>

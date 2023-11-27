@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react'
 import styled from 'styled-components';
 
-function MusicListHeader({lank, setAllcheckVal, page}) {
+function MusicListHeader({lank, setAllcheckVal, page, allcheckVal}) {
 
     function allcheckFunc(e){
         setAllcheckVal(e.target.checked);
@@ -10,7 +10,7 @@ function MusicListHeader({lank, setAllcheckVal, page}) {
     return (
     <thead className="h-[50px] align-middle ">
         <tr className="">
-            <StyledTableth scope="col" className="text-center w-[5%]"><input type="checkbox" id="all-check-box" onClick={allcheckFunc} /></StyledTableth>
+            <StyledTableth scope="col" className="text-center w-[5%]"><input type="checkbox" id="all-check-box" checked={allcheckVal} onClick={allcheckFunc} /></StyledTableth>
             {
                 lank?
                 <StyledTableth scope="col" className="text-center w-[8%]"><p>순위</p></StyledTableth>
@@ -45,7 +45,7 @@ export const StyledTableth = styled.th`
     font-size: 12px;
 
     p{
-        color: gray;
+        color: var(--main-text-gray);
         font-weight: 400;
     }
 `

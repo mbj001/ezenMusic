@@ -1,11 +1,22 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { PurchaseBox } from '../layout/PurchaseBoxLayout'
 import styled from 'styled-components'
 import { BiChevronRight } from 'react-icons/bi'
+import PurchaseVoucher from '../modal/PurchaseVoucher'
+
 
 const Voucher = () => {
+    const [ type, setType ] = useState('');
+    const [ modalOpen, setModalOpen ] = useState(false);
+    
+
+    const handleBuyButton = (e) => {
+        setType(e.target.value);
+        setModalOpen(true);
+    }
     return (
         <div>
+            {modalOpen && <PurchaseVoucher setModalOpen={setModalOpen} plan_type={type}/>}
             <PurchaseBox>
                 <div className="container">
                     <div className='row h-100'>
@@ -34,7 +45,7 @@ const Voucher = () => {
                                             <span className='ml-3 text-[20px]' style={{color:"var(--main-theme-color)"}}>1,500</span>
                                             <span className='mr-6 text-[16px]' style={{color:"var(--main-theme-color)"}}>원</span>
                                         </div>
-                                        <BuyButton>구매</BuyButton>
+                                        <BuyButton value={'oneday'} onClick={handleBuyButton}>구매</BuyButton>
                                     </div>
                                 </div>
                                 <div className="col-12 h-8 mb-8 flex justify-between align-items-center">
@@ -49,7 +60,7 @@ const Voucher = () => {
                                             <span className='ml-3 text-[20px]' style={{color:"var(--main-theme-color)"}}>8,000</span>
                                             <span className='mr-6 text-[16px]' style={{color:"var(--main-theme-color)"}}>원</span>
                                         </div>
-                                        <BuyButton>구매</BuyButton>
+                                        <BuyButton value={'oneweek'} onClick={handleBuyButton}>구매</BuyButton>
                                     </div>
                                 </div>
                                 <div className="col-12 h-8 mb-8 flex justify-between align-items-center">
@@ -64,7 +75,7 @@ const Voucher = () => {
                                             <span className='ml-3 text-[20px]' style={{color:"var(--main-theme-color)"}}>13,000</span>
                                             <span className='mr-6 text-[16px]' style={{color:"var(--main-theme-color)"}}>원</span>
                                         </div>
-                                        <BuyButton>구매</BuyButton>
+                                        <BuyButton value={'twoweek'} onClick={handleBuyButton}>구매</BuyButton>
                                     </div>
                                 </div>
                                 <div className="col-12 h-8 mb-8 flex justify-between align-items-center">
@@ -79,7 +90,7 @@ const Voucher = () => {
                                             <span className='ml-3 text-[20px]' style={{color:"var(--main-theme-color)"}}>17,000</span>
                                             <span className='mr-6 text-[16px]' style={{color:"var(--main-theme-color)"}}>원</span>
                                         </div>
-                                        <BuyButton>구매</BuyButton>
+                                        <BuyButton value={'onemonth'} onClick={handleBuyButton}>구매</BuyButton>
                                     </div>
                                 </div>
                             </div>
@@ -115,7 +126,7 @@ const Voucher = () => {
                                             <span className='ml-3 text-[20px]' style={{color:"var(--main-theme-color)"}}>8,000</span>
                                             <span className='mr-6 text-[16px]' style={{color:"var(--main-theme-color)"}}>원</span>
                                         </div>
-                                        <BuyButton>구매</BuyButton>
+                                        <BuyButton value={'onlyfifty'} onClick={handleBuyButton}>구매</BuyButton>
                                     </div>
                                 </div>
                                 
@@ -152,9 +163,10 @@ const Voucher = () => {
                                             <span className='ml-3 text-[20px]' style={{color:"var(--main-theme-color)"}}>13,000</span>
                                             <span className='mr-6 text-[16px]' style={{color:"var(--main-theme-color)"}}>원</span>
                                         </div>
-                                        <BuyButton>구매</BuyButton>
+                                        <BuyButton value={'onlyhundred'} onClick={handleBuyButton}>구매</BuyButton>
                                     </div>
                                 </div>
+                                
                             </div>
                         </div>
                     </div>

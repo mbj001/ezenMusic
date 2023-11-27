@@ -20,15 +20,15 @@ function Search() {
     <>
     <StyledSearchHeader className="md:w-[1000px] xl:w-[1280px] 2xl:w-[1440px] m-auto">
         <div className="mb-[40px]">
-            <p><span className="font-bold text-[20px]">'{search}'</span> <span className="text-[20px] text-gray-500">검색결과</span></p>
+            <p><span className="font-bold text-[20px]">'{search}'</span> <span className="text-[20px] text-gray">검색결과</span></p>
         </div>
         <div className="mb-[60px]">
-            <NavLink to={"/search/all?keyward=" + search} id="search-actice" className={({ isActive }) => isActive ? "search-nav active" : "search-nav text-gray-600" }>전체</NavLink>
-            <NavLink to={"/search/track?keyward=" + search} id="search-actice" className={({ isActive }) => isActive ? "search-nav active" : "search-nav text-gray-600" }>곡</NavLink>
-            <NavLink to={"/search/album?keyward=" + search} id="search-actice" className={({ isActive }) => isActive ? "search-nav active" : "search-nav text-gray-600" }>앨범</NavLink>
-            <NavLink to={"/search/artist?keyward=" + search} id="search-actice" className={({ isActive }) => isActive ? "search-nav active" : "search-nav text-gray-600" }>아티스트</NavLink>
-            <NavLink to={"/search/theme?keyward=" + search} id="search-actice" className={({ isActive }) => isActive ? "search-nav active" : "search-nav text-gray-600" }>테마리스트</NavLink>
-            <NavLink to={"/search/lyrics?keyward=" + search} id="search-actice" className={({ isActive }) => isActive ? "search-nav active" : "search-nav text-gray-600" }>가사</NavLink>
+            <NavLink to={"/search/all?keyward=" + search} id="search-actice" className={({ isActive }) => isActive ? "search-nav active" : "search-nav text-gray" }>전체</NavLink>
+            <NavLink to={"/search/track?keyward=" + search} id="search-actice" className={({ isActive }) => isActive ? "search-nav active" : "search-nav text-gray" }>곡</NavLink>
+            <NavLink to={"/search/album?keyward=" + search} id="search-actice" className={({ isActive }) => isActive ? "search-nav active" : "search-nav text-gray" }>앨범</NavLink>
+            <NavLink to={"/search/artist?keyward=" + search} id="search-actice" className={({ isActive }) => isActive ? "search-nav active" : "search-nav text-gray" }>아티스트</NavLink>
+            <NavLink to={"/search/theme?keyward=" + search} id="search-actice" className={({ isActive }) => isActive ? "search-nav active" : "search-nav text-gray" }>테마리스트</NavLink>
+            <NavLink to={"/search/lyrics?keyward=" + search} id="search-actice" className={({ isActive }) => isActive ? "search-nav active" : "search-nav text-gray" }>가사</NavLink>
         </div>
         {
             search_params1 === "all" && <SearchAll keyward={search} />
@@ -60,7 +60,7 @@ export const StyledSearchHeader = styled.div`
     margin: 50px auto;
 
     .active{
-        background-color: blue;
+        background-color: var(--main-theme-color);
         color: white
     }
 

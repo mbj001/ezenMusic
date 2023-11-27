@@ -12,38 +12,38 @@ import Chart from '../components/Chart';
 import Artist from "../components/Artist";
 import DetailMylist from '../components/DetailMylist';
 
-function Detail() {
+function Detail({handleRender}) {
     
     const {track, music_id, details} = useParams();
 
     if(track === "track"){
         return (
-            <Track music_id={music_id} details={details} />
+            <Track music_id={music_id} details={details} handleRender={handleRender}/>
         )
     }
     else if(track === "album"){
         return (
-            <Album album_id={music_id} details={details} />
+            <Album album_id={music_id} details={details} handleRender={handleRender}/>
         )
     }
     else if(track === "channel"){
         return (
-            <Channel num={music_id} details={details} />
+            <Channel num={music_id} details={details} handleRender={handleRender}/>
         )
     }
     else if(track === "chart"){
         return (
-            <Chart genre_id={music_id} />
+            <Chart genre_id={music_id} handleRender={handleRender}/>
         )
     }
     else if(track === "artist") {
         return (
-            <Artist  details={details} music_id={music_id}/>
+            <Artist  details={details} music_id={music_id} handleRender={handleRender}/>
         )
     }
     else if(track === "detailmylist"){
         return (
-            <DetailMylist playlist_id={music_id} />
+            <DetailMylist playlist_id={music_id} handleRender={handleRender}/>
         )
     }
     

@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from 'react'
+import React, {useState, useEffect} from 'react'
 import Axios from "axios"
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
@@ -6,9 +6,9 @@ import { Navigation, Pagination } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
+
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
-import { playlistData } from '../data/playlistData';
 import MainBannerMusic from './MainBannerMusic';
 
 const MainBanner = () => {

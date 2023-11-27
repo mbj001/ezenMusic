@@ -10,15 +10,21 @@
 
     --main-text-white: #ffffff;
     --main-text-black: #000000;
-    --main-text-gray: #5e5e5e;
+    --main-text-gray: #7e7e7e;
     --main-text-gray-lighter: #a5a5a5; 
     --main-text-gray-darker: #333333;
+    --modal-text-black: #181818;
+
 
     --pagination-dot: #3f3fff;
     
     --main-theme-color: #3f3fff;
     --kakao-theme-color: #FEE500;
     --purchase-box-color: #f4f5f8;
+    --disabled-button-color: #e1e3e7;
+    --signup-invalid-color: #ff4d78;
+
+    --red-color: #db2359;
     /* size setting */
     --font-size: 18px;
     
@@ -72,7 +78,66 @@ input:focus, textarea:focus, select:focus{
 }
 body::-webkit-scrollbar, div::-webkit-scrollbar{
     /* display: block; */
-    /* color: rgb(196, 196, 196); */
+    /* color: rgb(36, 36, 36); */
+}
+input[type='radio'] {
+    -webkit-appearance: none; 
+    -moz-appearance: none;
+    appearance: none; 
+    width: 14px;
+    height: 14px;
+    border: 1px solid var(--main-text-gray); 
+    border-radius: 50%;
+    outline: none; 
+    cursor: pointer;
+}
+input[type='radio']:checked {
+    background-color: var(--main-theme-color); 
+    border: 3px solid var(--main-background-white);
+    box-shadow: 0 0 0 1px var(--main-text-gray); 
 }
 /************* Settings for Responsible *************/
+
+
+
+/* MBJ */
+.text-blue{ color: var(--main-theme-color); }
+.hover-text-blue:hover{ color: var(--main-theme-color); }
+.bg-blue{ background-color: var(--main-theme-color); }
+.hover-bg-blue:hover{ background-color: var(--main-theme-color); }
+.border-blue{ border-color: var(--main-theme-color); }
+.hover-border-blue:hover{ border-color: var(--main-theme-color); }
+
+
+.text-pink{ color: var(--signup-invalid-color); }
+.hover-text-pink:hover{ color: var(--signup-invalid-color); }
+.bg-pink{ background-color: var(--signup-invalid-color); }
+.hover-bg-pink:hover{ background-color: var(--signup-invalid-color); }
+
+
+.text-gray-light{ color: var(--main-text-gray-lighter);}
+.hover-text-gray-light:hover{ color: var(--main-text-gray-lighter);}
+.bg-gray-light{ background-color: var(--main-text-gray-lighter);}
+.hover-bg-gray-light:hover{ background-color: var(--main-text-gray-lighter);}
+
+
+.text-gray{ color: var(--main-text-gray);}
+.hover-text-gray:hover{ color: var(--main-text-gray);}
+.bg-gray{ background-color: var(--main-text-gray);}
+.hover-bg-gray:hover{ background-color: var(--main-text-gray);}
+.border-gray{ border-color: var(--main-text-gray);}
+.hover-border-gray:hover{ border-color: var(--main-text-gray);}
+
+
+
+
+
+
+
+
+
+
+
+
+
 

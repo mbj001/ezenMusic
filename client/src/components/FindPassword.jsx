@@ -126,7 +126,7 @@ const FindFormCover = styled.div`
             width: 70%;
             height: 70px;
             margin-bottom: 20px;
-            border-bottom: 1px solid #aaaaaa;
+            border-bottom: 1px solid #ebebeb;
             &:focus{
                 outline: 3px solid #333 !important;
                 border-radius: 3px;
@@ -139,7 +139,7 @@ const FindFormCover = styled.div`
             width: 70%;
             height: 70px;
             margin-bottom: 20px;
-            border-bottom: 1px solid #aaaaaa;
+            border-bottom: 1px solid #ebebeb;
             &:focus{
                 outline: 3px solid #333 !important;
                 border-radius: 3px;

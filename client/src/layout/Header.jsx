@@ -26,15 +26,15 @@ function Header() {
     const removeServerSession = async() =>{
         try{
             const isRemovedServerSession = await axios.post('http://localhost:8080/verifiedClient/logout', {token: getCookie('connect.sid')});
-            console.log(isRemovedServerSession);
-            if(isRemovedServerSession.data === 'ok'){
+            
+            if(isRemovedServerSession.data.logoutSuccess){
                 return true;
             }else{
                 return false;
             }
         }catch(error){
             console.log(error);
-            alert('로그아웃에 실패했습니다.');
+            alert('서버와 연결에 실패했습니다. 잠시후에 시도해주세요.');
             window.location = '/';
         }
     }
@@ -83,13 +83,13 @@ function Header() {
                     loginStatus ==='false' ?             
                     <Link to="/signin" className="header-login-link text-[12px]">로그인</Link>
                     :
-                    <button type='button' onClick={logout} className="header-login-link">로그아웃</button>
+                    <button type='button' onClick={logout} className="header-login-link text-[12px]">로그아웃</button>
                 }
                 {
                     loginStatus === 'false' ?             
                     <Link to="/signup" className="header-login-link text-[12px]">회원가입</Link>
                     :
-                    <Link to="/myinfo/password" className="header-login-link">내정보</Link>
+                    <Link to="/myinfo/password" className="header-login-link text-[12px]">내정보</Link>
                     
                 }
             </div>

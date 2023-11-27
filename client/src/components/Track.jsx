@@ -2,11 +2,11 @@ import React, {useState, useEffect} from 'react'
 import { Link } from 'react-router-dom'
 import Axios from 'axios';
 import styled from 'styled-components';
-import { RiPlayLine, RiPlayFill, RiPlayListAddFill, RiFolderAddLine, RiMore2Line, RiMusic2Line, RiAlbumLine, RiMicLine, RiHeart3Line, RiProhibitedLine } from "react-icons/ri";
+import { RiPlayListAddFill, RiFolderAddLine, RiHeart3Line, RiProhibitedLine } from "react-icons/ri";
 import Details from './Details';
 import Similar from './Similar';
 
-function Track({music_id, details}) {
+function Track({music_id, details, handleRender}) {
 
     const [detailMusic, setDetailMusic] = useState([]);
 
@@ -39,12 +39,12 @@ function Track({music_id, details}) {
                             <div className="m-[30px]">
                                 <p className="detail-title mb-[10px]">{item.title}</p>
                                 <p className="font-normal">{item.artist}</p>
-                                <Link to={"/detail/album/" + item.album_id + "/albumtrack"}><p className="font-light text-gray-600">{item.album_title}</p></Link>
+                                <Link to={"/detail/album/" + item.album_id + "/albumtrack"}><p className="font-light text-gray">{item.album_title}</p></Link>
                                 <div className="flex mt-[50px] ">
-                                    <RiPlayListAddFill className="mr-[10px] text-[24px] text-gray-500 cursor-pointer hover:text-blue-500" />
-                                    <RiFolderAddLine className="mx-[10px] text-[24px] text-gray-500 cursor-pointer hover:text-blue-500" />
-                                    <RiHeart3Line className="mx-[10px] text-[24px] text-gray-500 cursor-pointer hover:text-blue-500" />
-                                    <RiProhibitedLine className="ml-[10px] text-[24px] text-gray-500 cursor-pointer hover:text-blue-500" />
+                                    <RiPlayListAddFill className="mr-[10px] text-[24px] text-gray cursor-pointer hover-text-blue" />
+                                    <RiFolderAddLine className="mx-[10px] text-[24px] text-gray cursor-pointer hover-text-blue" />
+                                    <RiHeart3Line className="mx-[10px] text-[24px] text-gray cursor-pointer hover-text-blue" />
+                                    <RiProhibitedLine className="ml-[10px] text-[24px] text-gray cursor-pointer hover-text-blue" />
                                 </div>
                             </div>
                         </div>
@@ -54,13 +54,13 @@ function Track({music_id, details}) {
                         {
                             initNum === "details" || initNum === undefined?
                                 <div>
-                                    <Link to={"/detail/track/" + item.id + "/details"} className="active rounded-[20px] px-[15px] py-[7px] mr-[10px] text-gray-600 font-normal" onClick={(e) => setInitNum("details")}>상세정보</Link>
-                                    <Link to={"/detail/track/" + item.id + "/similar"} className="rounded-[20px] px-[15px] py-[7px] mr-[10px] text-gray-600 font-normal" onClick={(e) => setInitNum("similar")}>유사곡</Link>
+                                    <Link to={"/detail/track/" + item.id + "/details"} className="active rounded-[20px] px-[15px] py-[7px] mr-[10px] text-gray font-normal" onClick={(e) => setInitNum("details")}>상세정보</Link>
+                                    <Link to={"/detail/track/" + item.id + "/similar"} className="rounded-[20px] px-[15px] py-[7px] mr-[10px] text-gray font-normal" onClick={(e) => setInitNum("similar")}>유사곡</Link>
                                 </div>
                                 :
                                 <div>
-                                    <Link to={"/detail/track/" + item.id + "/details"} className="rounded-[20px] px-[15px] py-[7px] mr-[10px] text-gray-600 font-normal" onClick={(e) => setInitNum("details")}>상세정보</Link>
-                                    <Link to={"/detail/track/" + item.id + "/similar"} className="active rounded-[20px] px-[15px] py-[7px] mr-[10px] text-gray-600 font-normal" onClick={(e) => setInitNum("similar")}>유사곡</Link>
+                                    <Link to={"/detail/track/" + item.id + "/details"} className="rounded-[20px] px-[15px] py-[7px] mr-[10px] text-gray font-normal" onClick={(e) => setInitNum("details")}>상세정보</Link>
+                                    <Link to={"/detail/track/" + item.id + "/similar"} className="active rounded-[20px] px-[15px] py-[7px] mr-[10px] text-gray font-normal" onClick={(e) => setInitNum("similar")}>유사곡</Link>
                                 </div>
 
                         }
@@ -69,7 +69,7 @@ function Track({music_id, details}) {
                         initNum === "details"?
                             <Details id={item.id} title={item.title} composer={item.composer} lyricist={item.lyricist} arranger={item.arranger} lyrics={item.lyrics}/>
                             :
-                            <Similar genre={item.genre} music_id={item.id}/>
+                            <Similar genre={item.genre} music_id={item.id} handleRender={handleRender}/>
                     }
                 </StyledDetail>
             ))
@@ -94,7 +94,7 @@ export const StyledDetail = styled.div`
     }
 
     .active{
-        background-color: blue;
+        background-color: var(--main-theme-color);
         color: white
     }
 `

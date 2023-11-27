@@ -1,22 +1,26 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import MainStyledSection from '../layout/MainStyledSection'
 import { Outlet, NavLink } from 'react-router-dom'
 import styled from 'styled-components'
+import { AppContext } from '../App'
 
 const Purchase = () => {
+    const isSessionValid = JSON.parse(useContext(AppContext));
+    
+
     return (
         <MainStyledSection>
             <PurchaseHeader className='purchase-nav-bar'>
-                <NavLink to='voucher' className={({ isActive }) => isActive ? "nav-menu active" : "nav-menu"}>
+                <NavLink to={{pathname: 'voucher'}} className={({ isActive }) => isActive ? "nav-menu active" : "nav-menu"}>
                     일반
                 </NavLink>
-                <NavLink to='promotion' className={({ isActive }) => isActive ? "nav-menu active" : "nav-menu"}>
+                <NavLink to={{pathname: 'promotion'}} className={({ isActive }) => isActive ? "nav-menu active" : "nav-menu"}>
                     이벤트
                 </NavLink>
-                <NavLink to='my' className={({ isActive }) => isActive ? "nav-menu active" : "nav-menu"}>
+                <NavLink to={{pathname: 'my'}} className={({ isActive }) => isActive ? "nav-menu active" : "nav-menu"}>
                     나의 이용권
                 </NavLink>
-                <NavLink to='coupon' className={({ isActive }) => isActive ? "nav-menu active" : "nav-menu"}>
+                <NavLink to={{pathname: 'coupon'}} className={({ isActive }) => isActive ? "nav-menu active" : "nav-menu"}>
                     쿠폰
                 </NavLink>
             </PurchaseHeader>

@@ -47,14 +47,12 @@ const FindId = () => {
 
     const getDataFromServer = async () => {
         try{
-            // const getData = await axios.get(`http://localhost:8080/client/find?name=${userInputName}&phone=${userInputPhone}`);
             const sendDataToServer = {
                 name: userInputName,
                 phone: userInputPhone
             };
             const getData = await axios.post(`http://localhost:8080/client/find`,sendDataToServer);
             const recievedData = JSON.parse(getData.request.response);
-            // console.log('type : ' + typeof(recievedData));
             console.log(recievedData);
             if(recievedData.databaseError){
                 console.log('sql 에러');
@@ -95,6 +93,7 @@ const FindId = () => {
             console.log('로딩 끝');
         }
     }, [loading]);
+
     useEffect(()=>{
         if(error){
             console.log('서버와의 연결이 원활하지 않습니다');
@@ -102,6 +101,7 @@ const FindId = () => {
             console.log('에러 없음');
         }
     }, [error]);
+
     return (
         <div className="h-[700px] flex align-items-center justify-center flex-col">
             <Logo className='logo mb-10' >
@@ -185,7 +185,7 @@ const FindFormCover = styled.div`
             width: 70%;
             height: 70px;
             margin-bottom: 20px;
-            border-bottom: 1px solid #aaaaaa;
+            border-bottom: 1px solid #ebebeb;
             &:focus{
                 outline: 3px solid #333 !important;
                 border-radius: 3px;
@@ -198,7 +198,7 @@ const FindFormCover = styled.div`
             width: 70%;
             height: 70px;
             margin-bottom: 20px;
-            border-bottom: 1px solid #aaaaaa;
+            border-bottom: 1px solid #ebebeb;
             &:focus{
                 outline: 3px solid #333 !important;
                 border-radius: 3px;

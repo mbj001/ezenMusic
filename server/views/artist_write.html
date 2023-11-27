@@ -20,11 +20,12 @@
         <button type="button" class="btn btn-outline-dark A-insert">추가</button>
      </div>
     <div class="artist_list">
-         <form action="/artist/artist_write" method="POST" name="form" id="form">
+         <form action="/artist/artist_write" method="POST" name="form" id="form" enctype="multipart/form-data">
         <table class="table">
       <thead>
         <tr>
             <th scope="col">num</th>
+            <th scope="col">image</th>
             <th scope="col">singer</th>
             <th scope="col">class</th>
             <th scope="col">gender</th>
@@ -37,17 +38,19 @@
         {% for rs in row %}
         <tr class="input_list">
             <td>{{rs.num}}</td>
+            <td>{{rs.artist_img}}</td>
             <td>{{rs.artist}}</td>
             <td>{{rs.artist_class}}</td>
             <td>{{rs.artist_gender}}</td>
-            <td>{{rs.genre}}</td>
+            <td>{{rs.artist_genre}}</td>
         </tr>
             <tr class="insert_list">
                 <th scope="col"><input type="number" id="artist_num"> </th>
+                <th scope="col"><input type="file" id="artist_img" name="artist_img"></th>
                 <th scope="col"><input type="text" id="artist" name="artist"></th>
                 <th scope="col"><input type="text" id="artist_class" name="artist_class"></th>
                 <th scope="col"><input type="text" id="artist_gender" name="artist_gender"></th>
-                <th scope="col"><input type="text" id="genre" name="genre"></th>
+                <th scope="col"><input type="text" id="artist_genre" name="artist_genre"></th>
                 <th scope="col"><button type="submit" class="insertok">저장</button></th>
             </tr>
             {% endfor %}
@@ -67,6 +70,7 @@
         const Addinsert = `            
         <tr class="insert_list">
                 <th scope="col"><input type="text" placeholder="자동증가 입력X" ></th>
+                <th scope="col"><input type="file" id="artist_img" name="artist_img"></th>
                 <th scope="col"><input type="text" id="artist" name="artist"></th>
                 <th scope="col"><input type="text" id="artist_class" name="artist_class"></th>
                 <th scope="col"><input type="text" id="artist_gender" name="artist_gender"></th>

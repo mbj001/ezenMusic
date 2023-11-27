@@ -6,8 +6,8 @@ import { Link } from 'react-router-dom';
 import { AppContext } from '../App';
 
 const Coupon = () => {
-    const login = useContext(AppContext);
-    const [loginStatus, setLoginStatus] = useState(login);
+    const isSessionValid = JSON.parse(useContext(AppContext));
+    const [loginStatus, setLoginStatus] = useState(isSessionValid);
     const couponSubmit = useRef();
     const captureInput = (e) =>{
         if(e.target.value !== ''){
@@ -17,8 +17,8 @@ const Coupon = () => {
         }
     }
     useEffect(()=>{
-        setLoginStatus(login);
-    },[login]);
+        setLoginStatus(isSessionValid);
+    },[isSessionValid]);
 
     return (
         <div>

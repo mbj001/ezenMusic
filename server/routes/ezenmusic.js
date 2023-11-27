@@ -126,8 +126,23 @@ router.get("/detail/album/:id", (req, res) => {
             console.error(err)
         }
         else{
-            console.log(select_detail_result.length);
             res.send(select_detail_result);
+        }
+    })
+})
+
+router.post("/detail/album_theme/likey", (req, res) => {
+    console.log("routes => ezenmusic.js => router.post('/detail/album_theme/likey')");
+    // console.log(req.body);
+    const select_likey_query = `select music_list from likey where ? and ?`;
+
+    conn.query(select_likey_query, [{division: req.body.division}, {userid: req.body.userid}], (err, select_likey_result, fields) => {
+        // console.log(select_likey_result[0].music_list);
+        if(err){
+            console.error(err)
+        }
+        else{
+            res.send(select_likey_result[0].music_list);
         }
     })
 })
@@ -154,16 +169,57 @@ router.post("/test", (req, res) => {
     res.json(1);
 })
 
-router.get("/playerbar", (req, res) => {
-    console.log("routes => ezenmusic.js => router.get('/playerbar')");
+router.post("/playerbar", (req, res) => {
+    console.log("routes => ezenmusic.js => router.post('/playerbar')");
 
-    const select_playerbar_query = `select *, album.org_cover_image from music inner join album on music.album_title = album.album_title order by music.hit desc limit 20`;
-    conn.query(select_playerbar_query, (err, select_playerbar_result, fields) => {
+    const select_playerlist_query = `select now_play_music, music_list from playerlist where ?`;
+    conn.query(select_playerlist_query, [{userid: req.body.userid}], (err, select_playerlist_result, fields) => {
         if(err){
-            console.error(err);
+            console.error(err)
         }
         else{
-            res.send(select_playerbar_result);
+            if(select_playerlist_result[0].music_list.length == 0){
+                // 길이 0일 때
+            }
+            else{
+                let array = select_playerlist_result[0].music_list;
+                let select_music_query = `select *, album.org_cover_image from music inner join album on music.album_title = album.album_title where `;
+                for(let i=0; i<array.length; i++){
+                    if(i == (array.length - 1)){
+                        select_music_query += "music.id = " + array[i];
+                    }
+                    else{
+                        select_music_query += "music.id = " + array[i] + " or ";
+                    }
+                }
+                select_music_query += " order by field(music.id, ";
+                for(let i=array.length - 1; i>=0; i--){
+                    if(i == 0){
+                        select_music_query +=  array[i];
+                    }
+                    else{
+                        select_music_query += array[i] + ",";
+                    }
+                }
+                select_music_query += ")";
+                conn.query(select_music_query, (err, select_music_result, fields) => {
+                    if(err){
+                        console.error(err);
+                    }
+                    else{
+                        for(let i=0; i<select_music_result.length; i++){
+                            // 지금 재생 중인 음악에는 true, 나머지에는 false 할당
+                            if(Number(select_playerlist_result[0].now_play_music) === Number(select_music_result[i].id)){
+                                select_music_result[i].now_play_music = true;
+                            }
+                            else{
+                                select_music_result[i].now_play_music = false;
+                            }
+                        }
+                        res.send(select_music_result);
+                    }
+                })
+            }
         }
     })
 })
@@ -404,7 +460,219 @@ router.get("/search/lyrics/:keyward", (req, res) => {
     })
 })
 
-//artist (이재호)
+router.get("/allpage/likeylist/:userid", (req, res) => {
+    console.log("routes => ezenmusic.js => router.get('/browse/likeylist/:userid')");
+
+    const select_likey_query = `select music_list from likey where ?`;
+    conn.query(select_likey_query, [{userid: req.params.userid}], (err, select_likey_result, fields) => {
+        if(err){
+            console.error(err)
+        }
+        else{
+            // console.log(select_likey_result[0].music);
+            res.send(select_likey_result);
+        }
+    })
+})
+
+router.post("/addlikey", (req, res) => {
+    console.log("routes => ezenmusic.js => router.post('/addlikey')");
+    console.log(req.body.userid);
+    const select_likey_query = `select music_list from likey where ? and ?`;
+    conn.query(select_likey_query, [{userid: req.body.userid}, {division: req.body.division}], (err, select_likey_result, fields) => {
+        if(err){
+            console.log(err)
+        }
+        else{
+            // console.log(select_likey_result[0].music_list);
+            select_likey_result[0].music_list.push(Number(req.body.id));
+            // console.log(select_likey_result[0].music_list);
+            const update_likey_query = `update likey set music_list = ? where ? and ?`;
+            conn.query(update_likey_query, ["["+select_likey_result[0].music_list+"]", {userid: req.body.userid}, {division: req.body.division}], (err, update_likey_result, fields) => {
+                if(err){
+                    console.error(err)
+                }
+                else{
+                    res.json("1");
+                }
+            })
+        }
+    })
+})
+
+router.post("/dellikey", (req, res) => {
+    console.log("routes => ezenmusic.js => router.post('/dellikey')");
+
+    const select_likey_query = `select music_list from likey where ? and ?`;
+    conn.query(select_likey_query, [{userid: req.body.userid}, {division: req.body.division}], (err, select_likey_result, fields) => {
+        if(err){
+            console.log(err)
+        }
+        else{
+            for(let i=0; i<select_likey_result[0].music_list.length; i++){
+                if(Number(req.body.id) === select_likey_result[0].music_list[i]){
+                    array = select_likey_result[0].music_list.splice(i, 1);
+                }
+            }
+            const update_likey_query = `update likey set music_list = ? where ? and ?`;
+            conn.query(update_likey_query, ["["+select_likey_result[0].music_list+"]", {userid: req.body.userid}, {division: req.body.division}], (err, update_likey_result, fields) => {
+                if(err){
+                    console.error(err)
+                }
+                else{
+                    res.json("1");
+                }
+            })
+        }
+    })
+})
+
+router.post('/storage/likey', async(req, res) =>{
+    console.log("routes => ezenmusic.js => router.post('/storage/likey') [" + req.body.division + "]");
+    // console.log(req.body);
+    try{
+        const select_likey_query = `select music_list from likey where userid = "${req.body.userid}" and division = "${req.body.division}"`;
+        let [select_likey_result] = await pool.query(select_likey_query);
+
+        let select_music_query = "select music.*, album.org_cover_image, album.album_id, artist.artist_num from music inner join album on music.album_title = album.album_title inner join artist on music.artist = artist.artist where ";
+        for(let i=0; i<select_likey_result[0].music_list.length; i++){
+            if(i == (select_likey_result[0].music_list.length - 1)){
+                select_music_query += "music.id = " + select_likey_result[0].music_list[i];
+        }
+            else{
+                select_music_query += "music.id = " + select_likey_result[0].music_list[i] + " or ";
+            }
+        }
+        select_music_query += " order by field(music.id";
+
+        for(let i=select_likey_result[0].music_list.length - 1; i>=0; i--){
+            select_music_query += ", " + select_likey_result[0].music_list[i];
+        }
+        select_music_query += ")"
+
+        conn.query(select_music_query, (err, select_music_result, fields) => {
+            res.send(select_music_result);
+        })
+
+        return result;
+    }catch(err){
+        return err;
+    }
+})
+
+router.post("/storage/likealbum", async(req, res) => {
+    console.log("routes => ezenmusic.js => router.post('/storage/likeyalbum') [" + req.body.division + "]");
+
+    try{
+        const select_likey_query = `select music_list from likey where userid = "${req.body.userid}" and division = "${req.body.division}"`;
+        let [select_likey_result] = await pool.query(select_likey_query);
+
+        let select_music_query = "select *, date_format(release_date, '%Y.%m.%d') as release_date_format, artist.artist_num from album inner join artist on artist.artist = album.artist where ";
+        for(let i=0; i<select_likey_result[0].music_list.length; i++){
+            if(i == (select_likey_result[0].music_list.length - 1)){
+                select_music_query += "album_id = " + select_likey_result[0].music_list[i];
+        }
+            else{
+                select_music_query += "album_id = " + select_likey_result[0].music_list[i] + " or ";
+            }
+        }
+        select_music_query += " order by field(album_id";
+
+        for(let i=select_likey_result[0].music_list.length - 1; i>=0; i--){
+            select_music_query += ", " + select_likey_result[0].music_list[i];
+        }
+        select_music_query += ")"
+
+        conn.query(select_music_query, (err, select_music_result, fields) => {
+            // console.log(select_music_query);
+            // console.log(select_music_result);
+            res.send(select_music_result);
+        })
+
+        return result;
+    }catch(err){
+        return err;
+    }
+})
+
+router.post("/storage/liketheme", async(req, res) => {
+    console.log("routes => ezenmusic.js => router.post('/storage/liketheme') [" + req.body.division + "]");
+
+    try{
+        const select_likey_query = `select music_list from likey where userid = "${req.body.userid}" and division = "${req.body.division}"`;
+        let [select_likey_result] = await pool.query(select_likey_query);
+
+        let select_music_query = "select *, date_format(release_date, '%Y.%m.%d') as release_date_format, JSON_LENGTH(JSON_EXTRACT(music, '$')) as count from themeplaylist where ";
+        for(let i=0; i<select_likey_result[0].music_list.length; i++){
+            if(i == (select_likey_result[0].music_list.length - 1)){
+                select_music_query += "num = " + select_likey_result[0].music_list[i];
+        }
+            else{
+                select_music_query += "num = " + select_likey_result[0].music_list[i] + " or ";
+            }
+        }
+        select_music_query += " order by field(num";
+
+        for(let i=select_likey_result[0].music_list.length - 1; i>=0; i--){
+            select_music_query += ", " + select_likey_result[0].music_list[i];
+        }
+        select_music_query += ")"
+
+        conn.query(select_music_query, (err, select_music_result, fields) => {
+            // console.log(select_music_query);
+            // console.log(select_music_result);
+            res.send(select_music_result);
+        })
+
+        return result;
+    }catch(err){
+        return err;
+    }
+})
+
+router.post("/storage/likeartist", async(req, res) => {
+    console.log("routes => ezenmusic.js => router.post('/storage/likeartist') [" + req.body.division + "]");
+
+    try{
+        const select_likey_query = `select music_list from likey where userid = "${req.body.userid}" and division = "${req.body.division}"`;
+        let [select_likey_result] = await pool.query(select_likey_query);
+
+        let select_music_query = "select * from artist where ";
+        for(let i=0; i<select_likey_result[0].music_list.length; i++){
+            if(i == (select_likey_result[0].music_list.length - 1)){
+                select_music_query += "artist_num = " + select_likey_result[0].music_list[i];
+        }
+            else{
+                select_music_query += "artist_num = " + select_likey_result[0].music_list[i] + " or ";
+            }
+        }
+        select_music_query += " order by field(artist_num";
+
+        for(let i=select_likey_result[0].music_list.length - 1; i>=0; i--){
+            select_music_query += ", " + select_likey_result[0].music_list[i];
+        }
+        select_music_query += ")"
+
+        conn.query(select_music_query, (err, select_music_result, fields) => {
+            // console.log(select_music_query);
+            // console.log(select_music_result);
+            res.send(select_music_result);
+        })
+
+        return result;
+    }catch(err){
+        return err;
+    }
+})
+
+router.get("/testMBJ/:userid", (req, res) => {
+    console.log("userid: " + req.params.userid);
+})
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// 재호
 router.get("/detail/artist/:id", (req, res) => {
     console.log("routes => ezenmusic.js => router.get('/detail/artist/:id')");
     // const select_detail_artist = `select artist.* from artist inner join music on music.artist = artist.artist where music.id = ?`;
@@ -430,19 +698,57 @@ router.get("/detail/artist/artisttrack/:artist_num", (req, res) => {
         }
     })
 })
+
 router.get("/detail/artist/albumtrack/:artist", (req, res) => {
     console.log("routes =>ezenmusic.js => router.get('/detail/artist/:id/albumtrack')");
     console.log(req.params.artist);
-    const select_artist_album = 'select album.* from album inner join artist on album.artist = artist.artist where album.artist = ?';
+        //아티스트 앨범목록
+        const select_artist_album = `select album.*, DATE_FORMAT(album.release_date, '%Y.%m.%d') as release_date_format
+        FROM album inner join artist on album.artist = artist.artist where album.artist = ?`    
     conn.query(select_artist_album, [req.params.artist], (err, select_artist_album_result, fields) => {
+            if (err) {
+                console.error(err)
+            } else {
+                res.send(select_artist_album_result);
+        }
+        })
+})
+
+router.get("/detail/artist/albumtrack/release_date/:artist", (req, res) => {
+    console.log("routes => ezenmusic.js => router.post('/detail/artist/albuntrack/release_date/:artist')");
+    const select_artist_album_date = `SELECT album.*, DATE_FORMAT(album.release_date, '%Y.%m.%d') as release_date_format
+    FROM album
+    INNER JOIN artist ON album.artist = artist.artist
+    WHERE album.artist = ?
+    ORDER BY album.release_date DESC;
+    `;
+    conn.query(select_artist_album_date, [req.params.artist], (err, select_artist_album_date_result, fields) => {
         if (err) {
             console.error(err)
         } else {
-            res.send(select_artist_album_result);
+            res.send(select_artist_album_date_result);
+        }
+    })
+})
+router.get("/detail/artist/albumtrack/asc/:artist", (req, res) => {
+    console.log("routes => ezenmusic.js => router.post('/detail/artist/albumtrack/asc/:artist')");
+    const select_artist_albumtitle_asc = `SELECT album.*, DATE_FORMAT(album.release_date, '%Y.%m.%d') as release_date_format
+    FROM album
+    INNER JOIN artist ON album.artist = artist.artist
+    WHERE album.artist = ?
+    ORDER BY album.album_title ASC`;
+    conn.query(select_artist_albumtitle_asc, [req.params.artist], (err, select_artist_albumtitle_asc_result, fields) => {
+        if (err) {
+            console.error(err)
+        } else {
+            res.send(select_artist_albumtitle_asc_result);
         }
     })
 })
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // 건우
 router.get('/storage/mylist/:userid', async(req, res) =>{
     console.log("routes => ezenmusic.js => router.get('/storage/mylist/:userid')");
@@ -450,80 +756,70 @@ router.get('/storage/mylist/:userid', async(req, res) =>{
     // let [result] = '';
     try{
         const {userid} = req.params;
-        const sql = `select num from playlist where userid = ${userid}`
+        const sql = `select playlist_id, thumbnail_image, playlist_name, playlist from playlist where userid = ${userid}`
         const [rs] = await pool.query(sql);
         // console.log(rs);
-        let ornum = `num = ` + rs[0].num;
-        for(i = 1; i < rs.length; i++){
-            ornum += ` or num = ${rs[i].num}`;
+        if(rs[0].playlist == null){
+            // console.log('1231')
+            // console.log(rs)
+            res.send(rs);
+        }else{
+            // console.log(rs);
+            res.send(rs);
+            let albumImage = `org_cover_image = "${rs[0].thumbnail_image}"`;
+            for(i = 1; i < rs.length; i++){
+                albumImage += ` or org_cover_image = ${rs[i].thumbnail_image}`
+            }
+            const sql2 = `select org_cover_image from album where ${albumImage}`;
+            const [rs2] = await pool.query(sql2);
+            // console.log(rs2)
+            res.send(rs2);
         }
-        // console.log(ornum);
-        const sql2 = `select music.album_title from playlist inner join music on playlist.thumbnail_music = music.id where ${ornum}`
-        const [rs2] = await pool.query(sql2);
-        // console.log(rs2);
-        let ortitle = `album_title = "${rs2[0].album_title}"`;
-        for(i = 1; i < rs2.length; i++){
-            ortitle += ` or album_title = "${rs2[i].album_title}"`;
-        }
-        // console.log(ortitle);
-        const sql3 = `select org_cover_image from album where ${ortitle}`
-        const [rs3] = await pool.query(sql3);
-        // console.log(rs3);
-        res.send(rs3);
-        return rs3;
+        
     }catch(err){
         return err;
     }
 });
 
 
-router.get('/detail/detailmylist/:num', async(req, res) =>{
-    console.log('/detail/detailmylist/:playlist_id 진입')
-    const {num} = req.params;
-    const sql = `select playlist from playlist where num = ?`;
+router.get('/detail/detailmylist/:playlist_id', async(req, res) =>{
+    console.log("routes => ezenmusic.js => router.get('/storage/mylist/:playlist_id')");
+    const {playlist_id} = req.params;
+    const select_playlist_sql = `select playlist from playlist where playlist_id = ?`;
     // console.log(num);
     try{
         // 플레이리스트의 노래 목록을 뽑아내자
-        let [rs] = await pool.query(sql, [num]);
-        let all_music = rs[0].playlist;
-        // console.log(all_music);
-        let ormusic = all_music[0];
-        for(i = 1; i < all_music.length; i ++){
-            // console.log("and music.id = " + all_music[i + 1]);
-            // let firstOne = all_music[0];
-            // let twoOrMore = "and id = " + all_music[i + 1];
-            // 나중에 뽑을 데이터의 조인값을 찾기위해 album.title을 찾자
-            // length 로 limit걸면 마지막 undefined를 뺄 수 있겠지?
-            ormusic += ' or id = ' + all_music[i]
-        }
-        // console.log(ormusic);
-        const sql2 = `select album_title from music where id = ${ormusic}`;
-        // console.log(sql2);
-        const [rs2] = await pool.query(sql2);
-        // console.log(rs2);
-        let sumormusic = ` music.id = ${all_music[0]}`;
-        // ormusic = all_music[0];
-        // console.log(all_music[0].length);
-        for(i = 1; i < rs2.length; i++){
-            sumormusic += ` or music.id = ${all_music[i]}`;
-        }
-        // console.log(sumormusic);
-        const sql3 = `select distinct album.album_title, album.org_cover_image, music.id, music.title, music.artist, album.album_id, artist.artist_num from album inner join music
-                      on album.album_title = music.album_title inner join artist on music.artist = artist.artist where ${sumormusic}`;
-        // console.log(sql3);
-        const [rs3] = await pool.query(sql3);
-        // console.log(rs3);
-        // select distinct album.album_title, album.org_cover_image, music.id, music.title, music.artist from album inner join music
-        // on album.album_title = music.album_title where (album.album_title = 'Nine Track Mind (Deluxe Edition)' and music.id = 1699408276148)
-        // or (album.album_title = "I'VE MINE" and music.id = 1699518469448) or (album.album_title = 'Love Lee' and music.id = 1699518543715);
-        
-        // let all_album = rs2[i].album_title;
-        // console.log(all_album);
+        let [select_playlist_result] = await pool.query(select_playlist_sql, [playlist_id]);
+        // console.log(rs);
+        if(select_playlist_result[0].playlist == null){
+            res.send(select_playlist_result);
+        }else{
+            
+            let select_musiclistcard_result = `select distinct album.album_title, album.org_cover_image, music.id, music.title, music.artist, album.album_id, artist.artist_num 
+            from album inner join music on album.album_title = music.album_title inner join artist on music.artist = artist.artist where `;
 
-        // console.log(rs2);
-        // console.log(rs3);
-        res.send(rs3);
-        return rs3;
+            for(let i=0; i<select_playlist_result[0].playlist.length; i++){
+                if(i == (select_playlist_result[0].playlist.length - 1)){
+                    select_musiclistcard_result += "music.id = " + select_playlist_result[0].playlist[i];
+            }
+            else{
+                select_musiclistcard_result += "music.id = " + select_playlist_result[0].playlist[i] + " or ";
+            }
+            }
+            select_musiclistcard_result += " order by field(music.id";
+    
+            for(let i=select_playlist_result[0].playlist.length - 1; i>=0; i--){
+    
+                select_musiclistcard_result += ", " + select_playlist_result[0].playlist[i];
+            }
+    
+            select_musiclistcard_result += ")"
+            // console.log(select_musiclistcard_result);
+            let [select_all_result] = await pool.query(select_musiclistcard_result);
+            res.send(select_all_result);
+            
+
+        }
     }catch(err){
         return err;
     }

@@ -17,16 +17,26 @@ function SearchTrack({keyward, page}) {
     useEffect(() => {
         Axios.get("http://localhost:8080/ezenmusic/search/track/" + keyward)
         .then(({data}) =>{
+            console.log(" ##### 박재정 #####");
+            console.log(data);
             if(data.length == 0){
                 setHasTrack(false);
             }
             else{
                 setHasTrack(true);
                 if(page === "all"){
-                    for(let i=0; i<5; i++){
-                        array.push(data[i]);
+                    if(data.length < 5){
+                        for(let i=0; i<data.length; i++){
+                            array.push(data[i]);
+                        }
                     }
-                    setSearchTrack(array);
+                    else{
+                        for(let i=0; i<5; i++){
+                            array.push(data[i]);
+                        }
+                        setSearchTrack(array);
+                        console.log(array);
+                    }
                 }
                 else{
                     setSearchTrack(data);
@@ -51,11 +61,11 @@ function SearchTrack({keyward, page}) {
         <div className="mb-3">
             <div className="flex items-center cursor-pointer">
                 <RiPlayLine className="all-play-icon absolute top-[2px] left-[0px]"/>
-                <p className="ml-[25px] text-[14px] text-gray-500">전체듣기</p>
+                <p className="ml-[25px] text-[14px] text-gray">전체듣기</p>
             </div>
         </div>
         <div className="mb-[60px]">
-            <hr className="text-gray-500"/>
+            <hr className="text-gray"/>
             <table className="table table-hover">
                 <MusicListHeader lank={false} setAllcheckVal={setAllcheckVal} />
                 <tbody>

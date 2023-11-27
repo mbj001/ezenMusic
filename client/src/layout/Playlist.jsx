@@ -3,36 +3,71 @@ import Axios from "axios"
 import Player from './Player';
 import styled from 'styled-components';
 import { Link, Router } from 'react-router-dom';
+import { Cookies } from "react-cookie";
 // import { StyledMusicMenu } from '../card/MusicListCard';
 // import styled from 'styled-components';
-import { RiSearchLine, RiMore2Line, RiPlayFill, RiPlayListAddFill, RiFolderAddLine, RiMusic2Line, RiAlbumLine, RiMicLine, RiHeart3Line, RiProhibitedLine } from "react-icons/ri";
+import PlayerBanner from '../card/PlayerBanner';
 
-function Playlist() {
+
+import { RiSearchLine, RiMore2Line, RiMusic2Line, RiAlbumLine, RiMicLine, RiHeart3Line, RiProhibitedLine } from "react-icons/ri";
+
+function Playlist({handleRender, render}) {
     const [playerMusic, setPlayerMusic] = useState([]);
-    const [listenMusic, setListenMusic] = useState({});
+    const [listenMusic, setListenMusic] = useState([]);
     const [showPlaylist, setShowPlaylist] = useState(true);
     const [showMorebox, setShowMorebox] = useState([]); 
+
+    const [playerBannerOn, setPlayerBannerOn] = useState(false);
+
+    const cookies = new Cookies();
+    const userid_cookies = cookies.get("client.sid");
 
     let array = [];
 
     useEffect(() => {
-        Axios.get("http://localhost:8080/ezenmusic/playerbar/")
-        .then(({data}) => {
-            setPlayerMusic(data);
-            setListenMusic(data[0]);
-            for(let i=0; i<data.length; i++){
-                array.push("false");
-            }
-            setShowMorebox(array);
-        })
-        .catch((err) => {
-            {}
-        })
-    }, [])
+        console.log("playerlist useeffect");
+        
+        if(!userid_cookies){
+            // 로그인 안되어 있을 때
+        }
+        else{
+            Axios.post("http://localhost:8080/ezenmusic/playerbar", {
+                userid: userid_cookies
+            })
+            .then(({data}) => {
+                for(let i=0; i<data.length; i++){
+                    if(data[i].now_play_music === true){
+                        // 아래 player에 나올 노래
+                        setListenMusic(data[i]);
+                    }
+                }
+                // 플레이리스트에 들어갈 노래들
+                setPlayerMusic(data);
+    
+                for(let i=0; i<data.length; i++){
+                    array.push("false");
+                }
+                setShowMorebox(array);
+            })
+            .catch((err) => {
+                {}
+            })
+
+        }
+    }, [handleRender])
+
+    useEffect(() => {
+        setPlayerBannerOn(true);
+    }, [render])
 
     function changeMusicFunc(e, item){
         e.preventDefault();
         setListenMusic(item);
+        // 현재 재생중인 곡 수정(playerlist -> now_play_list)
+        Axios.post("http://localhost:8080/playerHandle/changeNowMusic", {
+            userid: userid_cookies,
+            id: item.id
+        })
     }
 
     function showPlaylistFunc(){
@@ -126,8 +161,14 @@ function Playlist() {
             </div>
         </StyledPlaylist>
         <div>
-            <Player listenMusic={listenMusic} showPlaylistFunc={showPlaylistFunc} />
+            <Player listenMusic={listenMusic} showPlaylistFunc={showPlaylistFunc}/>
         </div>
+        {
+            playerBannerOn?
+            <PlayerBanner playerBannerOn={playerBannerOn} setPlayerBannerOn={setPlayerBannerOn}/>
+            :
+            ""
+        }
         </>
     )
 }
@@ -149,12 +190,11 @@ const StyledPlaylist = styled.div`
 
     transform: ${(props) => props.showVal? "translateY(100%)" : "translateY(0%)"};
     transition: 0.5s;
-    // color: ${(props) => props.showVal? "red" : "blue"};
 
     .blur-box{
         width: 100%;
         height: 100%;
-        background-color: rgba(0,0,0,0.8);
+        background-color: rgba(10, 10, 10, 0.8);
         backdrop-filter: blur(50px);
     }
 `
@@ -195,7 +235,7 @@ export const Styledlist = styled.div`
     }
 
     li:hover{
-        color: blue;
+        color: var(--main-theme-color);
     }
 `
 export default Playlist

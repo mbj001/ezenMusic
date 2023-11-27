@@ -1,9 +1,10 @@
 import React, {useState, useEffect, MouseEvent, useRef} from 'react'
 import { Link } from 'react-router-dom';
 import styled from 'styled-components'
-// import { StyledTableth } from '../pages/Browse';
 import { StyledTabletd } from './MusicListCard';
+
 function MusicLyricsCard({title, album_title, artist, img, music_id, album_id, lyrics, check_all }) {
+
     const [chkboxChecked, setChkboxChecked] = useState(false);
     
     function chkboxClickFunc(e){
@@ -18,7 +19,8 @@ function MusicLyricsCard({title, album_title, artist, img, music_id, album_id, l
             setChkboxChecked(false);
         }
     }, [check_all])
-  return (
+
+    return (
     <tr className="">
         <StyledTabletd className="text-center"><input type="checkbox" checked={chkboxChecked} onClick={chkboxClickFunc} /></StyledTabletd>
         <StyledTabletd className="d-flex items-center">
@@ -27,14 +29,13 @@ function MusicLyricsCard({title, album_title, artist, img, music_id, album_id, l
             </div>
             <StyledLyricsBox className="lyrics-box col-8 ml-[20px] h-[60px]">
                 <p className="mb-[5px]">{title}</p>
-                <p className="text-gray-400 font-normal text-[12px]"><Link to={"/detail/track/" + music_id + "/details"}>{lyrics}</Link></p>
+                <p className="text-gray font-normal text-[12px]"><Link to={"/detail/track/" + music_id + "/details"}>{lyrics}</Link></p>
             </StyledLyricsBox> 
         </StyledTabletd>
         <StyledTabletd className="w-[250px]"><p><Link to="#">{artist}</Link></p></StyledTabletd>
         <StyledTabletd className="w-[250px]"><p><Link to="#">{album_title}</Link></p></StyledTabletd>
     </tr>
-
-  )
+    )
 }
 
 const StyledLyricsBox = styled.div`

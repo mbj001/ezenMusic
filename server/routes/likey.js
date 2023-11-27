@@ -3,6 +3,15 @@ const conn = require("../config/mysql");
 const { route } = require("./main");
 const router = express.Router();
 
+const mysql2 = require('mysql2/promise');
+const pool = mysql2.createPool({
+    host: 'localhost',
+    user: 'root',
+    password: 'Qudwns12!',
+    connectionLimit: 10,
+    database: 'flodb'
+});
+
 router.get("/", (req, res) => {
     const sql = "select * from likey"
     conn.query(sql, (err, row) =>{
@@ -142,6 +151,23 @@ router.post('/likey_view/likey_delete/:userid', (req, res) =>{
         }
     })
 });
+
+// router.get('/storage/likey/:userid', async(req, res) =>{
+//     try{
+//         console.log('1');
+//         const {userid} = req.params;
+//         const sql = `select music_list from likey where userid = ${userid}`
+//         let [result] = await pool.query(sql);
+//         console.log(result);
+//         res.send(result);
+//         return result;
+//     }catch(err){
+//         return err;
+//     }
+// })
+
+
+
 
 module.exports = router;
 
