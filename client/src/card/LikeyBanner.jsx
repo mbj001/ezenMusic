@@ -1,15 +1,10 @@
 import React from 'react'
 import styled from 'styled-components'
 
-function LikeyBanner({likeyBannerOn, setLikeyBannerOn, pageDivision, setThemebannerVal}) {
+function LikeyBanner({likeyBannerOn, setLikeyBannerOn, pageDivision}) {
 
     if(likeyBannerOn === 1 || likeyBannerOn === -1){
-        if(pageDivision === "theme"){
-            setTimeout(() => {setLikeyBannerOn(0); setThemebannerVal(false)}, 1500);
-        }
-        else{
             setTimeout(() => {setLikeyBannerOn(0);}, 1500);
-        }
     }
 
     return (
@@ -64,7 +59,7 @@ export const StyledLikeyBanner = styled.div`
     left: 0;
     height: 80px;
     background-color: rgb(36, 36, 36);
-    z-index: 101;
+    z-index: 9999999;
 
     p{
         color: white;

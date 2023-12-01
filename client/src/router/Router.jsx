@@ -63,7 +63,7 @@ const Router = () => {
                 </Route>
                 <Route path='/storage' element={<Storage />} >
                     <Route path='mylist' element={ <Mylist /> } /> 
-                    <Route path=":storage_params" element={<Likey />} />
+                    <Route path=":storage_params" element={<Likey handleRender={handleRender}/>} />
 
                     {/* <Route path='likey' element={ <Likey /> } /> */}
                 </Route>

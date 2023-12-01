@@ -115,12 +115,16 @@ CREATE TABLE `music` (
 
 ######################### playerlist #########################
 
-CREATE TABLE `playerlist` (
-  `userid` varchar(45) NOT NULL,
-  `now_play_music` varchar(45) NOT NULL,
-  `music_list` json DEFAULT NULL,
-  PRIMARY KEY (`userid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+CREATE TABLE `playlist` (
+  `playlist_id` int NOT NULL AUTO_INCREMENT,
+  `userid` varchar(45) DEFAULT NULL,
+  `playlist_name` varchar(45) DEFAULT NULL,
+  `thumbnail_image` varchar(100) DEFAULT NULL,
+  `create_date` datetime DEFAULT CURRENT_TIMESTAMP,
+  `update_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `playlist` json DEFAULT NULL,
+  PRIMARY KEY (`playlist_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=utf8mb3;
 
 
 ######################### playlist #########################

@@ -7,19 +7,30 @@ import AlbumIntro from './AlbumIntro';
 import AlbumTrack from "./AlbumTrack";
 import { Cookies } from "react-cookie";
 import LikeyBanner from '../card/LikeyBanner';
+import PleaseLoginMessage from '../modal/PleaseLoginMessage';
+import PlayerBanner from '../card/PlayerBanner';
+import icons from '../assets/sp_button.6d54b524.png'
+import PlaylistAdd from '../modal/PlaylistAdd';
 
 function Album({album_id, details, handleRender}) {
 
     const [detailMusic, setDetailMusic] = useState([]);
     const [initNum, setInitNum] = useState();
 
+    // MBJ
     const cookies = new Cookies();
     const userid_cookies = cookies.get("client.sid");
     const [likeyList, setLikeyList] = useState([]);
     const [islikey, setIslikey] = useState(false);
     const [likeyBannerOn, setLikeyBannerOn] = useState(0);
+    // 로그인이 필요합니다 모달 변수
+    const [loginRequestVal, setLoginrRequestVal] = useState(false);
+    // 플레이어 추가 베너
+    const [playerBannerOn, setPlayerBannerOn] = useState(false);
 
     let array = [];
+    // ~ MBJ
+
 
     if(!initNum){
         setInitNum(details);
@@ -59,24 +70,73 @@ function Album({album_id, details, handleRender}) {
         })
     }
 
-    useEffect(() => {
-        Axios.post("http://localhost:8080/ezenmusic/detail/album_theme/likey", {
+    // 2023-12-01 album 플레이어 추가
+    function playerAdd(){
+        let array = [];
+
+        console.log(typeof(detailMusic[0].album_id));
+        // for(let i=0; i<albumTrackMusic.length; i++){
+        //     array.push(albumTrackMusic[i].id)
+        // }
+
+        Axios.post("http://localhost:8080/playerhandle/playerAdd", {
             userid: userid_cookies,
-            division: "likealbum"
+            page: "albumtrack",
+            album_id: detailMusic[0].album_id
         })
+
         .then(({data}) => {
-            array = data;
-            console.log(array);
-            setLikeyList(data);
-            for(let i=0; i<array.length; i++){
-                if(array[i] === Number(album_id)){
-                    setIslikey(!islikey);
-                }
-            }
+
+            setPlayerBannerOn(true);
+            handleRender();
+
         })
+
         .catch((err) => {
-            console.log(err)
+            console.log(err);
         })
+    }
+
+    ////////// 건우 //////////
+    const [playlistModalOpen, setPlaylistModalOpen] = useState(false);
+    const [playlistModalData, setPlaylistModalData] = useState([]);
+
+    function handleplaylistModal(){
+        setPlaylistModalOpen(playlistModalOpen => {return !playlistModalOpen;})
+    }
+
+    const clickPlaylistModalOpen = (e, album_title, img) =>{
+        e.preventDefault();
+        setPlaylistModalData({
+            music_id: null,
+            album_title: album_title,
+            thumbnail_image: img,
+            theme_playlist: null
+        });
+        setPlaylistModalOpen(true);
+    }
+    ///////////////////////////////
+
+
+    useEffect(() => {
+        if(userid_cookies !== undefined){
+            Axios.post("http://localhost:8080/ezenmusic/detail/album_theme/likey", {
+                userid: userid_cookies,
+                division: "likealbum"
+            })
+            .then(({data}) => {
+                array = data;
+                setLikeyList(data);
+                for(let i=0; i<array.length; i++){
+                    if(array[i] === Number(album_id)){
+                        setIslikey(!islikey);
+                    }
+                }
+            })
+            .catch((err) => {
+                console.log(err)
+            })
+        }
 
         Axios.get("http://localhost:8080/ezenmusic/detail/album/" + album_id)
         .then(({data}) => {
@@ -90,7 +150,25 @@ function Album({album_id, details, handleRender}) {
 
     return (
         <>
+        {
+            playlistModalOpen?
+            <PlaylistAdd setPlaylistModalOpen={setPlaylistModalOpen} playlistModalData={playlistModalData} handleplaylistModal={handleplaylistModal}/>
+            :
+            ""
+        }
+        {
+            playerBannerOn?
+            <PlayerBanner playerBannerOn={playerBannerOn} setPlayerBannerOn={setPlayerBannerOn} page={"albumtrack"} />
+            :
+            ""
+        }
         <LikeyBanner likeyBannerOn={likeyBannerOn} setLikeyBannerOn={setLikeyBannerOn} pageDivision={"album"}/>
+        {
+            loginRequestVal?
+            <PleaseLoginMessage setLoginrRequestVal={setLoginrRequestVal} />
+            :
+            ""
+        }
         {
             detailMusic.map((item, index) => (
                 <StyledDetail key={index} className='md:w-[1000px] xl:w-[1280px] 2xl:w-[1440px]'>
@@ -101,15 +179,16 @@ function Album({album_id, details, handleRender}) {
                                 <p className="detail-title mb-[10px]">{item.album_title}</p>
                                 <p className="font-normal">{item.artist}</p>
                                 <p className="font-light text-gray">{item.album_size}</p>
-                                <div className="flex mt-[50px] ">
-                                    <RiPlayListAddFill className="mr-[10px] text-[24px] text-gray cursor-pointer hover-text-blue" />
-                                    <RiFolderAddLine className="mx-[10px] text-[24px] text-gray cursor-pointer hover-text-blue" />
+                                <div className="flex mt-[30px] ">
+
+                                    <button className="artist_listplus ml-[-10px]" style={{backgroundImage:`url(${icons})`}} onClick={userid_cookies? playerAdd : setLoginrRequestVal}></button>
+                                    <button className="artist_box " style={{backgroundImage:`url(${icons})`}} onClick={userid_cookies? (e) => clickPlaylistModalOpen(e, item.album_title, item.org_cover_image) : setLoginrRequestVal}></button>
                                     {
                                         islikey?
-                                        <RiHeart3Fill className="mx-[10px] text-[24px] text-pink cursor-pointer" onClick={delLikeAlbum}/>
+                                        <button className="redheart" style={{backgroundImage:`url(${icons})`}} onClick={userid_cookies? delLikeAlbum : setLoginrRequestVal}></button>
                                         :
-                                        <RiHeart3Line className="mx-[10px] text-[24px] text-gray cursor-pointer hover-text-blue" onClick={addLikeAlbum}/>
-                                    }
+                                        <button className="iconsheart" style={{backgroundImage:`url(${icons})`}}  onClick={userid_cookies? addLikeAlbum : setLoginrRequestVal}></button>
+                                    }  
                                 </div>
                             </div>
                         </div>

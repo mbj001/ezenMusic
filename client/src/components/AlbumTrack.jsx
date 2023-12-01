@@ -7,6 +7,8 @@ import { StyledBrowser } from '../pages/Browse';
 import { Cookies } from "react-cookie";
 import AllCheckedModal from '../modal/AllCheckedModal';
 import LikeyBanner from '../card/LikeyBanner';
+import PleaseLoginMessage from '../modal/PleaseLoginMessage';
+import MusicListTable from '../card/MusicListTable';
 
 function AlbumTrack({id, album_title, handleRender}) {
 
@@ -17,17 +19,31 @@ function AlbumTrack({id, album_title, handleRender}) {
     
     const cookies = new Cookies();
     const userid_cookies = cookies.get("client.sid");
+    // 로그인이 필요합니다 모달 변수
+    const [loginRequestVal, setLoginrRequestVal] = useState(false);
+
 
     let array = [];
 
+
     useEffect(() => {
-        Axios.get("http://localhost:8080/ezenmusic/allpage/likeylist/"+userid_cookies)
-        .then(({data}) => {
-                array = data[0].music_list;
+        if(userid_cookies !== undefined){
+            Axios.post("http://localhost:8080/ezenmusic/allpage/likeylist/", {
+                userid: userid_cookies,
+                division: "liketrack"
             })
-        .catch((err) => {
-            console.log(err);
-        })
+            .then(({data}) => {
+                if(data == -1){
+
+                }
+                else{
+                    array = data[0].music_list;
+                }
+            })
+            .catch((err) => {
+                console.log(err);
+            })
+        }
 
         Axios.get("http://localhost:8080/ezenmusic/detail/album/albumtrack/"+album_title)
         .then(({data}) => {
@@ -54,36 +70,10 @@ function AlbumTrack({id, album_title, handleRender}) {
     }, [])
 
     return (
-        <StyledBrowser className="relative">
-            <LikeyBanner likeyBannerOn={likeyBannerOn} setLikeyBannerOn={setLikeyBannerOn} pageDivision={"track"}/>
-            <div className="mb-3">
-                <div className="flex items-center cursor-pointer">
-                    <RiPlayLine className="all-play-icon absolute top-[2px] left-[0px]"/>
-                    <p className="ml-[25px] text-[14px] text-gray">전체듣기</p>
-                </div>
-            </div>
-            <div>
-                <hr className="text-gray"/>
-                <table className="table table-hover">
-                    <MusicListHeader lank={false} setAllcheckVal={setAllcheckVal} allcheckVal={allcheckVal} />
-                    <tbody>
-                        {
-                            albumTrackMusic.map((item, index) => (
-                                <MusicListCard key={index} title={item.title} album_title={item.album_title} artist_num={item.artist_num} artist={item.artist} 
-                                img={item.org_cover_image} likey={item.likey} music_id={item.id} album_id={item.album_id} check_all={allcheckVal} 
-                                setLikeyBannerOn={setLikeyBannerOn} handleRender={handleRender}/>
-                            ))
-                        }
-                    </tbody>
-                </table>
-            </div>
-            {
-                allcheckVal ?
-                <AllCheckedModal setAllcheckVal={setAllcheckVal}/>
-                :
-                ""
-            }
-        </StyledBrowser>
+        <>
+        <MusicListTable page="albumtrack" lank={false} music_list={albumTrackMusic} handleRender={handleRender}/>
+        { loginRequestVal && <PleaseLoginMessage setLoginrRequestVal={setLoginrRequestVal} /> }
+        </>
     )
 }
 

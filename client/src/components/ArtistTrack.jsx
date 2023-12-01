@@ -6,11 +6,12 @@ import { StyledBrowser, StyledTableth } from '../pages/Browse';
 import MusicListCard from '../card/MusicListCard';
 import AlbumTrack from "./AlbumTrack";
 import Album from "./Album";
-
 import MusicListHeader from '../card/MusicListHeader';
 import AllCheckedModal from '../modal/AllCheckedModal';
 import LikeyBanner from '../card/LikeyBanner';
 import { Cookies } from "react-cookie";
+import PleaseLoginMessage from '../modal/PleaseLoginMessage';
+import MusicListTable from '../card/MusicListTable';
 
 function ArtistTrack({artist, music_id, artist_num, handleRender}) {
 
@@ -18,8 +19,11 @@ function ArtistTrack({artist, music_id, artist_num, handleRender}) {
 
     const [allcheckVal, setAllcheckVal] = useState(false);
     const [likeyBannerOn, setLikeyBannerOn] = useState(0);
+    // 로그인이 필요합니다 모달 변수
+    const [loginRequestVal, setLoginrRequestVal] = useState(false);
     const cookies = new Cookies();
     const userid_cookies = cookies.get("client.sid");
+
     let array = [];
 
 
@@ -54,36 +58,7 @@ function ArtistTrack({artist, music_id, artist_num, handleRender}) {
     }, [])
 
     return (
-        <StyledBrowser className="relative">
-            <LikeyBanner likeyBannerOn={likeyBannerOn} setLikeyBannerOn={setLikeyBannerOn} pageDivision={"track"}/>
-            <div className="mb-3">
-                <div className="flex items-center cursor-pointer">
-                    <RiPlayLine className="all-play-icon absolute top-[2px] left-[0px]"/>
-                    <p className="ml-[25px] text-[14px] text-gray">전체듣기</p>
-                </div>
-            </div>
-            <div>
-                <hr className="text-gray"/>
-                <table className="table table-hover">
-                    <MusicListHeader lank={false} setAllcheckVal={setAllcheckVal} allcheckVal={allcheckVal} />
-                    <tbody>
-                        {
-                            artistTrackMusic.map((item, index) => (
-                                <MusicListCard key={index} title={item.title} album_id={item.album_id} album_title={item.album_title} artist_num={artist_num} 
-                                artist={item.artist} img={item.org_cover_image} music_id={item.id} likey={item.likey} check_all={allcheckVal} 
-                                setLikeyBannerOn={setLikeyBannerOn} handleRender={handleRender} />
-                            ))
-                        }
-                    </tbody>
-                </table>
-            </div>
-            {
-                allcheckVal ?
-                <AllCheckedModal setAllcheckVal={setAllcheckVal} />
-                :
-                ""
-            }
-        </StyledBrowser>
+        <MusicListTable page="artisttrack" lank={false} music_list={artistTrackMusic} handleRender={handleRender}/>
     )
 }
 

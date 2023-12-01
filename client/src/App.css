@@ -11,10 +11,18 @@
     --main-text-white: #ffffff;
     --main-text-black: #000000;
     --main-text-gray: #7e7e7e;
-    --main-text-gray-lighter: #a5a5a5; 
+    --main-text-gray-lighter: #afafaf; 
     --main-text-gray-darker: #333333;
     --modal-text-black: #181818;
 
+    /* 건우 */
+    --mylist-null-image-before: #e3e3e3;
+    --mylist-null-image-after: #f3f3f3;
+
+    --modal-text-black: #181818;
+    --modal-text-white-darker: hsla(0,0%,100%,.75);
+    --modal-background-color: #576aff;
+    /* ~ 건우 ~ */
 
     --pagination-dot: #3f3fff;
     
@@ -23,6 +31,7 @@
     --purchase-box-color: #f4f5f8;
     --disabled-button-color: #e1e3e7;
     --signup-invalid-color: #ff4d78;
+    --color-deep-blue: #0000b6;
 
     --red-color: #db2359;
     /* size setting */
@@ -100,13 +109,20 @@ input[type='radio']:checked {
 
 
 
-/* MBJ */
+/* 병준 */
 .text-blue{ color: var(--main-theme-color); }
 .hover-text-blue:hover{ color: var(--main-theme-color); }
 .bg-blue{ background-color: var(--main-theme-color); }
 .hover-bg-blue:hover{ background-color: var(--main-theme-color); }
 .border-blue{ border-color: var(--main-theme-color); }
 .hover-border-blue:hover{ border-color: var(--main-theme-color); }
+
+.text-deepblue{ color: var(--color-deep-blue); }
+.hover-text-deepblue:hover{ color: var(--color-deep-blue); }
+.bg-deepblue{ background-color: var(--color-deep-blue); }
+.hover-bg-deepblue:hover{ background-color: var(--color-deep-blue); }
+.border-deepblue{ border-color: var(--color-deep-blue); }
+.hover-border-deepblue:hover{ border-color: var(--color-deep-blue); }
 
 
 .text-pink{ color: var(--signup-invalid-color); }
@@ -119,7 +135,7 @@ input[type='radio']:checked {
 .hover-text-gray-light:hover{ color: var(--main-text-gray-lighter);}
 .bg-gray-light{ background-color: var(--main-text-gray-lighter);}
 .hover-bg-gray-light:hover{ background-color: var(--main-text-gray-lighter);}
-
+.border-gray-light{ border-color: var(--main-text-gray-lighter); }
 
 .text-gray{ color: var(--main-text-gray);}
 .hover-text-gray:hover{ color: var(--main-text-gray);}
@@ -130,13 +146,387 @@ input[type='radio']:checked {
 
 
 
+.text-gray-dark{ color: var(--main-text-gray-darker);}
+.hover-text-gray-dark:hover{ color: var(--main-text-gray-darker);}
+.bg-gray-dark{ background-color: var(--main-text-gray-darkery);}
+.hover-bg-gray-dark:hover{ background-color: var(--main-text-gray-darker);}
+.border-gray-dark{ border-color: var(--main-text-gray-darker);}
+.hover-border-gray-dark:hover{ border-color: var(---main-text-gray-darker);}
+/* ~ 병준 ~ */
+
+
+/* 재호 */
+
+/*
+
+Artist 사진위 재생아이콘
+.iconsstart / 
+
+Artist 좋아요 버튼
+.iconheart
+*/
+
+/*
+Artist Music List 아이콘
+.artist_listen 재생(듣기) 버튼
+.artist_listplus 재생목록 추가
+.artist_box 내 리스트 추가
+.see_more_btn 더보기버튼
+/
+Album쪽 아이콘
+.libutton 앨범목록 사진위 재생버튼
+
+.iconsbox 내 리스트 추가
+
+.iconslistplus 재생목록 추가
+
+.iconsheart2 좋아요 버튼
+
+*/
+/*Music Track에 있는 전체듣기 아이콘
+.All_listen
+
+
+Music 전체체크시 나오는 선택해제 듣기  재생목록 리스트 아이콘
+/
+.menu_check 선택해제
+.menu_addlisten
+.menu_addlist
+.menu_addbox
+
+/ 보관함 좋아요 하트
+.iconsheart3
+*/
+/****************************************************************************************
+
+/*전체 체크시 아이콘*/
+.menu_check{
+    background-position: -558px -78px;
+    width: 34px;
+    height: 34px;
+}
+.menu_addlisten{
+    background-position: -558px -390px;
+    width: 34px;
+    height: 34px;
+}
+.menu_addlist{
+    background-position: -558px -507px;
+    width: 34px;
+    height: 34px;
+}
+.menu_addbox{
+    background-position: -558px -273px;
+    width: 34px;
+    height: 34px;
+}
+
+/*******************************************************/
+/* 보관함 좋아요 하트*/
+.iconsheart3{
+    background-position: -697px -482px;
+    width: 16px;
+    height: 16px;
+}
+.iconsheart3:hover{
+    background-position: -697px -503px;
+    width: 16px;
+    height: 16px;
+}
 
 
 
+/******************/
 
+.artist_track_order{
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 1;
+}
+.artist_track_order:hover{
+    color: var(--main-theme-color);
+}
+.artist_track_order::after{
+    display: block;
+    clear: both;
+    content: "";
+}
+.All_listen_head{
+    position: relative;
+    min-height: 20px;
+    padding-bottom: 16px;
+}
+.All_listen{
+    background-position: 2px -19px;
+    background-repeat: no-repeat;
+    position: relative;
+    padding-left: 17px;
+    margin: 0 15px 0 10px;
+    font-size: 13px;
+    line-height: 17px;
+    color: #222;
+    font-size: 13px;
+}
 
+.All_listen:hover{
+    background-position: 2px 2px;
+    color: var(--main-theme-color);
+}
+.All_listen:after{
+    width: 17px;
+    height: 17px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    content: "";
+}
+/*************
+Artist Music List 아이콘
+.artist_listen 재생(듣기) 버튼
+.artist_listplus 재생목록 추가
+.artist_box 내 리스트 추가
 
+***************/
+.artist_listen{
+    background-position: -467px -92px;
+    width: 41px;
+    height: 41px;
+}
+.artist_listen:hover{
+    background-position: -467px -46px;
+    width: 41px;
+    height: 41px;
+}
+.artist_listplus{
+    background-position: -467px -230px;
+    width: 41px;
+    height: 41px;
+}
+.artist_listplus:hover{
+    background-position: -467px -184px;
+    width: 41px;
+    height: 41px;
+}
+.see_more{
+    background-position: -184px -380px;
+    width: 41px;
+    height: 41px;
+   }
+.see_more:hover{
+    background-position: -138px -380px;
+    width: 41px;
+    height: 41px;
+}
+.artist_box{
+    background-position: -368px -380px;
+    width: 41px;
+    height: 41px;
+}
+.artist_box:hover{
+    background-position: -322px -380px;
+    width: 41px;
+    height: 41px;
+}
+/******************************************/
+.artist_main{
+    box-sizing: border-box;
+    width: 100%;
+    padding-left: 50px;
+    table-layout: fixed;
+}
+.artist_menu{
+    height: 43px;
+    padding-right: 40px;
+    overflow: hidden;
+    padding-top: 5px;
+    margin-bottom: 20px;
+    margin-left: 20px;
+}
+.artist_info{
+    margin: 30px 30px;
+}
+.artist_info_list{
+    position: relative;
+    font-size: 15px;
+    color: #333;
+}
 
+.artist_menu_list{
+    position: relative;
+    z-index: 1;
+    padding: 0;
+    margin: 0 auto;
+
+}
+
+.artist_track_main{
+    padding-top: 40px;
+}
+.Imgbox{
+    position: relative;
+}
+.Imgbox>img:hover{ 
+    position: relative;
+}
+.libutton{
+    right: 11px;
+    bottom: 5px;
+    background-position: -180px -105px;
+    width: 32px;
+    height: 32px;
+    color:transparent
+}
+.libutton:hover{
+    background-position: -143px -105px;
+}
+.iconsbox{
+    background-position: 0px -663px;
+    width: 23px;
+    height: 23px;
+}
+.iconsbox:hover{
+    background-position: -392px -352px;
+}
+.iconsstart{
+    top: 160px;
+    width: 60px;
+    height: 60px;
+    background-position: -65px -143px;
+    border-radius: 175px;
+    right: 0;
+    bottom: 0;
+    position: absolute;
+}
+.iconsstart:hover{
+    background-position: -0px -143px;
+    }
+    .libutton{
+    position: absolute;
+    z-index: 3;
+    overflow: hidden;
+    }
+.iconslistplus{
+    width: 23px;
+    height: 23px;
+    background-position: -196px -663px;
+}
+.iconslistplus:hover{
+    width: 23px;
+    height: 23px;
+    background-position: -56px -663px;
+}
+.iconsheart{
+    width: 41px;
+    height: 41px;
+    overflow: hidden;
+    text-indent: 100%;
+    background-position: -421px -138px;
+    white-space: middle;
+    color: var(--main-text-gray-lighter);
+}
+.iconsheart2{
+    width: 23px;
+    height: 23px;
+    overflow: hidden;
+    background-position: -336px -268px;
+    white-space: middle;
+    color: var(--main-text-gray-lighter);
+}
+.iconsheart2:hover{
+    background-position: -276px -180px;
+    width: 23px;
+    height: 23px;
+}
+.iconsheart:hover{
+    background-position: -421px -92px;
+    width: 41px;
+    height: 41px;
+}
+.activeoff:hover{
+    color:var(--main-theme-color);
+}
+.artist_Album{
+    display: block;
+    font-size: 100%;
+    font-weight: 400;
+    color:#333;
+}
+.artist_Album_track{
+    position: relative;
+    display: block;
+    padding-top: 40px;
+}
+.artist_Album_bener{
+    font-size: 13px;
+    position: absolute;
+    right: 0;
+    color:#333;
+    z-index: 1;
+}
+
+.artist_Album_benerafter{
+    position: relative;
+    min-height:20px ;
+    padding-bottom: 16px;
+}
+.artist_Album_benerafter::after{
+    display: block;
+    clear: both;
+    content: "";
+}
+.artist_Album_div{
+    position: relative;
+    min-height: 20px;
+    padding-bottom: 16px;
+}
+.artist_Album_ul{
+@media only screen and (min-width:1440px){
+    margin-left: -102px;
+}
+
+}
+.artist_Album_li{
+    display: inline-block;
+    width: 412px;
+    padding-right: 12px;
+    margin-right: -12px;
+    vertical-align: top;
+    margin-top: 20px;
+    margin-left: 102px;
+@media only screen and (max-width:1440px){
+        margin-left: 102px;
+}
+
+}
+.ellipsis-container{
+    overflow: hidden;
+}
+.ellipsis-text{
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.thumbnail{
+position: relative;
+width: 175px;
+padding-top: 5px;
+margin-bottom: 15px;
+text-align: center;
+}
+
+.redheart{
+    background-position: -421px -230px;
+    width: 41px;
+    height: 41px;
+}
+.redheart2{
+    background-position: -392px -324px;
+    width: 23px;
+    height: 23px;
+}
+/* ~ 재호 ~ */
 
 
 

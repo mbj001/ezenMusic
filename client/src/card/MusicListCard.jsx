@@ -4,10 +4,13 @@ import styled from 'styled-components'
 import { RiPlayFill, RiPlayListAddFill, RiFolderAddLine, RiMore2Line, RiMusic2Line, RiAlbumLine, RiMicLine, RiHeart3Line, RiProhibitedLine, RiHeart3Fill } from "react-icons/ri";
 import Axios from "axios"
 import { Cookies } from 'react-cookie';
+import PleaseLoginMessage from '../modal/PleaseLoginMessage';
+import icons from '../assets/sp_button.6d54b524.png'
 
 
-
-function MusicListCard({lank, title, album_title, artist_num, artist, img, music_id, album_id, check_all, clickPlaylistModalOpen, likey, handleLikeypage, setLikeyBannerOn, handleRender}) {
+function MusicListCard({lank, title, album_title, artist_num, artist, img, music_id, album_id, check_all, setAllcheckVal, 
+                        clickPlaylistModalOpen, likey, handleLikeypage, setLikeyBannerOn, handleRender,
+                        setLoginrRequestVal, selectMusic, setPlayerBannerOn, setAddplayerCount}) {
 
     const searchInputRef = useRef(null);
     const moreboxRef = useRef(null);
@@ -18,14 +21,18 @@ function MusicListCard({lank, title, album_title, artist_num, artist, img, music
     const cookies = new Cookies();
     const userid_cookies = cookies.get("client.sid");
 
-
-    function addPlayerlistFunc(){
+    // playerlist 추가
+    function addPlayerlistFunc(e, addplayer){
+        e.preventDefault();
         Axios.post("http://localhost:8080/playerHandle/addplayerlist",{
             userid: userid_cookies,
-            id: music_id
+            id: music_id,
+            play_now: addplayer
         })
         .then(({data}) => {
             console.log("POST COMPLETE !!! : VALUE = " + data);
+            setAddplayerCount(1);
+            setPlayerBannerOn(true);
             handleRender();
         })
     }
@@ -33,6 +40,7 @@ function MusicListCard({lank, title, album_title, artist_num, artist, img, music
 
     function chkboxClickFunc(e){
         setChkboxChecked(!chkboxChecked);
+        // setAllcheckVal(false);
     }
 
     function handleLikey(){
@@ -52,12 +60,14 @@ function MusicListCard({lank, title, album_title, artist_num, artist, img, music
         }
         )
         .then(({data}) => {
+            setIsSearchMode(false); 
+            setLikeyBannerOn(1)
             if(handleLikeypage){
                 handleLikeypage();
             }
-            handleLikey();
-            setIsSearchMode(false); 
-            setLikeyBannerOn(1)
+            else{
+                handleLikey();
+            }
 
         })
         .catch((err) => {
@@ -74,12 +84,15 @@ function MusicListCard({lank, title, album_title, artist_num, artist, img, music
         )
         .then(({data}) => {
             console.log(data);
+            setIsSearchMode(false);
+            setLikeyBannerOn(-1); 
             if(handleLikeypage){
                 handleLikeypage();
             }
-            handleLikey();
-            setIsSearchMode(false);
-            setLikeyBannerOn(-1); 
+            else{
+                // liketrack 페이지에서는 파랑하트 유지
+                handleLikey();
+            }
         })
         .catch((err) => {
             console.log(err);
@@ -113,7 +126,8 @@ function MusicListCard({lank, title, album_title, artist_num, artist, img, music
     return (    
     <>
     <StyledTableTr className={chkboxChecked? "table-active" : ""}>
-        <StyledTabletd className="text-center"><input type="checkbox" checked={chkboxChecked} onClick={chkboxClickFunc} readOnly /></StyledTabletd>
+        
+        <StyledTabletd className="text-center"><input type="checkbox" checked={chkboxChecked} id={music_id} onChange={selectMusic} onClick={chkboxClickFunc} readOnly /></StyledTabletd>
         {
             lank ?
             <StyledTabletd className="text-center"><p className="text-black font-black">{lank}</p></StyledTabletd>
@@ -128,12 +142,32 @@ function MusicListCard({lank, title, album_title, artist_num, artist, img, music
             </div> 
         </StyledTabletd>
         <StyledTabletd className="w-[250px]"><p><Link to="#">{artist}</Link></p></StyledTabletd>
-        <StyledTabletd className="m-auto w-[70px]"><RiPlayFill className="m-auto text-[24px] text-gray cursor-pointer hover-text-blue" onClick={addPlayerlistFunc}/></StyledTabletd>
-        <StyledTabletd className="w-[70px]"><RiPlayListAddFill className="m-auto text-[24px] text-gray cursor-pointer hover-text-blue" /></StyledTabletd>
+        <StyledTabletd className="m-auto w-[70px]">
+            {
+                userid_cookies?
+                <RiPlayFill className="m-auto text-[24px] text-gray cursor-pointer hover-text-blue" onClick={(e) => addPlayerlistFunc(e, 1)}/>
+                :
+                <RiPlayFill className="m-auto text-[24px] text-gray cursor-pointer hover-text-blue" onClick={setLoginrRequestVal}/>   
+            }
+        </StyledTabletd>
         <StyledTabletd className="w-[70px]">
-            <button type='button' value={music_id} onClick={(e) => clickPlaylistModalOpen(e, music_id, img)}>
-                <RiFolderAddLine className="ml-[13px] mt-[4px] text-[24px] text-gray-500 cursor-pointer hover-text-blue" />
-            </button>
+            {
+                userid_cookies?
+                // <button className="iconslistplus " style={{backgroundImage:`url(${icons})`, transform: "scale(1.3)"}}></button>
+                <RiPlayListAddFill className="m-auto text-[24px] text-gray cursor-pointer hover-text-blue" onClick={(e) => addPlayerlistFunc(e, -1)}/>
+                :
+                <RiPlayListAddFill className="m-auto text-[24px] text-gray cursor-pointer hover-text-blue" onClick={setLoginrRequestVal}/>
+            }
+        </StyledTabletd>
+        <StyledTabletd className="w-[70px]">
+            {
+                userid_cookies?
+                <button type='button' value={music_id} onClick={(e) => clickPlaylistModalOpen(e, music_id, img)}>
+                    <RiFolderAddLine className="ml-[13px] mt-[4px] text-[24px] text-gray-500 cursor-pointer hover-text-blue" />
+                </button>
+                :
+                <RiFolderAddLine className="ml-[13px] mt-[3px] text-[24px] text-gray-500 cursor-pointer hover-text-blue" onClick={setLoginrRequestVal}/>
+            }
         </StyledTabletd>
         <StyledTabletd className="text-center w-[70px] relative" ref={moreboxRef}><RiMore2Line className="m-auto text-[24px] text-gray-500 cursor-pointer hover-text-blue" onClick={() => {setIsSearchMode(!isSearchMode);}}/>
             {
@@ -144,12 +178,19 @@ function MusicListCard({lank, title, album_title, artist_num, artist, img, music
                         <li><Link to={"/detail/album/"+album_id+"/albumtrack"} className="flex items-center"><RiAlbumLine /><p>앨범 정보</p></Link></li>
                         <li><Link to={"/detail/artist/"+artist_num+"/artisttrack"} className="flex items-center"><RiMicLine /><p>아티스트 정보</p></Link></li>
                         {
-                            likeyVal === true || likey === "alltrue" ?
-                            <li className="flex items-center cursor-pointer" onClick={delLikeyFunc}><RiHeart3Fill className="text-blue"/><p>종아요</p></li>
+                            userid_cookies?
+                            <>
+                            {
+                                likeyVal === true || likey === "alltrue" ?
+                                <li className="flex items-center cursor-pointer" onClick={delLikeyFunc}><RiHeart3Fill className="text-blue"/><p>종아요</p></li>
+                                :
+                                <li className="flex items-center cursor-pointer" onClick={addLikeyFunc}><RiHeart3Line /><p>종아요</p></li>
+                            }
+                            </>
                             :
-                            <li className="flex items-center cursor-pointer" onClick={addLikeyFunc}><RiHeart3Line /><p>종아요</p></li>
+                            <li className="flex items-center cursor-pointer" onClick={setLoginrRequestVal}><RiHeart3Line /><p>종아요</p></li>
                         }
-                        <li><Link to="#" className="flex items-center"><RiProhibitedLine /><p>이곡 안듣기</p></Link></li>
+                        {/* <li><Link to="#" className="flex items-center"><RiProhibitedLine /><p>이곡 안듣기</p></Link></li> */}
                     </ul>
                 </StyledMusicMenu>
                 :
@@ -178,6 +219,7 @@ export const StyledMusicMenu = styled.div`
     top: 60px;
     background-color: white;
     z-index: 100;
+    border-radius: 5px;
 
     ul>li:first-child{
         padding-left: 15px;

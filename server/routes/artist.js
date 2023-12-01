@@ -86,18 +86,14 @@ router.get("/artist_write", (req, res) => {
 //edit
 router.get('/artist_edit/:num', (req, res) => {
     console.log("routes => artist.js => router.get ('/artist_edit/:num')")
-    const { num } = req.params;
-    console.log("num: " + num);
-    console.log("typeof(num): " + typeof(num));
-    console.log("parseInt(num): " + parseInt(num));
-    console.log("typeof(parseInt(num)): " + typeof(parseInt(num)));
     let sql = `select * from artist where artist_num = ?`;
-    conn.query(sql,[num], (err, row, fields) => {
+    // console.log(req.file);
+    // console.log(req.body);
+    conn.query(sql,[req.params.num], (err, row, fields) => {
         if (err) {
             console.error(err)
         } else {
-            res.render("artist_edit", { title: "Artist Edit", row, artist_num: num })
-            console.log(` /////${num} 번 Artist 수정중 ///// `)
+            res.render("artist_edit", { title: "Artist Edit", row, artist_num: req.params.num })
         }
     })
 })
@@ -131,28 +127,29 @@ router.get('/artist_edit/:num', (req, res) => {
 // })
     
 // MBJ
-// router.post("/artist_edit/:num", (req, res) => {
-//         console.log("Data 전송")
-//         const { num } = req.params;
-//         const rs = req.body;
+router.post("/artist_edit", upload.single("artist_img"),(req, res) => {
+        console.log("Data 전송")
 
-        
-//     console.log(rs);
-//     const sql = `update artist set ?,?,?,?,?,?,? where artist_num = ?`;
-//         // conn.query(sql, updateParams, [num], (err, res, fields) => {
-//         // conn.query(sql, [{org_artist_img: req.body.originalname},{artist_img: req.body.filename},{ artist: rs.artist }, { artist_class: rs.artist_class }, {artist_gender: rs.artist_gender}, {genre: rs.artist_genre}, num], (err, res, fields) => {
-//         //     if (err) {
-//         //         console.error(err)
-//         //     } else {
-//         //         console.log("업데이트 성공")
-//         //     }
-//         // })
-//         // res.redirect("/artist") 
-//     })
+        if(req.file === undefined){
+            const sql = `update artist set ?,?,?,? where artist_num = ?`;
+            conn.query(sql, [{artist: req.body.artist}, {artist_class: req.body.artist_class}, {artist_gender: req.body.artist_gender}, {genre: req.body.artist_genre}, Number(req.body.artist_num)], (err, sql_result, fields) => {
+                if(err){
+                    console.error(err)
+                }
+                else{
+                    let sql = `select * from artist order by artist_num desc`;
+                    conn.query(sql, (err, row, fields) => {
+                        if (err) {
+                            console.log(err)
+                        } else {
+                            res.render('artist', { title: "Artist list", row })
+                        }
+                    })                
+                }
+            })
+        }
+})
 
 // update
-
-
-
 
 module.exports = router;

@@ -7,86 +7,22 @@ import { Cookies } from "react-cookie";
 // import { StyledMusicMenu } from '../card/MusicListCard';
 // import styled from 'styled-components';
 import PlayerBanner from '../card/PlayerBanner';
-import LikeyBanner from '../card/LikeyBanner';
 
 
-import { RiSearchLine, RiMore2Line, RiMusic2Line, RiAlbumLine, RiMicLine, RiHeart3Line, RiProhibitedLine, RiHeart3Fill } from "react-icons/ri";
+import { RiSearchLine, RiMore2Line, RiMusic2Line, RiAlbumLine, RiMicLine, RiHeart3Line, RiProhibitedLine } from "react-icons/ri";
 
 function Playlist({handleRender, render}) {
-
-    const [hasplayerlist, setHasplayerlist] = useState(true);
     const [playerMusic, setPlayerMusic] = useState([]);
     const [listenMusic, setListenMusic] = useState([]);
     const [showPlaylist, setShowPlaylist] = useState(true);
     const [showMorebox, setShowMorebox] = useState([]); 
 
-    // const [playerBannerOn, setPlayerBannerOn] = useState(false);
-
-    // 좋아요 누를 때 베너
-    // const [likeyBannerOn, setLikeyBannerOn] = useState(0);
-    // const [likeyVal, setLikeyVal] = useState(false);
-
-    const moreIconRef = useRef([]);
-    const moreboxRef = useRef([]);
+    const [playerBannerOn, setPlayerBannerOn] = useState(false);
 
     const cookies = new Cookies();
     const userid_cookies = cookies.get("client.sid");
 
     let array = [];
-    
-    // let array2 = [];
-
-    // function handleLikey(){
-    //     setLikeyVal(likeyVal => {return !likeyVal});
-    // }
-
-
-    // function addLikeyFunc(music_id){
-    //     Axios.post("http://localhost:8080/ezenmusic/addlikey", {
-    //         userid: userid_cookies,
-    //         id: music_id,
-    //         division: "liketrack"
-    //     }
-    //     )
-    //     .then(({data}) => {
-    //         // setIsSearchMode(false); 
-    //         setLikeyBannerOn(1)
-    //         // if(handleLikeypage){
-    //         //     handleLikeypage();
-    //         // }
-    //         // else{
-    //             handleLikey();
-    //         // }
-
-    //     })
-    //     .catch((err) => {
-    //         console.log(err);
-    //     })
-    // }
-
-    // function delLikeyFunc(music_id){
-    //     Axios.post("http://localhost:8080/ezenmusic/dellikey", {
-    //         userid: userid_cookies,
-    //         id: music_id,
-    //         division: "liketrack"
-    //     }
-    //     )
-    //     .then(({data}) => {
-    //         console.log(data);
-    //         // setIsSearchMode(false);
-    //         setLikeyBannerOn(-1); 
-    //         // if(handleLikeypage){
-    //         //     handleLikeypage();
-    //         // }
-    //         // else{
-    //             // liketrack 페이지에서는 파랑하트 유지
-    //             handleLikey();
-    //         // }
-    //     })
-    //     .catch((err) => {
-    //         console.log(err);
-    //     })
-    // }
 
     function delPlayerlistFunc(e, id){
         e.preventDefault();
@@ -101,91 +37,40 @@ function Playlist({handleRender, render}) {
     }
 
     useEffect(() => {
-      
+        console.log("playerlist useeffect");
+        
         if(!userid_cookies){
             // 로그인 안되어 있을 때
         }
         else{
-            // Axios.post("http://localhost:8080/ezenmusic/allpage/likeylist", {
-            //     userid: userid_cookies,
-            //     division: "liketrack"
-            // })
-            // .then(({data}) => {
-            //     if(data == -1){
-        
-            //     }
-            //     else{
-            //         array2 = data[0].music_list;
-            //         console.log("array2");
-            //         console.log(array2);
-            //     }
-            // })
-            // .catch((err) => {
-            //     console.log(err);
-            // })
-
-
             Axios.post("http://localhost:8080/ezenmusic/playerbar", {
                 userid: userid_cookies
             })
             .then(({data}) => {
-                console.log("플레이어 리셋");
-                if(data == -1){
-                    console.log("플레이어 리스트 없음");
-                    setHasplayerlist(false);
-                    setListenMusic([]);
-                    setPlayerMusic([]);
-                }
-                else{
-                    // for(let i=0; i<data.length; i++){
-                    //     // object 에 likey 라는 항목 넣고 모두 false 세팅
-                    //     data[i].likey = false;
-                    // }
-        
-                    // for(let i=0; i<array2.length; i++){
-                    //     for(let j=0; j<data.length; j++){
-                    //         if(array2[i] === Number(data[j].id)){
-                    //             // 좋아요 해당 object 의 값 true 로 변경
-                    //             data[j].likey = true;
-                    //         }
-                    //     }
-                    // }
-
-                    for(let i=0; i<data.length; i++){
-                        if(data[i].now_play_music === true){
-                            // 아래 player에 나올 노래
-                            setListenMusic(data[i]);
-                        }
+                for(let i=0; i<data.length; i++){
+                    if(data[i].now_play_music === true){
+                        // 아래 player에 나올 노래
+                        setListenMusic(data[i]);
                     }
-                    // 플레이리스트에 들어갈 노래들
-                    setPlayerMusic(data);
-                    setHasplayerlist(true);
-                    for(let i=0; i<data.length; i++){
-                        array.push("false");
-                    }
-                    setShowMorebox(() => {return array;});
-                    
-                    console.log("길이");
-                    console.log(listenMusic.length);
-                    console.log(listenMusic);
-
-                    
-                    // setHasplayerlist(true);
                 }
-                console.log("hasplaylist");
-                console.log(hasplayerlist);
+                // 플레이리스트에 들어갈 노래들
+                setPlayerMusic(data);
+    
+                for(let i=0; i<data.length; i++){
+                    array.push("false");
+                }
+                setShowMorebox(array);
             })
             .catch((err) => {
                 {}
             })
 
         }
-    }, [handleRender, render])
+    }, [handleRender])
 
-
-    // useEffect(() => {
-    //     setPlayerBannerOn(true);
-    // }, [render])
+    useEffect(() => {
+        setPlayerBannerOn(true);
+    }, [render])
 
     function changeMusicFunc(e, item){
         e.preventDefault();
@@ -202,38 +87,22 @@ function Playlist({handleRender, render}) {
         setShowPlaylist(showPlaylist => {return !showPlaylist});
     }
 
-    function handleShowMoreBox(index){
-        // e.preventDefault();
+    function handleShowMoreBox(e, index){
+        e.preventDefault();
         let handleArray = [];
+
         for(let i=0; i<showMorebox.length; i++){
             handleArray.push(showMorebox[i]);
         }
+
         if(handleArray[index] === "false"){
             handleArray[index] = "true";
         }
         else{
             handleArray[index] = "false";
         }
-
         setShowMorebox(handleArray); 
     }
-
-    useEffect(() => {
-        function handleClickOutside(e){    
-            for(let i=0; i<moreboxRef.current.length; i++){
-                if(moreboxRef.current[i] && !moreboxRef.current[i].contains(e.target)) {
-                    if(moreIconRef.current[i].contains(e.target)){
-                    }
-                    else{
-                        handleShowMoreBox(i); 
-                    }
-                }
-
-            }
-        }
-
-        document.addEventListener("mousedown", handleClickOutside);
-    }, [moreboxRef, moreIconRef]);
 
     return (
         <>
@@ -290,23 +159,16 @@ function Playlist({handleRender, render}) {
                                             <p className="text-gray-400 text-[11px]">{item.artist}</p>
                                         </div>
                                         
-                                        <div className="col-1" ref={(element) => {moreIconRef.current[index] = element}}><RiMore2Line className="text-gray-400 text-[22px] cursor-pointer relative" onClick={(e) => handleShowMoreBox(index)} />
+                                        <div className="col-1"><RiMore2Line className="text-gray-400 text-[22px] cursor-pointer relative" onClick={(e) => handleShowMoreBox(e, index)} />
                                         {
                                             showMorebox[index] === "true" ?
-                                                <Styledlist ref={(element) => {moreboxRef.current[index] = element}}>
+                                                <Styledlist>
                                                     <ul>
                                                         <li onClick={showPlaylistFunc}><Link to={"/detail/track/"+item.id+"/details"} className="flex items-center"><RiMusic2Line /><p>곡 정보</p></Link></li>
                                                         <li onClick={showPlaylistFunc}><Link to={"/detail/album/"+item.album_id+"/albumtrack"} className="flex items-center"><RiAlbumLine /><p>앨범 정보</p></Link></li>
                                                         <li onClick={showPlaylistFunc}><Link to={"/detail/artist/"+item.id+"/artisttrack"} className="flex items-center"><RiMicLine /><p>아티스트 정보</p></Link></li>
-                                                        <li className="flex items-center cursor-pointer"><RiHeart3Line /><p>종아요</p></li>
-                                                            {/* {
-                                                                likeyVal === true ?
-                                                                <li className="flex items-center cursor-pointer" onClick={() => delLikeyFunc(item.id)}><RiHeart3Fill className="text-blue"/><p>종아요</p></li>
-                                                                :
-                                                                <li className="flex items-center cursor-pointer" onClick={addLikeyFunc(item.id)}><RiHeart3Line /><p>종아요</p></li>
-                                                            } */}
+                                                        <li><Link to="#" className="flex items-center"><RiHeart3Line /><p>종아요</p></Link></li>
                                                         <li onClick={(e) => delPlayerlistFunc(e, item.id)}><Link to="#" className="flex items-center"><RiProhibitedLine /><p>삭제</p></Link></li>
-                                                        {/* <li className="cursor-pointer flex"><RiProhibitedLine /><p>연습용버튼</p></li> */}
                                                     </ul>
                                                 </Styledlist>
                                                 :
@@ -325,12 +187,12 @@ function Playlist({handleRender, render}) {
         <div>
             <Player listenMusic={listenMusic} showPlaylistFunc={showPlaylistFunc} handleRender={handleRender}/>
         </div>
-        {/* {
+        {
             playerBannerOn?
             <PlayerBanner playerBannerOn={playerBannerOn} setPlayerBannerOn={setPlayerBannerOn}/>
             :
             ""
-        } */}
+        }
         </>
     )
 }
@@ -362,7 +224,6 @@ const StyledPlaylist = styled.div`
 `
 
 export const Styledlist = styled.div`
-    position: sticky;
     position: absolute;
     // box-shadow: 0 0 30px 5px #efefef;
     width: 200px;

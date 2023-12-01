@@ -8,6 +8,10 @@ import MusicListHeader from '../card/MusicListHeader';
 import { Cookies } from "react-cookie";
 import AllCheckedModal from '../modal/AllCheckedModal';
 import LikeyBanner from '../card/LikeyBanner';
+import PleaseLoginMessage from '../modal/PleaseLoginMessage';
+import MusicListTable from '../card/MusicListTable';
+import PlayerBanner from '../card/PlayerBanner';
+import icons from '../assets/sp_button.6d54b524.png'
 
 function Chart({genre_id, handleRender}) {
 
@@ -18,19 +22,62 @@ function Chart({genre_id, handleRender}) {
 
     const [allcheckVal, setAllcheckVal] = useState(false);
     const [likeyBannerOn, setLikeyBannerOn] = useState(0);
+    // 로그인이 필요합니다 모달 변수
+    const [loginRequestVal, setLoginrRequestVal] = useState(false);
+    // 플레이어 추가 베너
+    const [playerBannerOn, setPlayerBannerOn] = useState(false);
+
     const cookies = new Cookies();
     const userid_cookies = cookies.get("client.sid");
     let array = [];
 
-    useEffect(() => {
 
-        Axios.get("http://localhost:8080/ezenmusic/allpage/likeylist/"+userid_cookies)
+    // 2023-12-01 album 플레이어 추가
+    function playerAdd(){
+        let array = [];
+
+        for(let i=0; i<chartlist.length; i++){
+            array.push(chartlist[i].id)
+        }
+
+        Axios.post("http://localhost:8080/playerhandle/playerAdd", {
+            userid: userid_cookies,
+            music_list: array
+        })
+
         .then(({data}) => {
-                array = data[0].music_list;
-            })
+
+            setPlayerBannerOn(true);
+            handleRender();
+
+        })
+
         .catch((err) => {
             console.log(err);
         })
+    }
+
+
+
+    useEffect(() => {
+
+        if(userid_cookies !== undefined){
+            Axios.post("http://localhost:8080/ezenmusic/allpage/likeylist/", {
+                userid: userid_cookies,
+                division: "liketrack"
+            })
+            .then(({data}) => {
+                    if(data == -1){
+
+                    }
+                    else{
+                        array = data[0].music_list;
+                    }
+                })
+            .catch((err) => {
+                console.log(err);
+            })
+        }
 
         Axios.get("http://localhost:8080/ezenmusic/detail/chartinfo/"+genre_id)
         .then(({data}) => {
@@ -69,6 +116,12 @@ function Chart({genre_id, handleRender}) {
     return (
         <>
         {
+            playerBannerOn?
+            <PlayerBanner playerBannerOn={playerBannerOn} setPlayerBannerOn={setPlayerBannerOn} page={"albumtrack"} />
+            :
+            ""
+        }
+        {
             chartinfo.map((item, index) => (
                 <StyledDetail key={index} className='md:w-[1000px] xl:w-[1280px] 2xl:w-[1440px]'>
                     <div className="mb-[40px]">
@@ -77,10 +130,9 @@ function Chart({genre_id, handleRender}) {
                             <div className="m-[30px]">
                                 <p className="detail-title mb-[10px]">{item.full_genre}</p>
                                 <p className="font-normal">총 {totalNum}곡</p>
-                                <div className="flex mt-[50px] ">
-                                    <RiPlayListAddFill className="mr-[10px] text-[24px] text-gray cursor-pointer hover-text-blue" />
-                                    <RiFolderAddLine className="mx-[10px] text-[24px] text-gray cursor-pointer hover-text-blue" />
-                                    <RiHeart3Line className="mx-[10px] text-[24px] text-gray cursor-pointer hover-text-blue" />
+                                <div className="flex mt-[30px] ">
+                                    <button className="artist_listplus ml-[-10px]" style={{backgroundImage:`url(${icons})`}} onClick={userid_cookies? playerAdd : setLoginrRequestVal}></button>
+                                    <button className="artist_box " style={{backgroundImage:`url(${icons})`}} onClick={userid_cookies? "" : setLoginrRequestVal}></button>
                                 </div>
                             </div>
                         </div>
@@ -91,34 +143,10 @@ function Chart({genre_id, handleRender}) {
                 </StyledDetail>
             ))
         }
-        <StyledBrowser className="relative md:w-[1000px] xl:w-[1280px] 2xl:w-[1440px]">
-            <LikeyBanner likeyBannerOn={likeyBannerOn} setLikeyBannerOn={setLikeyBannerOn} pageDivision={"track"}/>
-            <div className="mb-3">
-                <div className="flex items-center cursor-pointer">
-                    <RiPlayLine className="all-play-icon absolute top-[2px] left-[0px]"/>
-                    <p className="ml-[25px] text-[14px] text-gray">전체듣기</p>
-                </div>
-            </div>
-            <div>
-                <hr className="text-gray"/>
-                <table className="table table-hover">
-                    <MusicListHeader lank={false} setAllcheckVal={setAllcheckVal} allcheckVal={allcheckVal} />
-                    <tbody>
-                        {
-                            chartlist.map((item, index) => (
-                                <MusicListCard key={index} title={item.title} album_title={item.album_title} artist_num={item.artist_num} artist={item.artist} img={item.org_cover_image} music_id={item.id} album_id={item.album_id} likey={item.likey} check_all={allcheckVal} setLikeyBannerOn={setLikeyBannerOn} handleRender={handleRender}/>
-                            ))
-                        }
-                    </tbody>
-                </table>
-            </div>
-        </StyledBrowser>
-        {
-                allcheckVal ?
-                <AllCheckedModal setAllcheckVal={setAllcheckVal}/>
-                :
-                ""
-        }
+
+        <MusicListTable page="chart" lank={false} music_list={chartlist} handleRender={handleRender}/>
+        
+        { loginRequestVal && <PleaseLoginMessage setLoginrRequestVal={setLoginrRequestVal} /> }
         </>
     )
 }

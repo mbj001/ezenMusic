@@ -7,21 +7,21 @@ import LikeTheme from './LikeTheme';
 import { useParams, NavLink } from 'react-router-dom';
 
 
-const Likey = () => {
+const Likey = ({handleRender}) => {
 
     const {storage_params} = useParams();
 
     return (
         <>
         <StyledLikey className="md:w-[1000px] xl:w-[1280px] 2xl:w-[1440px] m-auto">
-            <div className="mb-[100px]">
+            <div className="mb-[50px]">
                 <NavLink to={"/storage/liketrack"} className={({ isActive }) => isActive ? "likey-nav active" : "likey-nav text-gray" }>곡</NavLink>
                 <NavLink to={"/storage/likealbum"} className={({ isActive }) => isActive ? "likey-nav active" : "likey-nav text-gray" }>앨범</NavLink>
                 <NavLink to={"/storage/likeartist"} className={({ isActive }) => isActive ? "likey-nav active" : "likey-nav text-gray" }>아티스트</NavLink>
                 <NavLink to={"/storage/liketheme"} className={({ isActive }) => isActive ? "likey-nav active" : "likey-nav text-gray" }>리스트</NavLink>
             </div>
             {
-                storage_params === "liketrack" && <LikeTrack division={storage_params}/>
+                storage_params === "liketrack" && <LikeTrack division={storage_params} handleRender={handleRender}/>
             }
             {
                 storage_params === "likealbum" && <LikeAlbum division={storage_params} />

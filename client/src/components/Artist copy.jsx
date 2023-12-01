@@ -10,7 +10,7 @@ import { NavLink, useParams } from 'react-router-dom';
 import { Cookies } from "react-cookie";
 import LikeyBanner from '../card/LikeyBanner';
 import PleaseLoginMessage from '../modal/PleaseLoginMessage';
-import icons from '../assets/sp_button.6d54b524.png';
+import icons from '../sp_button.6d54b524.png';
 
 function Artist({ music_id, handleRender }) {
 
@@ -35,7 +35,7 @@ function Artist({ music_id, handleRender }) {
         setIslikey(islikey => {return !islikey})
     }
 
-    function addLikeArtist(){
+    function addLikeAlbum(){
         Axios.post("http://localhost:8080/ezenmusic/addlikey", {
             userid: userid_cookies,
             id: music_id,
@@ -50,7 +50,7 @@ function Artist({ music_id, handleRender }) {
         })
     }
 
-    function delLikeArtist(){
+    function delLikeAlbum(){
         Axios.post("http://localhost:8080/ezenmusic/dellikey", {
             userid: userid_cookies,
             id: music_id,
@@ -114,51 +114,35 @@ function Artist({ music_id, handleRender }) {
                 <StyledDetail key={index} className='md:w-[1000px] xl:w-[1280px] 2xl:w-[1440px]'>
                     <div>
                         <div className="flex p-[30px]">
-                            <div className="Imgbox mb-[10px]">
-                                <img src={"/image/artist/" + item.org_artist_img} alt="artist_img" className="w-[230px] h-[230px] rounded-[50%] hover:brightness-75" />
+                            <div className="Imgbox">
+                                <img src={"/image/artist/" + item.org_artist_img} alt="artist_img" className="w-[230px] h-[230px] rounded-[175px] hover:brightness-75" />
                                 <StyledButton><BiCaretRight className="artist_img_button"/></StyledButton>
-                                {/* <button title={item.artist+"  듣기"} className="iconsstart" style={{ backgroundImage: `url(${icons})` }}></button> */}
                             </div>
-                            <div className="m-[30px] w-[1210px] h-[50px] relative mt-[45px]">
+                            <div className="m-[30px] w-[1210px] h-[50px] relative">
                                 <Link to={item.artist_num}><h3 className="detail-title mb-[10px]">{item.artist}</h3></Link>
                                 <StyledTable>
-                                <dl className="artist_info_list flex items-center">
+                                    <dl className="">
                                     <dt className="hidden">아티스트 정보</dt>
-                                    <dd>{item.artist_class}</dd>
-                                    <dd className="text-[8px] text-gray "><span className="mx-[5px]">|</span></dd>
-                                    <dd className="info_list">{item.artist_gender}</dd>
-                                    <dd className="text-[8px] text-gray "><span className="mx-[5px]">|</span></dd>                                    
-                                    <dd className="info_list">{item.genre}</dd>
-                                </dl>
+                                    <dd>{item.artist_class}</dd> Ι
+                                    <dd>{item.artist_gender}</dd> Ι
+                                    <dd>{item.genre}</dd>
+                                    </dl>
                                 </StyledTable>
-                                <div className="flex mt-[30px] ">
-                                {
-                                    userid_cookies?
-                                    <>
+                                <div className="flex mt-[50px] ">
                                     {
-                                        islikey?
-                                        <button className="redheart ml-[-5px]" style={{backgroundImage:`url(${icons})`}} onClick={delLikeArtist}></button>
-                                        :
-                                        <button className="iconsheart ml-[-5px]" style={{backgroundImage:`url(${icons})`}} onClick={addLikeArtist}></button>
-                                    }    
-                                    </>
-                                    :
-                                    <button className="iconsheart ml-[-5px]" style={{backgroundImage:`url(${icons})`}} onClick={() => setLoginrRequestVal(true)}></button>
-                                }
-                                    {/* {
                                         userid_cookies?
                                         <>
                                         {
                                             islikey?
-                                            <RiHeart3Fill className="mx-[10px] text-[24px] text-pink cursor-pointer" onClick={delLikeArtist}/>
+                                            <RiHeart3Fill className="mx-[10px] text-[24px] text-pink cursor-pointer" onClick={delLikeAlbum}/>
                                             :
-                                            <RiHeart3Line className="mx-[10px] text-[24px] text-gray-500 cursor-pointer hover:text-blue-500" onClick={addLikeArtist}/>
+                                            <RiHeart3Line className="mx-[10px] text-[24px] text-gray-500 cursor-pointer hover:text-blue-500" onClick={addLikeAlbum}/>
                                         }
                                         </>
                                         :
                                         <RiHeart3Line className="mx-[10px] text-[24px] text-gray-500 cursor-pointer hover:text-blue-500" onClick={() => setLoginrRequestVal(true)}/>
 
-                                    } */}
+                                    }
                                 </div>
                             </div>
                         </div>

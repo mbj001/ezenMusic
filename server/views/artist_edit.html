@@ -13,13 +13,13 @@
 
 {% block content %}
 <!--bootstrap table layout-->
-<div class="container">
+<div>
     <h1>{{title}}</h1>
     <div class="d-flex justify-content-end my-5">
         <a href="/artist" class="btn btn-primary mx-2">List</a>
      </div>
     <div class="artist_list">
-         <form action="/artist/artist_edit/{{artist_num}}" method="POST" name="form" id="form" enctype="multipart/form-data">
+         <form action="/artist/artist_edit" method="POST" name="form" id="form" enctype="multipart/form-data">
         <table class="table">
       <thead>
         <tr>
@@ -36,8 +36,25 @@
      <tbody class="artist-table">
         {% for rs in row %}
         <tr class="insert_list">
+            <input type="hidden" value="{{artist_num}}" name="artist_num">
             <th scope="col"><input type="text" placeholder="자동증가 입력X" value="{{rs.artist_num}}"></th>
-            <th scope="col"><input type="file" id="artist_img" name="artist_img" value="{{req.body.filename}}"></th>
+            <!-- <th scope="col"><input type="file" id="artist_img" name="artist_img" value="{{req.body.filename}}"></th> -->
+            <th scope="col-6">
+            <div class="d-flex">
+                <div>
+                    <label>이미지 수정</label>
+                    <input type="checkbox" value="1" id="imgchk" name="imgchk">
+                </div>
+                <div>
+                    <p>{{rs.org_artist_img}}</p>
+                </div>
+                <div>
+                    <input type="file" class="form-control M-hidden-input" name="cover_image" id="cover_image">
+                    <input type="hidden" name="artist_img" id="artist_img" value="{{rs.artist_img}}">
+
+                </div>
+            </div>
+            </th>
             <th scope="col"><input type="text" id="artist" name="artist" value="{{rs.artist}}"></th>
             <th scope="col"><input type="text" id="artist_class" name="artist_class" value="{{rs.artist_class}}"></th>
             <th scope="col"><input type="text" id="artist_gender" name="artist_gender" value="{{rs.artist_gender}}"></th>
@@ -64,5 +81,21 @@
     //         const forms = $("#form").serialize();
     //     })
     // });
+</script>
+
+<script>
+
+    const chkbox = document.querySelector("#imgchk");
+    const togglebox = document.querySelector("#cover_image");
+
+    chkbox.addEventListener("click", () => {
+        if(chkbox.checked){
+            togglebox.style.display = "block";
+        }
+        else{
+            togglebox.style.display = "none";
+        }
+    })
+
 </script>
 {% endblock %}

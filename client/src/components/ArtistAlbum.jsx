@@ -6,7 +6,7 @@ import { StyledBrowser } from '../pages/Browse';
 
 
 
-function ArtistAlbum({details, artist, artist_num,}) {
+function ArtistAlbum({details, artist, artist_num, handleRender}) {
 
     const [artistAlbumtrack, setartistAlbumtrack] = useState([]);
     const [albumRelease, setalbumRelease] = useState([]);
@@ -47,30 +47,21 @@ function ArtistAlbum({details, artist, artist_num,}) {
 
     return (
         <StyledBrowser className="relative">
-            <div className="mb-3">
-                <div className="flex items-center cursor-pointer">
-                </div>
-            </div>
-            <div className="artist_Album_track relative">
-
-                    <StyledAlbum className="absolute">
-                        <button type="submit" onClick={handleOrder} value={'all'} className="m-3 rounded-[20px] mr-[10px] text-gray cursor-pointer hover-text-blue all">전체</button>
-                        <button type="submit" onClick={handleOrder} value={'recent'} className="m-3 rounded-[20px] mr-[10px] text-gray cursor-pointer hover-text-blue date">최신순</button>
-                        <button type="submit" onClick={handleOrder} value={'asc'} className="m-3 rounded-[20px] mr-[10px] text-gray cursor-pointer hover-text-blue abc">가나다순</button>
+            <div className="artist_Album_track">
+                    <StyledAlbum className="artist_Album_bener">
+                        <button type="submit" onClick={handleOrder} value={'all'} className="m-2 rounded-[20px] mr-[10px] text-gray-500 cursor-pointer hover:text-blue-500 all">전체</button>
+                        <button type="submit" onClick={handleOrder} value={'recent'} className="m-2 rounded-[20px] mr-[10px] text-gray-500 cursor-pointer hover:text-blue-500 date">최신순</button>
+                        <button type="submit" onClick={handleOrder} value={'asc'} className="m-2 rounded-[20px] mr-[10px] text-gray-500 cursor-pointer hover:text-blue-500 abc">가나다순</button>
                     </StyledAlbum>
-
-
-                <ul className="block">
-                    <div className="flex flex-wrap">
+                
+                   <StyledAlbum className="artist_Album_benerafter"></StyledAlbum>
+                    <ul className="artist_Album_ul">
                     {
-                        
                         order === 'all' ? 
                         <>
                         {  
                             artistAlbumtrack.map((item, index) => (
-                                <div className="col-4">
-                                    <ArtistAlbumTrack key={index} title={item.title} album_title={item.album_title} artist_num={artist_num} artist={item.artist} img={item.org_cover_image} album_id={item.album_id} album_release_date={item.release_date_format} album_size={item.album_size}/>
-                                </div>
+                                <ArtistAlbumTrack key={index} title={item.title} album_title={item.album_title} artist_num={artist_num} artist={item.artist} img={item.org_cover_image} album_id={item.album_id} album_release_date={item.release_date_format} album_size={item.album_size} handleRender={handleRender}/>
                             ))
                         }
                         </>
@@ -79,9 +70,7 @@ function ArtistAlbum({details, artist, artist_num,}) {
                             <>
                                 { 
                                     albumRelease.map((item, index) => (
-                                        <div className="col-4">
-                                            <ArtistAlbumTrack key={index} title={item.title} album_title={item.album_title} artist_num={artist_num} artist={item.artist} img={item.org_cover_image} album_id={item.album_id} album_release_date={item.release_date_format} album_size={item.album_size}/>
-                                        </div>
+                                        <ArtistAlbumTrack key={index} title={item.title} album_title={item.album_title} artist_num={artist_num} artist={item.artist} img={item.org_cover_image} album_id={item.album_id} album_release_date={item.release_date_format} album_size={item.album_size} handleRender={handleRender}/>
                                     ))
                                 } 
                             </>
@@ -90,10 +79,7 @@ function ArtistAlbum({details, artist, artist_num,}) {
                                 <>
                                     {                             
                                         albumAsc.map((item, index) => (
-                                            <div className="col-4">
-                                                <ArtistAlbumTrack key={index} title={item.title} album_title={item.album_title} artist_num={artist_num} artist={item.artist} img={item.org_cover_image} album_id={item.album_id} album_release_date={item.release_date_format} album_size={item.album_size}/>
-
-                                            </div>
+                                            <ArtistAlbumTrack key={index} title={item.title} album_title={item.album_title} artist_num={artist_num} artist={item.artist} img={item.org_cover_image} album_id={item.album_id} album_release_date={item.release_date_format} album_size={item.album_size} handleRender={handleRender}/>
                                         ))
                                     }
                                 </>
@@ -101,18 +87,12 @@ function ArtistAlbum({details, artist, artist_num,}) {
                             <>
                             {                
                             artistAlbumtrack.map((item, index) => (
-                                <div className="col-4">
-                                    <ArtistAlbumTrack key={index} title={item.title} album_title={item.album_title} artist_num={artist_num} artist={item.artist} img={item.org_cover_image} album_id={item.album_id} album_release_date={item.release_date_format} album_size={item.album_size}/>
+                                    <ArtistAlbumTrack key={index} title={item.title} album_title={item.album_title} artist_num={artist_num} artist={item.artist} img={item.org_cover_image} album_id={item.album_id} album_release_date={item.release_date_format} album_size={item.album_size} handleRender={handleRender}/>
 
-                                </div>
                             ))
                             } 
                             </>
                     }
-                    </div>
-                    
-                    
-                    
                 </ul>
             </div>
 
@@ -121,11 +101,11 @@ function ArtistAlbum({details, artist, artist_num,}) {
 }
 
 const StyledAlbum = styled.div`
-    font-size: 16px;
-    font-weight: 400;
-    right: 0;
-    /* text-decoration: none;
-    list-style: none; */
+    // font-size: 16px;
+    // font-weight: 400;
+    // right: 0;
+    // /* text-decoration: none;
+    // list-style: none; */
 `
 const StyledAlbumUl = styled.ul`
     

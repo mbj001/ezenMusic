@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 
-function PlayerBanner({playerBannerOn, setPlayerBannerOn}) {
+function PlayerBanner({playerBannerOn, setPlayerBannerOn, count, page}) {
 
     setTimeout(() => {setPlayerBannerOn(false);}, 1500);
 
@@ -9,7 +9,14 @@ function PlayerBanner({playerBannerOn, setPlayerBannerOn}) {
     <>
     {
         playerBannerOn ?
-        <StyledLikeyBanner> <p>1곡이 음악 재생목록에 담겼어요. 중복곡은 담지 않았어요.</p> </StyledLikeyBanner>
+        <StyledLikeyBanner>
+            {
+                page === "channel" || page ==="albumtrack" ?
+                <p>음악 재생목록에 담겼어요. 중복곡은 담지 않았어요.</p>
+                :
+                <p>{count} 곡이 음악 재생목록에 담겼어요. 중복곡은 담지 않았어요.</p> 
+            }
+        </StyledLikeyBanner>
         :
         ""
     }

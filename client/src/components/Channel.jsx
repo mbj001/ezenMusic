@@ -10,18 +10,30 @@ import Comments from './Comments';
 import { Cookies } from "react-cookie";
 import AllCheckedModal from '../modal/AllCheckedModal';
 import LikeyBanner from '../card/LikeyBanner';
+import PleaseLoginMessage from '../modal/PleaseLoginMessage';
+import MusicListTable from '../card/MusicListTable';
+import PlayerBanner from '../card/PlayerBanner';
+import icons from '../assets/sp_button.6d54b524.png'
+import PlaylistAdd from '../modal/PlaylistAdd';
 
 function Channel({num, details, handleRender}) {
+    // 테마리스트 정보
     const [channelInfo, setChannelInfo] = useState([]);
+    // 테마리스트 안의 곡들
     const [channelMusic, setChannelMusic] = useState([]);
-
+    // 곡 or 댓글
     const [initNum, setInitNum] = useState(details);
+    // 전체 곡 수
     const [totalMusicNum, setTotalMusicNum] = useState(-1);
-    const [allcheckVal, setAllcheckVal] = useState(false);
+    // 테마리스트 좋아요 클릭 베터
     const [likeyBannerOn, setLikeyBannerOn] = useState(0);
-    const [likeyList, setLikeyList] = useState([]);
+    // 테마리스트 좋아요
     const [islikey, setIslikey] = useState(false);
-    const [themebannerVal, setThemebannerVal] = useState(false);
+    // 로그인이 필요합니다 모달 변수
+    const [loginRequestVal, setLoginrRequestVal] = useState(false);
+    // 플레이어 추가 베너
+    const [playerBannerOn, setPlayerBannerOn] = useState(false);
+
 
     const cookies = new Cookies();
     const userid_cookies = cookies.get("client.sid");
@@ -33,6 +45,7 @@ function Channel({num, details, handleRender}) {
         setIslikey(islikey => {return !islikey})
     }
 
+
     function addLikeTheme(){
         Axios.post("http://localhost:8080/ezenmusic/addlikey", {
             userid: userid_cookies,
@@ -41,7 +54,6 @@ function Channel({num, details, handleRender}) {
         })
         .then(({data}) => {
             HandleLikey();
-            setThemebannerVal(true);
             setLikeyBannerOn(1);
         })
         .catch((err) => {
@@ -57,7 +69,6 @@ function Channel({num, details, handleRender}) {
         })
         .then(({data}) => {
             HandleLikey();
-            setThemebannerVal(true);
             setLikeyBannerOn(-1);
         })
         .catch((err) => {
@@ -65,37 +76,92 @@ function Channel({num, details, handleRender}) {
         })
     }
 
+    // 2023-12-01 channel 플레이어 추가
+    function playerAdd(){
+        let array = [];
+
+        for(let i=0; i<channelMusic.length; i++){
+            array.push(channelMusic[i].id)
+        }
+
+        Axios.post("http://localhost:8080/playerhandle/playerAdd", {
+            userid: userid_cookies,
+            music_list: array
+        })
+
+        .then(({data}) => {
+
+            setPlayerBannerOn(true);
+            handleRender();
+
+        })
+
+        .catch((err) => {
+            console.log(err);
+        })
+    }
+
+    ////////// 건우 //////////
+    const [playlistModalOpen, setPlaylistModalOpen] = useState(false);
+    const [playlistModalData, setPlaylistModalData] = useState([]);
+
+    function handleplaylistModal(){
+        setPlaylistModalOpen(playlistModalOpen => {return !playlistModalOpen;})
+    }
+
+    const clickPlaylistModalOpen = (e, num) =>{
+        e.preventDefault();
+        setPlaylistModalData({
+            music_id: null,
+            album_title: null,
+            thumbnail_image: null,
+            theme_playlist: num
+        });
+        setPlaylistModalOpen(true);
+    }
+    ///////////////////////////////
+
+
     useEffect(() => {
         if(!details){
             setInitNum("");
         }
         
-        Axios.post("http://localhost:8080/ezenmusic/detail/album_theme/likey", {
-            userid: userid_cookies,
-            division: "liketheme"
-        })
-        .then(({data}) => {
-            array2 = data;
-            setLikeyList(data);
-            
-            // 테마리스트 좋아요 되어있는지 검증
-            for(let i=0; i<array2.length; i++){
-                if(array2[i] === Number(num)){
-                    setIslikey(!islikey);
-                }
-            }
-        })
-        .catch((err) => {
-            console.log(err)
-        })
-
-        Axios.get("http://localhost:8080/ezenmusic/allpage/likeylist/"+userid_cookies)
-        .then(({data}) => {
-                array = data[0].music_list;
+        if(userid_cookies !== undefined){
+            Axios.post("http://localhost:8080/ezenmusic/detail/album_theme/likey", {
+                userid: userid_cookies,
+                division: "liketheme"
             })
-        .catch((err) => {
-            console.log(err);
-        })
+            .then(({data}) => {
+                array2 = data;
+                
+                // 테마리스트 좋아요 되어있는지 검증
+                for(let i=0; i<array2.length; i++){
+                    if(array2[i] === Number(num)){
+                        setIslikey(!islikey);
+                    }
+                }
+            })
+            .catch((err) => {
+                console.log(err)
+            })
+    
+            Axios.post("http://localhost:8080/ezenmusic/allpage/likeylist/", {
+                userid: userid_cookies,
+                division: "liketrack"
+            })
+            .then(({data}) => {
+                if(data === -1){
+
+                }
+                else{
+                    array = data[0].music_list;
+                }
+            })
+            .catch((err) => {
+                console.log(err);
+            })
+        }
 
         Axios.get("http://localhost:8080/ezenmusic/channelinfo/"+num)
         .then(({data}) => {
@@ -111,6 +177,8 @@ function Channel({num, details, handleRender}) {
                 // object 에 likey 라는 항목 넣고 모두 false 세팅
                 data[i].likey = false;
             }
+
+            // userid_cookies 없으면 for 문을 안돌면서 true 값 저장안됨.
             for(let i=0; i<array.length; i++){
                 for(let j=0; j<data.length; j++){
                     if(array[i] === Number(data[j].id)){
@@ -131,8 +199,20 @@ function Channel({num, details, handleRender}) {
 
     return (
         <>
-        
         {
+            playlistModalOpen?
+            <PlaylistAdd setPlaylistModalOpen={setPlaylistModalOpen} playlistModalData={playlistModalData} handleplaylistModal={handleplaylistModal}/>
+            :
+            ""
+        }
+        {
+            playerBannerOn?
+            <PlayerBanner playerBannerOn={playerBannerOn} setPlayerBannerOn={setPlayerBannerOn} page={"channel"} />
+            :
+            ""
+        }
+        {
+            
             channelInfo.map((item, index) => (
                 <StyledDetail key={index} className='md:w-[1000px] xl:w-[1280px] 2xl:w-[1440px]'>
                     <div className="mb-[40px]">
@@ -143,15 +223,15 @@ function Channel({num, details, handleRender}) {
                                 <p className="text-[14px] text-gray mb-[20px]">{item.description}</p>  
                                 <p>총 {totalMusicNum}곡</p>
                                 <p className="text-[14px] text-gray">{item.release_date_format}</p>
-                                <div className="flex mt-[50px] ">
-                                    <RiPlayListAddFill className="mr-[10px] text-[24px] text-gray cursor-pointer hover-text-blue" />
-                                    <RiFolderAddLine className="mx-[10px] text-[24px] text-gray cursor-pointer hover-text-blue" />
+                                <div className="flex mt-[30px] ">
+                                    <button className="artist_listplus ml-[-10px]" style={{backgroundImage:`url(${icons})`}} onClick={userid_cookies? playerAdd : setLoginrRequestVal}></button>
+                                    <button className="artist_box " style={{backgroundImage:`url(${icons})`}} onClick={userid_cookies? (e) => clickPlaylistModalOpen(e, item.num) : setLoginrRequestVal}></button>
                                     {
                                         islikey?
-                                        <RiHeart3Fill className="mx-[10px] text-[24px] text-pink cursor-pointer" onClick={delLikeTheme}/>
+                                        <button className="redheart" style={{backgroundImage:`url(${icons})`}} onClick={userid_cookies? delLikeTheme : setLoginrRequestVal}></button>
                                         :
-                                        <RiHeart3Line className="mx-[10px] text-[24px] text-gray cursor-pointer hover-text-blue" onClick={addLikeTheme}/>
-                                    }
+                                        <button className="iconsheart" style={{backgroundImage:`url(${icons})`}} onClick={userid_cookies? addLikeTheme : setLoginrRequestVal}></button>
+                                    }    
                                 </div>
                             </div>
                         </div>
@@ -175,43 +255,14 @@ function Channel({num, details, handleRender}) {
                 </StyledDetail>
             ))
         }
+            <LikeyBanner likeyBannerOn={likeyBannerOn} setLikeyBannerOn={setLikeyBannerOn} pageDivision={"theme"}/>
+            { loginRequestVal && <PleaseLoginMessage setLoginrRequestVal={setLoginrRequestVal} /> }
         {
             initNum ===""?
-            <StyledBrowser className="relative md:w-[1000px] xl:w-[1280px] 2xl:w-[1440px]">
-                {
-                    themebannerVal?
-                    <LikeyBanner likeyBannerOn={likeyBannerOn} setLikeyBannerOn={setLikeyBannerOn} pageDivision={"theme"} setThemebannerVal={setThemebannerVal}/>
-                    :
-                    <LikeyBanner likeyBannerOn={likeyBannerOn} setLikeyBannerOn={setLikeyBannerOn} pageDivision={"track"}/>
-                }
-                <div className="mb-3">
-                    <div className="flex items-center cursor-pointer">
-                        <RiPlayLine className="all-play-icon absolute top-[2px] left-[0px]"/>
-                        <p className="ml-[25px] text-[14px] text-gray">전체듣기</p>
-                    </div>
-                </div>
-                <div>
-                    <hr className="text-gray"/>
-                    <table className="table table-hover">
-                        <MusicListHeader lank={false} setAllcheckVal={setAllcheckVal} allcheckVal={allcheckVal} />
-                        <tbody>
-                            {
-                                channelMusic.map((item, index) => (
-                                    <MusicListCard key={index} title={item.title} album_title={item.album_title} artist_num={item.artist_num} artist={item.artist} img={item.org_cover_image} music_id={item.id} album_id={item.album_id} likey={item.likey} check_all={allcheckVal} setLikeyBannerOn={setLikeyBannerOn} handleRender={handleRender}/>
-                                ))
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            </StyledBrowser>
+                <MusicListTable page="channel" lank={false} music_list={channelMusic} handleRender={handleRender}/>
+
             :
             <Comments />
-        }
-        {
-            allcheckVal ?
-            <AllCheckedModal setAllcheckVal={setAllcheckVal}/>
-            :
-            ""
         }
     </>
     )

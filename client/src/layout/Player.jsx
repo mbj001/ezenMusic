@@ -11,19 +11,11 @@ import { RiPlayList2Fill } from "react-icons/ri";
 import { IoMdPause, IoIosHeartEmpty } from "react-icons/io";
 // import PlayerBanner from '../card/PlayerBanner';
 
-function Player({listenMusic, showPlaylistFunc}) {
+function Player({listenMusic, showPlaylistFunc, handleRender, hasplayerlist}) {
 
     const [playBtn, setPlayBtn] = useState(false);
     const btnRef = useRef([]);
     const playbar = useRef(null);
-
-    // const [playerBannerOn, setPlayerBannerOn] = useState(false);
-
-    // useEffect(() => {
-    //     setPlayerBannerOn(true);
-    // }, [playerBannerOn])
-
-
     useEffect(() => {
         function handleClickOutside(e){
             e.preventDefault();
@@ -42,34 +34,69 @@ function Player({listenMusic, showPlaylistFunc}) {
     }, [btnRef, playbar])
     
     return (
-        <>
+    <>
     <StyledPlayerBar className="flex justify-between items-center px-[30px]" ref={playbar}>
         <div className="flex items-center justify-between w-[100%]">
+            {
+            listenMusic.length === 0?
+            // hasplayerlist === false?
+            <div className="col-2 flex items-center">
+                <div className="w-[45px] h-[45px] rounded-[5px] bg-gray-light"></div>
+                {/* <img src={"/image/album/" + listenMusic.org_cover_image} alt="image" className="w-[45px] h-[45px] rounded-[5px]" /> */}
+                <div className="ml-[10px]">
+                    <p className="text-[11px] text-gray-light">재생목록이 비어있습니다.</p>
+                    {/* <p className="text-[10px] text-gray">{listenMusic.artist}</p> */}
+                </div>
+                <div ref={element => btnRef.current[0] = element}><IoIosHeartEmpty className="text-gray text-[26px] hover:text-white ml-[15px]"/></div>
+            </div>
+            :
             <div className="col-2 flex items-center">
                 <img src={"/image/album/" + listenMusic.org_cover_image} alt="image" className="w-[45px] h-[45px] rounded-[5px]" />
                 <div className="ml-[10px]">
                     <p className="text-[14px] text-white my-[2px]"><Link to={"/detail/track/" + listenMusic.id + "/details"}>{listenMusic.title}</Link></p>
                     <p className="text-[10px] text-gray">{listenMusic.artist}</p>
                 </div>
-                <div ref={element => btnRef.current[7] = element}><IoIosHeartEmpty className="text-gray text-[26px] hover:text-white ml-[15px]"/></div>
+                <div ref={element => btnRef.current[0] = element}><IoIosHeartEmpty className="text-gray text-[26px] hover:text-white ml-[15px]"/></div>
             </div>
-            <div className="col-8 justify-center flex items-center">
-                <div ref={element => btnRef.current[0] = element}><BsRepeat className="player-icon text-white text-[20px] mr-[15px] cursor-pointer" /></div>
-                <div ref={element => btnRef.current[1] = element}><IoPlaySkipBack className="player-icon text-white text-[25px] mx-[15px] cursor-pointer" /></div>
-                {
-                    !playBtn?
-                    <div ref={element => btnRef.current[2] = element}><IoPlay className="player-icon text-white text-[35px] mx-[15px] cursor-pointer" onClick={() => {setPlayBtn(true)}}/></div>
-                    :
-                    <div ref={element => btnRef.current[2] = element}><IoMdPause className="player-icon text-white text-[30px] mx-[15px] cursor-pointer" onClick={() => {setPlayBtn(false)}}/></div>
-                }
-                <div ref={element => btnRef.current[3] = element}><IoPlaySkipForward className="player-icon text-white text-[25px] mx-[10px] cursor-pointer" /></div>
-                <div ref={element => btnRef.current[4] = element}><PiShuffleFill className="player-icon text-white text-[20px] ml-[20px] cursor-pointer" /></div>
-            </div>
-            <div className="col-2 justify-end flex items-center">
-                <div ref={element => btnRef.current[5] = element}><IoVolumeHigh className="text-gray text-[22px] mr-[10px] hover:text-white" /></div>
-                <div ref={element => btnRef.current[6] = element} className="mt-[-10px]"><input type="range" className="input-range" /></div>
-                <RiPlayList2Fill className="text-gray text-[30px] ml-[30px] cursor-pointer hover:text-white"/>
-            </div>
+            }
+            {
+            listenMusic.length === 0?               
+            // hasplayerlist === false?
+                <>
+                <div className="col-8 justify-center flex items-center">
+                    <div ref={element => btnRef.current[1] = element}><BsRepeat className="player-icon text-gray-dark text-[20px] mr-[15px] cursor-pointer" /></div>
+                    <div ref={element => btnRef.current[2] = element}><IoPlaySkipBack className="player-icon text-gray-dark text-[25px] mx-[15px] cursor-pointer" /></div>
+                    <div ref={element => btnRef.current[3] = element}><IoPlay className="player-icon text-gray-dark text-[35px] mx-[15px] cursor-pointer" /></div>
+                    <div ref={element => btnRef.current[4] = element}><IoPlaySkipForward className="player-icon text-gray-dark text-[25px] mx-[10px] cursor-pointer" /></div>
+                    <div ref={element => btnRef.current[5] = element}><PiShuffleFill className="player-icon text-gray-dark text-[20px] ml-[20px] cursor-pointer" /></div>
+                </div>
+                <div className="col-2 justify-end flex items-center">
+                    <div ref={element => btnRef.current[6] = element}><IoVolumeHigh className="text-gray-dark text-[22px] mr-[10px]" /></div>
+                    <div ref={element => btnRef.current[7] = element} className="mt-[-10px]"><input type="range" className="input-range" /></div>
+                    <RiPlayList2Fill className="text-gray-dark text-[30px] ml-[30px] cursor-pointer"/>
+                </div>
+                </>
+                :
+                <>
+                <div className="col-8 justify-center flex items-center">
+                    <div ref={element => btnRef.current[1] = element}><BsRepeat className="player-icon text-white text-[20px] mr-[15px] cursor-pointer" /></div>
+                    <div ref={element => btnRef.current[2] = element}><IoPlaySkipBack className="player-icon text-white text-[25px] mx-[15px] cursor-pointer" /></div>
+                    {
+                        !playBtn?
+                        <div ref={element => btnRef.current[3] = element}><IoPlay className="player-icon text-white text-[35px] mx-[15px] cursor-pointer" onClick={() => {setPlayBtn(true)}}/></div>
+                        :
+                        <div ref={element => btnRef.current[3] = element}><IoMdPause className="player-icon text-white text-[30px] mx-[15px] cursor-pointer" onClick={() => {setPlayBtn(false)}}/></div>
+                    }
+                    <div ref={element => btnRef.current[4] = element}><IoPlaySkipForward className="player-icon text-white text-[25px] mx-[10px] cursor-pointer" /></div>
+                    <div ref={element => btnRef.current[5] = element}><PiShuffleFill className="player-icon text-white text-[20px] ml-[20px] cursor-pointer" /></div>
+                </div>
+                <div className="col-2 justify-end flex items-center">
+                    <div ref={element => btnRef.current[6] = element}><IoVolumeHigh className="text-gray text-[22px] mr-[10px] hover:text-white" /></div>
+                    <div ref={element => btnRef.current[7] = element} className="mt-[-10px]"><input type="range" className="input-range" /></div>
+                    <RiPlayList2Fill className="text-gray text-[30px] ml-[30px] cursor-pointer hover:text-white"/>
+                </div>
+                </>
+            }
         </div>
     </StyledPlayerBar>
         </>

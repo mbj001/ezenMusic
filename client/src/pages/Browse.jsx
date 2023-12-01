@@ -1,51 +1,40 @@
 import React, {useState, useEffect} from 'react'
 import styled from 'styled-components'
-import { RiPlayLine, RiArrowDownSLine, RiArrowUpSLine } from "react-icons/ri";
-import MusicListCard from '../card/MusicListCard';
-import MusicListHeader from '../card/MusicListHeader';
+import { RiArrowDownSLine, RiArrowUpSLine } from "react-icons/ri";
 import GenreCard from '../card/GenreCard';
 import { genreData } from '../data/playlistData';
 import { Link, useParams } from 'react-router-dom';
 import Axios from "axios";
 import { Cookies } from "react-cookie";
-import AllCheckedModal from '../modal/AllCheckedModal';
-import LikeyBanner from '../card/LikeyBanner';
-import PlaylistAdd from '../modal/PlaylistAdd';
+import MusicListTable from '../card/MusicListTable';
 
 const Browse = ({handleRender}) => {
 
     const [showMore, setShowMore] = useState(false);
     const [flochartData, setFlochartData] = useState([]);
+    const [flochartData_limit10, setFlochartData_limit10] = useState([]);
+    const [browseCheckAll, setBrowseCheckAll] = useState(false);
 
-    ////////// MusicListCard 전달
-    // 좋아요 누를 때 베너
-    const [likeyBannerOn, setLikeyBannerOn] = useState(0);
-    // 전체선택 베너
-    const [allcheckVal, setAllcheckVal] = useState(false);
-    /////////////////////
-
-    ////////// 건우 //////////
-    const [playlistModalOpen, setPlaylistModalOpen] = useState(false);
-    const [playlistModalData, setPlaylistModalData] = useState([]);
-
-    function handleplaylistModal(){
-        setPlaylistModalOpen(playlistModalOpen => {return !playlistModalOpen;})
-    }
-
-    const clickPlaylistModalOpen = (e, music_id, img) =>{
-        e.preventDefault();
-        setPlaylistModalData([music_id, img]);
-        setPlaylistModalOpen(true);
-    }
-    ///////////////////////////////
+    // const [activeNum, setActiveNum] = useState("");
 
     let activeNum = useParams().genre_num;
-
-    let array = [];
-
+    console.log(activeNum);
     if(!activeNum){
         activeNum = "1";
     }
+
+    // let num = useParams().genre_num;
+    // 
+    // if(activeNum == ""){
+    //     setActiveNum("1");
+    // }
+    // else{
+    //     setActiveNum(num);
+    // }
+
+    let array = [];
+    let array_limit10 = [];
+
 
     useEffect(() => {
 
@@ -53,22 +42,31 @@ const Browse = ({handleRender}) => {
         const userid_cookies = cookies.get("client.sid");
 
         // likey 목록 가져옴
-        Axios.get("http://localhost:8080/ezenmusic/allpage/likeylist/" + userid_cookies)
-        .then(({data}) => {
-            // console.log("browse likeylist axios get complete!!");
-            array = data[0].music_list;
+        if(userid_cookies !== undefined){
+            Axios.post("http://localhost:8080/ezenmusic/allpage/likeylist", {
+                userid: userid_cookies,
+                division: "liketrack"
             })
-        .catch((err) => {
-            console.log(err);
-        })
+            .then(({data}) => {
+                if(data == -1){
+
+                }
+                else{
+                    array = data[0].music_list;
+                }
+            })
+            .catch((err) => {
+                console.log(err);
+            })
+        }
 
         Axios.get("http://localhost:8080/ezenmusic/flochart/"+activeNum)
         .then(({data}) => {
-            // console.log("browse flochart axios get complete!!");
             for(let i=0; i<data.length; i++){
                 // object 에 likey 라는 항목 넣고 모두 false 세팅
                 data[i].likey = false;
             }
+
             for(let i=0; i<array.length; i++){
                 for(let j=0; j<data.length; j++){
                     if(array[i] === Number(data[j].id)){
@@ -77,13 +75,29 @@ const Browse = ({handleRender}) => {
                     }
                 }
             }
+
+
+            // 해당 장르의 음악이 10개가 안될 수 도 있어서 조건 걸어둠
+            // 추후에 음악 추가하고나면 삭제 해도될듯..?
+            
+            if(data.length < 10){
+                for(let i=0; i<data.length; i++){
+                    array_limit10.push(data[i]);
+                }    
+            }
+            else{
+                for(let i=0; i<10; i++){
+                    array_limit10.push(data[i]);
+                }
+            }
+
+            setFlochartData_limit10(array_limit10);
             setFlochartData(data);
-            setAllcheckVal(false);
+            setBrowseCheckAll(false);
         })
         .catch(err => {
             {}
         })
-        // 차트 리스트 가져옴
     },[activeNum])
 
 
@@ -99,41 +113,14 @@ const Browse = ({handleRender}) => {
                 ))
             }
         </div>
-        <LikeyBanner likeyBannerOn={likeyBannerOn} setLikeyBannerOn={setLikeyBannerOn} pageDivision={"track"}/>
-        <StyledBrowser className="relative md:w-[1000px] xl:w-[1280px] 2xl:w-[1440px]">
-            <div className="mb-3">
-                <div className="flex items-center">
-                    <p className="chart-title">EzenMusic 차트</p>
-                    <p className="text-slate-400 text-[12px] ml-[10px]">24시간 집계 (16시 기준)</p>
-                </div>
-                <div className="all-play-box absolute top-0 right-0 flex cursor-pointer">
-                    <RiPlayLine className="all-play-icon absolute top-[2px] right-[55px]"/>
-                    <p>전체듣기</p>
-                </div>
-            </div>
-            <div>
-                <hr className="text-gray"/>
-                <table className="table table-hover">
-                    <MusicListHeader lank={true} setAllcheckVal={setAllcheckVal} allcheckVal={allcheckVal} />
-                    <tbody>
-                        {
-                            showMore?
-                            flochartData.map((item, index) => (
-                                <MusicListCard key={index} lank={index+1} title={item.title} album_title={item.album_title} artist_num={item.artist_num} 
-                                artist={item.artist} img={item.org_cover_image} music_id={item.id} album_id={item.album_id} check_all={allcheckVal} 
-                                likey={item.likey} setLikeyBannerOn={setLikeyBannerOn} handleRender={handleRender} clickPlaylistModalOpen={clickPlaylistModalOpen}/>
-                            ))
-                            :
-                            flochartData.map((item, index) => (
-                                <MusicListCard key={index} lank={index+1} title={item.title} album_title={item.album_title} artist_num={item.artist_num} 
-                                artist={item.artist} img={item.org_cover_image} music_id={item.id} album_id={item.album_id} check_all={allcheckVal} 
-                                likey={item.likey} setLikeyBannerOn={setLikeyBannerOn} handleRender={handleRender} clickPlaylistModalOpen={clickPlaylistModalOpen}/>
-                            )).filter((item, index) => (index < 10))
-                        }
-                    </tbody>
-                </table>
-            </div>
-        </StyledBrowser>
+
+        {
+            showMore?
+            <MusicListTable page="browse" lank={true} music_list={flochartData} handleRender={handleRender} showMore={showMore} browseCheckAll={browseCheckAll}/>
+            :
+            <MusicListTable page="browse" lank={true} music_list={flochartData_limit10} handleRender={handleRender} showMore={showMore} browseCheckAll={browseCheckAll}/>
+        }
+        
         <div className="text-center">
             <button onClick={e => setShowMore(!showMore)} className="border-solid border-1 hover-border-gray text-gray rounded-[20px] px-[25px] py-[7px] hover-text-blue hover-border-blue">
                 <div className="flex items-center">
@@ -144,18 +131,6 @@ const Browse = ({handleRender}) => {
                 </div>
             </button>
         </div>
-        {
-            allcheckVal ?
-            <AllCheckedModal setAllcheckVal={setAllcheckVal}/>
-            :
-            ""
-        }
-        {
-            playlistModalOpen?
-            <PlaylistAdd setPlaylistModalOpen={setPlaylistModalOpen} playlistModalData={playlistModalData} handleplaylistModal={handleplaylistModal}/>
-            :
-            ""
-        }
         </>
     )
 }
