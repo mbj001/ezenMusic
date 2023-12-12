@@ -24,7 +24,7 @@
 <table class="table">
     <thead>
         <tr>
-            <th scope="col">num</th>
+            <th scope="col">ID</th>
             <th scope="col">원본이미지</th>
             <th scope="col">이미지</th>
             <th scope="col">artist</th>
@@ -38,17 +38,17 @@
     <tbody>
         {% for rs in row %}
         <tr class="table">    
-                <td id="artist_num">{{rs.artist_num}}</td>
-                <td>{{rs.org_artist_img}}</td>
-                <td><img src="/image/artist/{{rs.artist_img}}" alt="artist_img" class="M-album-image"></td>
-                <td>{{rs.artist}}</td>
+                <td id="artist_num">{{rs.artist_id}}</td>
+                <td>{{rs.org_artist_image}}</td>
+                <td><image src="/image/artist/{{rs.artist_image}}" alt="artist_image" class="M-album-image"></td>
+                <td>{{rs.artist_name}}</td>
                 <td>{{rs.artist_class}}</td>
                 <td>{{rs.artist_gender}}</td>
                 <td>{{rs.genre}}</td>
-                <td><a href="/artist/artist_edit/{{rs.artist_num}}" class="btn btn-info">수정</a></td>
+                <td><a href="/artist/artist_edit/{{rs.artist_id}}" class="btn btn-info">수정</a></td>
                 <td><button type="submit" class="btn btn-danger">삭제</button></td>
         </tr>
-        <input type="hidden" id="artist_num" name="artist_num" value="{{rs.artist_num}}"/>
+        <input type="hidden" id="artist_id" name="artist_id" value="{{rs.artist_id}}"/>
         {% endfor %}
     </tbody>
 </table>

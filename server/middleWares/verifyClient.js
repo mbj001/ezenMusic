@@ -1,13 +1,14 @@
 // const conn = require("../config/mysql");
 const mysql2 = require("mysql2/promise");
+const pool = require("../config/mysqlPool");
 
 exports.verify = async( req, res, next) => {
-    const pool =  mysql2.createPool({
-        host: process.env.MYSQL_HOST,
-        user: process.env.MYSQL_USER,
-        password: process.env.MYSQL_PASS,
-        database: process.env.MYSQL_DB
-    });
+    // const pool =  mysql2.createPool({
+    //     host: process.env.MYSQL_HOST,
+    //     user: process.env.MYSQL_USER,
+    //     password: process.env.MYSQL_PASS,
+    //     database: process.env.MYSQL_DB
+    // });
     var sendMessage = {
         valid: false,
         message: '유효하지 않은 토큰입니다.'

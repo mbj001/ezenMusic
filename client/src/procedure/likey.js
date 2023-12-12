@@ -11,7 +11,7 @@
         
 //         let array1 = [];
         
-//         const {data} = await Axios.get("http://localhost:8080/ezenmusic/browse/likeylist/"+userid_cookies)
+//         const {data} = await Axios.get("/ezenmusic/browse/likeylist/"+userid_cookies)
 //         // .then(({data}) => {
 //             //     console.log("data");
 //             //     console.log(data);

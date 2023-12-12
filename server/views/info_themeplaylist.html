@@ -5,7 +5,7 @@
     <div class="d-flex align-items-center justify-content-between mb-5">
         <div>
             <h1 class="">번호 : {{num}}</h1>
-            <h1 class="">테마 : {{themetitle}}</h1>
+            <h1 class="">테마 : {{themeplaylist_title}}</h1>
         </div>
         <div>
             <a href="/themeplaylist" class="btn btn-secondary">이전</a>
@@ -20,26 +20,26 @@
                 <th scope="col">제목</th>
 
                 <!-- <th>수정</th> -->
-                <th>삭제</th>
+                <th>가수</th>
             </tr>
         </thead>
         <tbody>
             {% for music in ListMusic %}
             <tr>    
-                <th scope="row">{{music.id}}</th>
-                <th scope="row">{{music.title}}</th>
-                <th scope="row">{{music.artist}}</th>
+                <th scope="row">{{music.music_id}}</th>
+                <th scope="row">{{music.music_title}}</th>
+                <th scope="row">{{music.artist_name}}</th>
                 <!-- <td>{{music.title}}</td> -->
 
                 <!-- <td><a href="/themeplaylist/edit_music/{{num}}&{{music.num}}" class="btn btn-info">수정</a></td> -->
                 <!-- <td><a href="/music/delete/{{music.id}}" class="btn btn-danger">삭제</a></td> -->
-                <td><button type="button" id="music_delete" name="music_delete" class="music_delete btn btn-danger" value="{{num}}&{{music.id}}">삭제</button></td>
+                <td><button type="button" id="music_delete" name="music_delete" class="music_delete btn btn-danger" value="{{themeplaylist_id}}&{{music.music_id}}">삭제</button></td>
             </tr>
             {% endfor %}
             <tr>
                 <form action="/themeplaylist/add_theme_music" method="post">
-                    <th scope="row"><input type="text" placeholder="노래번호" name="id" class="form-control"></th>
-                    <input type="hidden" name="num" value="{{num}}">
+                    <th scope="row"><input type="text" placeholder="노래번호" name="music_id" class="form-control"></th>
+                    <input type="hidden" name="themeplaylist_id" value="{{themeplaylist_id}}">
                     <th></th>
                     <th></th>
                     <!-- <th><a href="/themeplaylist/add_theme_music/{{num}}" class="btn btn-info">추가</a></th> -->

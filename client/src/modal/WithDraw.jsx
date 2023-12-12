@@ -25,7 +25,7 @@ const WithDraw = ({setModalOpen}) => {
     const withdraw = async() => {
         console.log('*')
         if(window.confirm('정말 탈퇴하시겠습니까?')){
-            const res = await axios.post('http://localhost:8080/verifiedClient/withdraw', {token: getCookie('connect.sid'), id: getCookie('client.sid')});
+            const res = await axios.post('/verifiedClient/withdraw', {token: getCookie('connect.sid'), id: getCookie('client.sid')});
             console.log(res);
             if(res.data.withdraw){
                 window.location = '/';

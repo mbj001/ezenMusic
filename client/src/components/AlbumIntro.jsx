@@ -1,31 +1,21 @@
 import React from 'react'
 import styled from 'styled-components'
 
-function AlbumIntro({album_title, artist, intro, publisher, agency}) {
+function AlbumIntro({album_title, artist_name, intro, publisher, agency}) {
     return (
         <StyledDetails>
     
-            <div>
+            <div className="album_intro">
                 <p><span className="text-[15px] mr-[50px]">앨범명</span> <span className="text-gray font-normal text-[14px]">{album_title}</span></p>
-                <p className="my-[10px]"><span className="text-[15px] mr-[35px]">아티스트</span> <span className="text-gray font-normal text-[14px]">{artist}</span></p>
+                <p className="my-[10px]"><span className="text-[15px] mr-[35px]">아티스트</span> <span className="text-gray font-normal text-[14px]">{artist_name}</span></p>
                 <div className="my-[10px]">
-                {
-                    publisher?
-                    <p><span className="text-[15px] mr-[50px]">발매사</span> <span className="text-gray font-normal text-[14px]">{publisher}</span></p>
-                    :
-                    ""
-                }
+                    { publisher && <p><span className="text-[15px] mr-[50px]">발매사</span> <span className="text-gray font-normal text-[14px]">{publisher}</span></p> }
                 </div>
                 <div className="my-[10px]">
-                {
-                    agency?
-                    <p><span className="text-[15px] mr-[50px]">기획사</span> <span className="text-gray font-normal text-[14px]">{agency}</span></p>
-                    :
-                    ""
-                }
+                    { agency && <p><span className="text-[15px] mr-[50px]">기획사</span> <span className="text-gray font-normal text-[14px]">{agency}</span></p> }
                 </div>
             </div>
-            <div className="mt-[50px]">
+            <div className="album_intro mt-[50px]">
                 <p className="text-[15px] mb-[40px]">앨범소개</p>
                 {
                     intro?
@@ -46,8 +36,8 @@ function AlbumIntro({album_title, artist, intro, publisher, agency}) {
 
 
 const StyledDetails = styled.div`
-    width: 1440px;
-    margin: 0 auto;
+width: 100%;
+    margin: 0 20px;
 
     img{
         width: 230px;

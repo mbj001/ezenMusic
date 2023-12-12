@@ -10,7 +10,7 @@ function SearchTheme({keyward, page}) {
     const [hasTheme, setHasTheme] = useState(false);
 
     useEffect(() => {
-        Axios.get("http://localhost:8080/ezenmusic/search/theme/"+keyward)
+        Axios.get("/ezenmusic/search/theme/"+keyward)
         .then(({data}) => {
             if(data.length == 0){
                 setHasTheme(false);
@@ -38,8 +38,8 @@ function SearchTheme({keyward, page}) {
             {
                 searchTheme.map((item, index) => (
                     <div key={index} className="themebox mr-[50px] w-[160px] h-[210px]">
-                        <Link to={"/detail/channel/"+item.num}><img src={"/image/themeplaylist/"+item.org_cover_image} alt="theme_cover_image" className="w-[160px] h-[160px] rounded-[10px]" /></Link>
-                        <p className="mt-[10px] text-[15px]">{item.themetitle}</p>
+                        <Link to={"/detail/channel/"+item.themeplaylist_id}><img src={"/image/themeplaylist/"+item.org_cover_image} alt="theme_cover_image" className="w-[160px] h-[160px] rounded-[10px]" /></Link>
+                        <p className="mt-[10px] text-[15px]">{item.themeplaylist_title}</p>
                     </div>
                 ))
             }

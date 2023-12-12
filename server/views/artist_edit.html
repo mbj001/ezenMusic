@@ -36,26 +36,26 @@
      <tbody class="artist-table">
         {% for rs in row %}
         <tr class="insert_list">
-            <input type="hidden" value="{{artist_num}}" name="artist_num">
-            <th scope="col"><input type="text" placeholder="자동증가 입력X" value="{{rs.artist_num}}"></th>
-            <!-- <th scope="col"><input type="file" id="artist_img" name="artist_img" value="{{req.body.filename}}"></th> -->
+            <input type="hidden" value="{{artist_id}}" name="artist_id">
+            <th scope="col"><input type="text" placeholder="자동증가 입력X" value="{{rs.artist_id}}"></th>
+            <!-- <th scope="col"><input type="file" id="artist_image" name="artist_image" value="{{req.body.filename}}"></th> -->
             <th scope="col-6">
             <div class="d-flex">
                 <div>
                     <label>이미지 수정</label>
-                    <input type="checkbox" value="1" id="imgchk" name="imgchk">
+                    <input type="checkbox" value="1" id="imagechk" name="imagechk">
                 </div>
                 <div>
-                    <p>{{rs.org_artist_img}}</p>
+                    <p>{{rs.org_artist_image}}</p>
                 </div>
                 <div>
                     <input type="file" class="form-control M-hidden-input" name="cover_image" id="cover_image">
-                    <input type="hidden" name="artist_img" id="artist_img" value="{{rs.artist_img}}">
+                    <input type="hidden" name="artist_image" id="artist_image" value="{{rs.artist_image}}">
 
                 </div>
             </div>
             </th>
-            <th scope="col"><input type="text" id="artist" name="artist" value="{{rs.artist}}"></th>
+            <th scope="col"><input type="text" id="artist_name" name="artist_name" value="{{rs.artist_name}}"></th>
             <th scope="col"><input type="text" id="artist_class" name="artist_class" value="{{rs.artist_class}}"></th>
             <th scope="col"><input type="text" id="artist_gender" name="artist_gender" value="{{rs.artist_gender}}"></th>
             <th scope="col"><input type="text" id="artist_genre" name="artist_genre" value="{{rs.genre}}"></th>
@@ -85,7 +85,7 @@
 
 <script>
 
-    const chkbox = document.querySelector("#imgchk");
+    const chkbox = document.querySelector("#imagechk");
     const togglebox = document.querySelector("#cover_image");
 
     chkbox.addEventListener("click", () => {

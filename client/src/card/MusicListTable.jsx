@@ -6,28 +6,55 @@ import PleaseLoginMessage from '../modal/PleaseLoginMessage';
 import AllCheckedModal from '../modal/AllCheckedModal';
 import PlaylistAdd from '../modal/PlaylistAdd';
 import styled from 'styled-components';
-import { RiPlayLine, RiArrowDownSLine, RiArrowUpSLine } from "react-icons/ri";
 import { IoPlayOutline } from "react-icons/io5";
 import PlayerBanner from './PlayerBanner';
+import Axios from "axios";
+import AddPlaylistBanner from './AddPlaylistBanner';
+import { userid_cookies } from '../config/cookie';
 
-function MusicListTable({page, lank, music_list, handleRender, showMore, browseCheckAll, handleLikeypage}) {
+
+function MusicListTable({page, lank, music_list, handleRender, showMore, browseCheckAll, handleLikeypage, setDetailMylistAddMusicOpen, detailMylistAddMusicModalData, 
+    playlist_id, handleDetailMylistPage}) {
+
+    // props music_list 저장할 변수 (checked 변경 용도)
+    const [musiclist, setMusiclist] = useState([]);
     // 좋아요 누를 때 베너
     const [likeyBannerOn, setLikeyBannerOn] = useState(0);
     // 전체선택
     const [allcheckVal, setAllcheckVal] = useState(false);
-
     // 선택한 노래들 정보 저장
     const [selectedMusicList, setSelectedMusicList] = useState([]);
-
+    // selected 항목 유무 체크
+    const [hasSelectbox, setHasSelectbox] = useState(false);
     // 플레이어 추가 베너
     const [playerBannerOn, setPlayerBannerOn] = useState(false);
     const [addplayerCount, setAddplayerCount] = useState(0);
-
-
-    // // 더보기 (Browse)
-    // const [showMore, setShowMore] = useState(false);
+    const [addPlaylistBannerOn, setAddPlaylistBannerOn] = useState(false);
     // 로그인이 필요합니다 모달 변수
     const [loginRequestVal, setLoginrRequestVal] = useState(false);
+
+                    
+    // 전체 듣기 클릭
+    function listenAll(){
+        let array = [];
+        
+        for(let i=0; i<musiclist.length; i++){
+            array.push(musiclist[i].music_id);
+        }
+        Axios.post("/playerHandle/checklistAdd", {
+            character_id: userid_cookies,
+            music_list: array,      // select 한 음악 id 들어있는 배열 전달
+            change_now_play: true
+        })
+        .then(({data}) => {
+            setAddplayerCount(array.length);        // 전체 곡 수
+            setPlayerBannerOn(true);                // 플레이어 추가 베너
+            handleRender();
+        })
+        .catch((err) => {
+            console.log(err);
+        })
+    }
 
     ////////// 건우 //////////
     const [playlistModalOpen, setPlaylistModalOpen] = useState(false);
@@ -47,175 +74,192 @@ function MusicListTable({page, lank, music_list, handleRender, showMore, browseC
         });
         setPlaylistModalOpen(true);
     }
-    ///////////////////////////////
+    /////////////////////////
 
-    useEffect(() => {
-        // 전체 선택 체크
-        if(allcheckVal === true){
-            let array = [];
-            // selectedMusicList 에 전체 저장
-            for(let i=0; i<music_list.length; i++){
-                array.push(music_list[i].id);
+    // 음악 체크박스 체크
+    function selectMusic(e, index){
+
+        let array = [];
+        let music_id_list = [];         // checked true 인 music id 값들 저장
+
+        for(let i=0; i<musiclist.length; i++){
+            array.push(musiclist[i]);
+            if(i === index){
+                array[i].checked = !array[i].checked;
             }
-            setSelectedMusicList(array);
+
+            if(array[i].checked === true){
+                music_id_list.push(array[i].music_id);
+            }
         }
+
+        for(let i=0; i<array.length; i++){
+            if(array[i].checked === true){
+                setHasSelectbox(true);
+                break;
+            }
+            // 반복문 다 돌았는데 true 없을 때
+            if(i === array.length -1){
+                setHasSelectbox(false);
+            }
+        }
+
+        setMusiclist(array);
+        setSelectedMusicList(music_id_list);
+    }
+
+
+    // 전체선택
+    function selectAllFunc(e){
+
+        setAllcheckVal(e.target.checked);
+        
+        let array = []
+        let music_id_list = [];         // checked true 인 music id 값들 저장
+
+        // 전체 선택 체크
+        if(e.target.checked === true){
+            for(let i=0; i<musiclist.length; i++){
+                array.push(musiclist[i]);
+                array[i].checked = true;
+                setHasSelectbox(true);
+                music_id_list.push(musiclist[i].music_id);
+            }
+            setSelectedMusicList(music_id_list);
+        }
+
+        // 전체 선택 해제
         else{
+            for(let i=0; i<musiclist.length; i++){
+                array.push(musiclist[i]);
+                array[i].checked = false;
+                setHasSelectbox(false);
+            }
             setSelectedMusicList([]);
         }
-    }, [allcheckVal])
+    }
 
-
-    function selectMusic(e){
+    // checked 의 modal close
+    function selectModalClose(){
         let array = [];
 
-        for(let i=0; i<selectedMusicList.length; i++){
-            array.push(selectedMusicList[i]);
+        for(let i=0; i<musiclist.length; i++){
+            array.push(musiclist[i]);
+            array[i].checked = false;
+            setHasSelectbox(false);
         }
-        if(selectedMusicList.length == 0){
-            array.push(e.target.id);
-        }
-        else{
-            if(e.target.checked == true){
-                array.push(e.target.id);
-            }
-            else{
-                for(let i=0; i<array.length; i++){
-                    if(array[i] == e.target.id){
-                        array.splice(i, 1);
-                    }
-                }
-            }
-        }
-        setSelectedMusicList(array);
+
+        setAllcheckVal(false);
+        setSelectedMusicList([]);
     }
+
 
     useEffect(() => {
         if(browseCheckAll !== undefined){
             setAllcheckVal(browseCheckAll);
         }
+
+        // checked 항목 false 로 저장
+        for(let i=0; i<music_list.length; i++){
+            music_list[i].checked = false;
+        }
+
+        setMusiclist(music_list);
+        setHasSelectbox(false);
     }, [music_list])
+
 
     return (
     <div>
-        {
-            playerBannerOn?
-            <PlayerBanner playerBannerOn={playerBannerOn} setPlayerBannerOn={setPlayerBannerOn} count={addplayerCount} />
-            :
-            ""
-        }
-        
-        {/* 좋아요 추가하면 나오는 베너 */}
+        {/* 재생목록 추가 베너 */}
+        { playerBannerOn && <PlayerBanner playerBannerOn={playerBannerOn} setPlayerBannerOn={setPlayerBannerOn} count={addplayerCount} /> }
+        {/* 플레이리스트 추가 베너 */}
+        { addPlaylistBannerOn && <AddPlaylistBanner addPlaylistBannerOn={addPlaylistBannerOn} setAddPlaylistBannerOn={setAddPlaylistBannerOn} /> }
+        {/* 좋아요 추가 베너 */}
         <LikeyBanner likeyBannerOn={likeyBannerOn} setLikeyBannerOn={setLikeyBannerOn} pageDivision={"track"}/>
-        
         {/* 로그인 해주세요 모달 */}
-        {
-            loginRequestVal?
-            <PleaseLoginMessage setLoginrRequestVal={setLoginrRequestVal} />
-            :
-            ""
+        { loginRequestVal && <PleaseLoginMessage setLoginrRequestVal={setLoginrRequestVal} />  }
+        { hasSelectbox  &&  
+            <AllCheckedModal setAllcheckVal={setAllcheckVal} selectedMusicList={selectedMusicList} setSelectedMusicList={setSelectedMusicList} 
+            handleRender={handleRender} setPlayerBannerOn={setPlayerBannerOn} setAddplayerCount={setAddplayerCount} page={page} handleLikeypage={handleLikeypage} 
+            setDetailMylistAddMusicOpen={setDetailMylistAddMusicOpen} detailMylistAddMusicModalData={detailMylistAddMusicModalData} selectModalClose={selectModalClose} 
+            setAddPlaylistBannerOn={setAddPlaylistBannerOn} playlist_id={playlist_id} handleDetailMylistPage={handleDetailMylistPage}/> 
         }
-        {
-            allcheckVal ?
-            <AllCheckedModal setAllcheckVal={setAllcheckVal} selectedMusicList={selectedMusicList} handleRender={handleRender} setPlayerBannerOn={setPlayerBannerOn} setAddplayerCount={setAddplayerCount}/>
-            :
-            <>
-                {
-                    selectedMusicList.length > 0?
-                    <AllCheckedModal setAllcheckVal={setAllcheckVal} selectedMusicList={selectedMusicList} handleRender={handleRender} setPlayerBannerOn={setPlayerBannerOn} setAddplayerCount={setAddplayerCount} />
-                    :
-                    ""
-                }
-            </>
+        { playlistModalOpen &&
+            <PlaylistAdd setPlaylistModalOpen={setPlaylistModalOpen} playlistModalData={playlistModalData} handleplaylistModal={handleplaylistModal} 
+            setAddPlaylistBannerOn={setAddPlaylistBannerOn}/>
         }
+
         {
-            playlistModalOpen?
-            <PlaylistAdd setPlaylistModalOpen={setPlaylistModalOpen} playlistModalData={playlistModalData} handleplaylistModal={handleplaylistModal}/>
-            :
-            ""
-        }
+            musiclist.length !== 0 &&
+
             <StyledBrowser className="relative md:w-[1000px] xl:w-[1280px] 2xl:w-[1440px]">
                 <div className="mb-3 flex items-center justify-between">
                     {
-                        page === "browse"?
-                    <div className="flex items-center">
-                        <p className="chart-title">EzenMusic 차트</p>
-                        <p className="text-slate-400 text-[12px] ml-[10px]">24시간 집계 (16시 기준)</p>
-                    </div>
-                    :
-                    ""
+                        page === "browse" &&
+                        <div className="flex items-center">
+                            <p className="chart-title">EzenMusic 차트</p>
+                            <p className="text-slate-400 text-[12px] ml-[10px]">24시간 집계 (16시 기준)</p>
+                        </div>
                     }
-                    <div className="all-play-box flex cursor-pointer text-black hover-text-blue items-center">
-                        <IoPlayOutline className="all-play-icon text-black mr-[3px] mt-[1px]"/>
-                        <p>전체듣기</p>
-                    </div>
+                    {
+                        page !== "detailmylistaddmusic" &&
+                        <div className="all-play-box flex cursor-pointer text-black hover-text-blue items-center" onClick={userid_cookies? listenAll: setLoginrRequestVal}>
+                            <IoPlayOutline className="all-play-icon text-black mr-[3px] mt-[1px]"/>
+                            <p>전체듣기</p>
+                        </div>
+                    }
                 </div>
-            <hr className="text-gray"/>
-            <table className="table table-hover">
-            <MusicListHeader lank={lank} setAllcheckVal={setAllcheckVal} allcheckVal={allcheckVal} />
-            <tbody>
-                {
-                    page === "browse"?
-                    <>
-                    {
-                        music_list.map((item, index) => (
-                            <MusicListCard key={index} lank={index+1} title={item.title} album_title={item.album_title} artist_num={item.artist_num} 
-                            artist={item.artist} img={item.org_cover_image} music_id={item.id} album_id={item.album_id} check_all={allcheckVal} 
-                            setAllcheckVal={setAllcheckVal} selectMusic={selectMusic}
-                            likey={item.likey} setLikeyBannerOn={setLikeyBannerOn} handleRender={handleRender} clickPlaylistModalOpen={clickPlaylistModalOpen}
-                            setLoginrRequestVal={setLoginrRequestVal}  setPlayerBannerOn={setPlayerBannerOn} setAddplayerCount={setAddplayerCount}/>
-                        ))
-                    }
-                    </>
-                    :
-                    <>
-                    {
-                        music_list.map((item, index) => (
-                            <MusicListCard key={index} title={item.title} album_title={item.album_title} artist_num={item.artist_num} artist={item.artist} 
-                            img={item.org_cover_image} music_id={item.id} album_id={item.album_id} likey={item.likey} check_all={allcheckVal} 
-                            setLikeyBannerOn={setLikeyBannerOn} handleRender={handleRender} clickPlaylistModalOpen={clickPlaylistModalOpen}
-                            setLoginrRequestVal={setLoginrRequestVal}  handleLikeypage={handleLikeypage} selectMusic={selectMusic}  setPlayerBannerOn={setPlayerBannerOn}
-                            setAddplayerCount={setAddplayerCount}/>
-                        ))
-                    }
-                    </>
-                }
-                {/* {
-                    page === "browse"?
-                    <>
-                    {
-                        showMore?
-                        music_list.map((item, index) => (
-                            <MusicListCard key={index} lank={index+1} title={item.title} album_title={item.album_title} artist_num={item.artist_num} 
-                            artist={item.artist} img={item.org_cover_image} music_id={item.id} album_id={item.album_id} check_all={allcheckVal} 
-                            setAllcheckVal={setAllcheckVal}
-                            likey={item.likey} setLikeyBannerOn={setLikeyBannerOn} handleRender={handleRender} clickPlaylistModalOpen={clickPlaylistModalOpen}
-                            setLoginrRequestVal={setLoginrRequestVal}/>
-                        ))
-                        :
-                        music_list.map((item, index) => (
-                            <MusicListCard key={index} lank={index+1} title={item.title} album_title={item.album_title} artist_num={item.artist_num} 
-                            artist={item.artist} img={item.org_cover_image} music_id={item.id} album_id={item.album_id} check_all={allcheckVal} 
-                            setAllcheckVal={setAllcheckVal}
-                            likey={item.likey} setLikeyBannerOn={setLikeyBannerOn} handleRender={handleRender} clickPlaylistModalOpen={clickPlaylistModalOpen}
-                            setLoginrRequestVal={setLoginrRequestVal}/>
-                        )).filter((item, index) => (index < 10))
-                    }
-                    </>
-                    :
-                    <>
-                    {
-                        music_list.map((item, index) => (
-                            <MusicListCard key={index} title={item.title} album_title={item.album_title} artist_num={item.artist_num} artist={item.artist} 
-                            img={item.org_cover_image} music_id={item.id} album_id={item.album_id} likey={item.likey} check_all={allcheckVal} 
-                            setLikeyBannerOn={setLikeyBannerOn} handleRender={handleRender} clickPlaylistModalOpen={clickPlaylistModalOpen}
-                            setLoginrRequestVal={setLoginrRequestVal}  handleLikeypage={handleLikeypage} selectMusic={selectMusic}/>
-                        ))
-                    }
-                    </>
-                } */}
-            </tbody>
-        </table>
-        </StyledBrowser>
+                <hr className="text-gray"/>
+                <table className="table table-hover">
+                    <MusicListHeader lank={lank} selectAllFunc={selectAllFunc} allcheckVal={allcheckVal} page={page} />
+                    <tbody>
+                        {
+                            page === "browse"?
+                            <>
+                            {
+                                musiclist.map((item, index) => (
+                                    <MusicListCard key={index} lank={index+1} music_title={item.music_title} album_title={item.album_title} artist_id={item.artist_id} 
+                                    artist_name={item.artist_name} img={item.org_cover_image} music_id={item.music_id} album_id={item.album_id} check_all={allcheckVal} 
+                                    setAllcheckVal={setAllcheckVal} selectMusic={selectMusic}
+                                    likey={item.likey} setLikeyBannerOn={setLikeyBannerOn} handleRender={handleRender} clickPlaylistModalOpen={clickPlaylistModalOpen}
+                                    setLoginrRequestVal={setLoginrRequestVal}  setPlayerBannerOn={setPlayerBannerOn} setAddplayerCount={setAddplayerCount} 
+                                    index={index} checked={item.checked}/>
+                                ))
+                            }
+                            </>
+                            :
+                            (
+                                page === "detailmylistaddmusic"?
+                                <>
+                                {
+                                    musiclist.map((item, index) => (
+                                        <MusicListCard key={index} music_title={item.music_title} album_title={item.album_title} artist_name={item.artist_name} 
+                                        img={item.org_cover_image} music_id={item.music_id} check_all={allcheckVal} page={page}
+                                        clickPlaylistModalOpen={clickPlaylistModalOpen} handleLikeypage={handleLikeypage}
+                                        selectMusic={selectMusic}  setPlayerBannerOn={setPlayerBannerOn}
+                                        setAddplayerCount={setAddplayerCount} index={index} checked={item.checked}/>
+                                    ))
+                                }
+                                </>
+                                :
+                                <>
+                                {
+                                    musiclist.map((item, index) => (
+                                        <MusicListCard key={index} music_title={item.music_title} album_title={item.album_title} artist_id={item.artist_id} artist_name={item.artist_name} 
+                                        img={item.org_cover_image} music_id={item.music_id} album_id={item.album_id} likey={item.likey} check_all={allcheckVal} 
+                                        setLikeyBannerOn={setLikeyBannerOn} handleRender={handleRender} clickPlaylistModalOpen={clickPlaylistModalOpen}
+                                        setLoginrRequestVal={setLoginrRequestVal}  handleLikeypage={handleLikeypage} selectMusic={selectMusic}  setPlayerBannerOn={setPlayerBannerOn}
+                                        setAddplayerCount={setAddplayerCount} index={index} checked={item.checked}/>
+                                    ))
+                                }
+                                </>
+                            )
+                        }
+                    </tbody>
+                </table>
+            </StyledBrowser>
+        }
     </div>
     )
 }
@@ -249,26 +293,3 @@ export const StyledBrowser = styled.div`
     }
 `;
 export default MusicListTable
-
-
-
-{/* <StyledBrowser className="relative md:w-[1000px] xl:w-[1280px] 2xl:w-[1440px]">
-                <div className="mb-3">
-                    <div className="flex items-center cursor-pointer">
-                        <RiPlayLine className="all-play-icon absolute top-[2px] left-[0px]"/>
-                        <p className="ml-[25px] text-[14px] text-gray">전체듣기</p>
-                    </div>
-                </div> */}
-
-
-                // <StyledBrowser className="relative md:w-[1000px] xl:w-[1280px] 2xl:w-[1440px]">
-                // <div className="mb-3">
-                //     <div className="flex items-center">
-                //         <p className="chart-title">EzenMusic 차트</p>
-                //         <p className="text-slate-400 text-[12px] ml-[10px]">24시간 집계 (16시 기준)</p>
-                //     </div>
-                //     <div className="all-play-box absolute top-0 right-0 flex cursor-pointer">
-                //         <RiPlayLine className="all-play-icon absolute top-[2px] right-[55px]"/>
-                //         <p>전체듣기</p>
-                //     </div>
-                // </div>

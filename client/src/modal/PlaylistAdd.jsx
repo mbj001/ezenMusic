@@ -3,24 +3,29 @@ import styled from 'styled-components'
 import Axios from 'axios'
 import { RiCloseFill, RiAddLine } from "react-icons/ri";
 import { PiMusicNotesLight } from "react-icons/pi";
-import { useCookies, Cookies } from 'react-cookie';
+import { userid_cookies } from '../config/cookie';
 
-const PlaylistAdd = ({setPlaylistModalOpen, playlistModalData, handleplaylistModal}) => {
-    
-    const cookies = new Cookies();
-    let userid_cookies = cookies.get("client.sid");
+const PlaylistAdd = ({setPlaylistModalOpen, playlistModalData, handleplaylistModal, selectModalClose, setAddPlaylistBannerOn}) => {
 
     const [addPlaylist, setAddPlaylist] = useState([]);
     const [addNewPlaylist, setAddNewPlaylist] = useState(false);
+    const [duplicatedPlaylistName, setDuplicatedPlaylistName] = useState(false);
+    
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = ('0' + (today.getMonth() + 1)).slice(-2);
+    const day = ('0' + today.getDate()).slice(-2);
+    
+    let date = year + month  + day;
+    
+    const [input_playlist_name, setInput_playlist_name] = useState(date);
 
-    console.log(playlistModalData);
 
     useEffect(() =>{
-        Axios.post(`http://localhost:8080/playlist/browse/addplaylist` ,{
-            userid: userid_cookies
+        Axios.post(`/playlist/browse/addplaylist` ,{
+            character_id: userid_cookies
         })
         .then(({data}) =>{
-            // console.log(data);
             if(data !== -1){
                 setAddPlaylist(data);
             }
@@ -31,20 +36,10 @@ const PlaylistAdd = ({setPlaylistModalOpen, playlistModalData, handleplaylistMod
     }, [])
 
     
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = ('0' + (today.getMonth() + 1)).slice(-2);
-    const day = ('0' + today.getDate()).slice(-2);
-
-    let date = year + month  + day;
-
-    const [input_playlist_name, setInput_playlist_name] = useState(date);
-    const [duplicatedPlaylistName, setDuplicatedPlaylistName] = useState(false);
-    
     const clickToAddNewMusicToPlaylist = async(e, playlist_name, playlist_id) => {
         e.preventDefault();
         const userData = {
-            userid: userid_cookies,
+            character_id: userid_cookies,
             date: date,
             music_id: playlistModalData.music_id,
             thumbnail_image: playlistModalData.thumbnail_image,
@@ -52,33 +47,46 @@ const PlaylistAdd = ({setPlaylistModalOpen, playlistModalData, handleplaylistMod
             theme_playlist: playlistModalData.playlist,
             playlist_name: playlist_name,
             playlist_id: playlist_id,
-            album_id: playlistModalData.album_id
+            album_id: playlistModalData.album_id,
+            theme_playlist: playlistModalData.theme_playlist
         };
-        await Axios.post(`http://localhost:8080/playlist/browse/addmusictoplaylist`, userData)
+        await Axios.post(`/playlist/browse/addmusictoplaylist`, userData)
         .then(({data}) =>{
-        //   console.log(data);
+
+            // allCheckedModal 띄워져 있을 때 없애기
+            if(selectModalClose){
+                selectModalClose();
+            }
+            // 플레이리스트 추가되었습니다 베너
+            setAddPlaylistBannerOn(true);
         });
         handleplaylistModal();
-        // setPlaylistModalOpen(false);
       };
 
       const clickToAddNewMusicAndPlaylist = async(e) =>{
         e.preventDefault();
         const userData = {
-            userid: userid_cookies,
+            character_id: userid_cookies,
             date: date,
-            music_id: playlistModalData[0],
-            thumbnail_image: playlistModalData[1],
-            playlist_name: input_playlist_name
+            music_id: playlistModalData.music_id,
+            thumbnail_image: playlistModalData.thumbnail_image,
+            playlist_name: input_playlist_name,
+            // playlist_id: playlist_id,
+            album_id: playlistModalData.album_id,
+            theme_playlist: playlistModalData.theme_playlist
         };
-        await Axios.post(`http://localhost:8080/playlist/browse/addnewmusicandplaylist`, userData)
+        await Axios.post(`/playlist/browse/addnewmusicandplaylist`, userData)
         .then(({data}) =>{
             if(data == 1){
-                console.log('플레이리스트 제목이 중복됨')
                 setDuplicatedPlaylistName(true);
             }else{
-                console.log("플레이리스트 생성됨");
                 handleplaylistModal();
+                // allCheckedModal 띄워져 있을 때 없애기
+                if(selectModalClose){
+                    selectModalClose();
+                }
+                // 플레이리스트 추가되었습니다 베너
+                setAddPlaylistBannerOn(true);
             }
         });
       }
@@ -92,7 +100,6 @@ const PlaylistAdd = ({setPlaylistModalOpen, playlistModalData, handleplaylistMod
             await setAddNewPlaylist(false);
         }
     }
-    // console.log(setAddNewPlaylist)
 
     const clickPlaylistModalClose = async(e) =>{
         e.preventDefault();
@@ -100,6 +107,7 @@ const PlaylistAdd = ({setPlaylistModalOpen, playlistModalData, handleplaylistMod
     };
 
     return (
+        <>
         <StyledModal>
             <div className='modal-box flex flex-col w-[530px] max-h-[768px] overflow-y-scroll overflow-x-hidden'>
                 <div className='modal-header w-[530px] h-[90px] flex justify-between'>
@@ -133,7 +141,7 @@ const PlaylistAdd = ({setPlaylistModalOpen, playlistModalData, handleplaylistMod
                         }
                     </div>
                 {
-                    addPlaylist.length !== 0?
+                    addPlaylist.length !== 0 &&
                     addPlaylist.map((data, index) =>(
                         <div className='playlist flex items-center w-[470px] h-[90px] mx-auto cursor-pointer' onClick={(e) => clickToAddNewMusicToPlaylist(e, data.playlist_name, data.playlist_id)}>
                         {
@@ -145,12 +153,11 @@ const PlaylistAdd = ({setPlaylistModalOpen, playlistModalData, handleplaylistMod
                             <span className='ml-3'>{addPlaylist[index].playlist_name}</span>
                         </div>
                     ))
-                    :
-                    ""
                 }
                 </div>
             </div>
         </StyledModal>
+        </>
     )
 }
 
@@ -158,6 +165,12 @@ export default PlaylistAdd
 
 
 const StyledModal = styled.div`
+    -webkit-scrollbar, 
+    div::-webkit-scrollbar{
+        display: none;
+    }
+
+
     position: fixed;
     width: 100%;
     height: 100%;

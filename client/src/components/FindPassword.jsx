@@ -25,7 +25,7 @@ const FindPassword = () => {
             email: userInputEmail,
             birth: userInputBirth
         }
-        const validateResult = await axios.post(`http://localhost:8080/client/validate`,validateData);
+        const validateResult = await axios.post(`/client/validate`,validateData);
         console.log(validateResult);
         if(validateResult.data.valid){
             console.log('client에 등록된 사용자');

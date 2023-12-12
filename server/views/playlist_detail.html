@@ -1,0 +1,120 @@
+{% extends "layout.html" %}
+{% block style %}
+    <style>
+        .title-box{
+            display: flex;
+            margin-bottom: 10px;
+        }
+        .imgbox{
+            width: 200px;
+            height: 200px;
+        }
+        .imgbox img{
+            width: 200px;
+            height: 200px;
+        }
+        .description-box{
+            margin-left: 20px;
+            margin-top: 30px;
+        }
+        .description-box span{
+            display: block;
+        }
+        .musiclist-image{
+            width: 150px;
+            height: 150px;
+        }
+        form{
+            display: inline-block;
+        }
+        form button{
+            margin-left: 10px;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="title-box">
+    {% if thumbnail_image == null %}
+    <div class="imgbox">
+        <span>이미지가 업서용</span>
+    </div>
+    {% else %}
+    <div class="imgbox">
+        <img src="/image/album/{{thumbnail_image}}" alt="thumbnail_image">
+    </div>
+    {% endif %}
+    <div class="description-box">
+        <span style="font-size: 30px; font-weight: 700;">{{user}}의 {{playlist_name}}</span>
+        <span style="font-size: 24px; font-weight: 700;" class="text-danger">PlaylistID : {{title}}</span>
+    </div>
+</div>
+
+<a href="/playlist" class="btn btn-secondary" style="float: right;">돌아가기</a>
+<form action="/playlist/playlist_detail/insert" method="post" id="insert-form" target="blankifr">
+    <label for="">music_id</label>
+    <input type="hidden" name="playlist_id" value="{{title}}">
+    <input type="number" name="music_id" id="music_id" >
+    <button type="button" id="insert-submit"> 노래 추가</button>
+</form>
+
+<!--bootstrap table layout-->
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">cover_image</th>
+            <th scope="col">music_id</th>
+            <th scope="col">music_title</th>
+            <th scope="col">album</th>
+            <th scope="col">artist</th>
+            <th scope="col">Task</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for r in row2 %}
+        <tr>    
+            <th scope="row">{{loop.index}}</th>
+            <!-- <td>{{k_music_title}}</td> -->
+            <td>
+                <img class="musiclist-image" src="/image/album/{{r.org_cover_image}}" alt="cover_image">
+            </td>
+            <td>{{r.music_id}}</td>
+            <td>{{r.music_title}}</td>
+            <td>{{r.album_title}}</td>
+            <td>{{r.artist_name}}</td>
+            <td>
+                <form action="/playlist/playlist_detail/delete" method="post" id="delete-form" target="blankifr">
+                    <input type="hidden" id="playlist_id" name="playlist_id" value="{{title}}">
+                    <input type="hidden" id="music_list" name="music_list" value="{{music}}">
+                    <input type="hidden" id="music_id" name="music_id" value="{{r.music_id}}">
+                    <button type="button" id="delete-submit" class="btn btn-danger">삭제</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<!--bootstrap table layout-->
+<iframe name='blankifr' style='display:none;'></iframe>
+{% block script %}
+    <script>
+        
+        const insert_form = document.querySelector("#insert-form");
+        const insert_btn = document.querySelector("#insert-submit");
+        const delete_form = document.querySelector("#delete-form");
+        const delete_btn = document.querySelector('#delete-submit');
+
+        insert_btn.addEventListener('click', function() {
+            insert_form.submit()
+        });
+
+        delete_btn.addEventListener('click', function() {
+            delete_form.submit()
+        });
+        
+    </script>
+{% endblock %}
+
+
+{% endblock %}

@@ -14,11 +14,15 @@ const MainStyledSection = ({children}) => {
 export default MainStyledSection
 
 const MainStyle = styled.section`
-    width: 1000px;
+    width: 60%;
+    min-width: 955px;
+    max-width: 1600px;
+    height: 100%;
+    padding: 0px 0 40px 80px;
+    padding-right: 80px;
     margin: 0 auto;
-    .main-inner{
-        width: 100%;
-        display: flex;
-        flex-direction: column;
+    background-color: #fff;
+    @media screen and (max-width:955px) {
+        padding:0px 30px 40px;
     }
 `;

@@ -15,7 +15,7 @@ function GenreBanner() {
 
     useEffect(() => {
         // 일단 main 베너에 가져오는 테마 플리들 가져옴 나중에 다른 리스트들 가져올거면 node 쪽에 작성 후 가져와야 함.
-        Axios.get("http://localhost:8080/ezenmusic/genrebanner")
+        Axios.get("/ezenmusic/genrebanner")
         .then(({data}) => {
             setMoodplaylist(data);
         })
@@ -23,6 +23,7 @@ function GenreBanner() {
             console.log(err);
         })
     }, [])
+    
     return (
     <StyledMoodBanner className='banner-cover'>
         {/* <div className="swiper-button-next banner"></div>
@@ -51,9 +52,11 @@ function GenreBanner() {
                     <SwiperSlide key={index} className={`slide slide${index+1}`}>
                         <StyledMoodLink to={"/detail/chart/" + item.genre_id} className='row'>
                             <div className="mb-[10px]">
-                                <img src={"/image/genre/" + item.org_cover_image} alt="" className="genreimg w-[100%] h-[100%] m-auto rounded-[10px]" />
+                                <div className="genreimg w-[100%] h-[100%] m-auto rounded-[10px] overflow-hidden border-1 M-img-border">
+                                    <img src={"/image/genre/" + item.org_cover_image} alt="" className="w-full h-full object-cover" />
+                                </div>
                             </div>
-                            <h3>{item.themetitle}</h3>
+                            <h3>{item.themeplaylist_title}</h3>
                         </StyledMoodLink>
                     </SwiperSlide>
                 ))

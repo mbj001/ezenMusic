@@ -1,18 +1,16 @@
 import React, {useState, useEffect} from 'react'
 import Axios from 'axios';
 import styled from 'styled-components';
-import { RiPlayLine, RiPlayListAddFill, RiEdit2Fill } from "react-icons/ri";
+import { RiPlayListAddFill, RiEdit2Fill } from "react-icons/ri";
 import { PiMusicNotesLight } from "react-icons/pi";
-
-import MusicListHeader from '../card/MusicListHeader';
-import MusicListCard from '../card/MusicListCard';
-import { Cookies } from 'react-cookie';
-import LikeyBanner from '../card/LikeyBanner';
+import { userid_cookies } from '../config/cookie';
 import PlaylistAdd from '../modal/PlaylistAdd';
 import AllCheckedModal from '../modal/AllCheckedModal';
 import MusicListTable from '../card/MusicListTable';
 import DuplicatedPlaylistName from '../modal/DuplicatedPlaylistName';
 import DetailMylistAddMusic from '../modal/DetailMylistAddMusic';
+import icons from '../assets/sp_button.6d54b524.png';
+import PlayerBanner from '../card/PlayerBanner';
 
 function DetailMylist({playlist_id, handleRender}) {
 
@@ -20,20 +18,22 @@ function DetailMylist({playlist_id, handleRender}) {
     const [albumAndMusicData, setAlbumAndMusicData] = useState([]);
 
     ////////// MBJ //////////
-    // 좋아요 누를 때 베너
-    const [likeyBannerOn, setLikeyBannerOn] = useState(0);
     // 전체선택 베너
     const [allcheckVal, setAllcheckVal] = useState(false);
+    // 플레이어 추가 베너
+    const [playerBannerOn, setPlayerBannerOn] = useState(false);
     //
     let array = [];
     ////////// ~MBJ //////////
 
-    const cookies = new Cookies();
-    const userid_cookies = cookies.get("client.sid");
-
     ////////// 건우 //////////
     const [playlistModalOpen, setPlaylistModalOpen] = useState(false);
     const [playlistModalData, setPlaylistModalData] = useState([]);
+    const [detailMylistPageCheck, setDetailMylistPageCheck] = useState(false);
+
+    function handleDetailMylistPage(){
+        setDetailMylistPageCheck(detailMylistPageCheck => {return !detailMylistPageCheck})
+    }
 
     function handleplaylistModal(){
         setPlaylistModalOpen(playlistModalOpen => {return !playlistModalOpen;})
@@ -65,7 +65,7 @@ function DetailMylist({playlist_id, handleRender}) {
         const userData = {
             playlist_id: playlistData[0].playlist_id,
             playlist_name: currentPlaylistName,
-            userid: userid_cookies
+            character_id: userid_cookies
         }
         
         await Axios.post(`http://localhost:8080/playlist/detail/detailmylist/changeplaylistname`, userData)
@@ -86,10 +86,11 @@ function DetailMylist({playlist_id, handleRender}) {
         setDuplicatedModalOpen(false);
     }
 
-    const clickToAddMusicModalOpen = (e, playlist_id) =>{
+    const clickToAddMusicModalOpen = (e, playlist_id, playlist_name) =>{
         e.preventDefault()
         console.log(playlist_id);
-        setDetailMylistAddMusicModalData([playlist_id]);
+        console.log(playlist_name);
+        setDetailMylistAddMusicModalData([playlist_id, playlist_name]);
         setDetailMylistAddMusicOpen(true)
     }
 
@@ -99,24 +100,50 @@ function DetailMylist({playlist_id, handleRender}) {
 
 
     ///////////////////////////////
+    
+    function playerAdd(bool){
+        let array = [];
+
+        for(let i=0; i<albumAndMusicData.length; i++){
+            array.push(albumAndMusicData[i].music_id);
+        }
+        Axios.post("/playerHandle/playerAdd", {
+            character_id: userid_cookies,
+            music_list: array,
+            change_now_play: bool
+        })
+        .then(({data}) => {
+            setPlayerBannerOn(true);
+            handleRender();
+        })
+        .catch((err) => {
+            console.log(err);
+        })
+    }
+
 
     useEffect(() => {     
-        const cookies = new Cookies();
-        const userid_cookies = cookies.get("client.sid");
 
         // likey 목록 가져옴
         if(userid_cookies !== undefined){
-            Axios.get("http://localhost:8080/ezenmusic/allpage/likeylist/" + userid_cookies)
+            Axios.post("/ezenmusic/allpage/likeylist/", {
+                character_id: userid_cookies,
+                division: "liketrack"
+            })
             .then(({data}) => {
-                // console.log("browse likeylist axios get complete!!");
-                array = data[0].music_list;
+                if(data == -1){
+
+                }
+                else{
+                    array = data[0].music_list;
+                }
                 })
             .catch((err) => {
                 console.log(err);
             })
         }
 
-        Axios.get("http://localhost:8080/ezenmusic/detail/detailmylist/" + playlist_id)
+        Axios.get("/ezenmusic/detail/detailmylist/" + playlist_id)
         .then(({data}) => {
             for(let i=0; i<data.length; i++){
                 // object 에 likey 라는 항목 넣고 모두 false 세팅
@@ -124,7 +151,7 @@ function DetailMylist({playlist_id, handleRender}) {
             }
             for(let i=0; i<array.length; i++){
                 for(let j=0; j<data.length; j++){
-                    if(array[i] === Number(data[j].id)){
+                    if(array[i] === Number(data[j].music_id)){
                         // 좋아요 해당 object 의 값 true 로 변경
                         data[j].likey = true;
                     }
@@ -132,7 +159,7 @@ function DetailMylist({playlist_id, handleRender}) {
             }
             setAlbumAndMusicData(data);
 
-            Axios.get("http://localhost:8080/playlist/detail/detailmylist/" + playlist_id)
+            Axios.get("/playlist/detail/detailmylist/" + playlist_id)
             .then(({data}) => {
                 setPlaylistData(data);
             })
@@ -143,43 +170,29 @@ function DetailMylist({playlist_id, handleRender}) {
         .catch((err) => {
             {}
         })
-    }, [])
+    }, [detailMylistAddMusicModalOpen, detailMylistPageCheck])
     
     return (
         <>
-        {
-            duplicatedModalOpen === true?
-            <DuplicatedPlaylistName clickToModalClose={clickToModalClose}/>
-            :
-            ""
+        { duplicatedModalOpen === true && <DuplicatedPlaylistName clickToModalClose={clickToModalClose}/> }
+        { playlistModalOpen && <PlaylistAdd setPlaylistModalOpen={setPlaylistModalOpen} playlistModalData={playlistModalData} handleplaylistModal={handleplaylistModal}/> }
+        {/* { allcheckVal && <AllCheckedModal setAllcheckVal={setAllcheckVal}/> } */}
+        { playerBannerOn && <PlayerBanner playerBannerOn={playerBannerOn} setPlayerBannerOn={setPlayerBannerOn} page={"channel"} /> }
+
+        { detailMylistAddMusicModalOpen && 
+            <DetailMylistAddMusic setDetailMylistAddMusicOpen={setDetailMylistAddMusicOpen} handleRender={handleRender} clickToAddMusicModalClose={clickToAddMusicModalClose} 
+            detailMylistAddMusicModalData={detailMylistAddMusicModalData}/>
         }
-        {
-            playlistModalOpen?
-            <PlaylistAdd setPlaylistModalOpen={setPlaylistModalOpen} playlistModalData={playlistModalData} handleplaylistModal={handleplaylistModal}/>
-            :
-            ""
-        }
-        {
-            allcheckVal ?
-            <AllCheckedModal setAllcheckVal={setAllcheckVal}/>
-            :
-            ""
-        }
-        {
-            detailMylistAddMusicModalOpen ?
-            <DetailMylistAddMusic setDetailMylistAddMusicOpen={setDetailMylistAddMusicOpen} clickToAddMusicModalClose={clickToAddMusicModalClose} detailMylistAddMusicModalData={detailMylistAddMusicModalData}/>
-            :
-            ""
-        }
+
         {   
             playlistData.map((item, index) => (
             <>
             {
-                playlistData[index].playlist == null?
-                <StyledDetail key={index}>
+                playlistData[index].music_list == null?
+                <StyledDetail key={index} className='md:w-[1000px] xl:w-[1280px] 2xl:w-[1440px] flex flex-wrap items-center mx-auto'>
                     <div>
-                        <div className="flex items-center p-[30px]">
-                            <div className='null-image flex w-[240px] h-[240px] rounded-[10px]'>
+                        <div className="flex flex-wrap align-items-center items-center p-[30px]">
+                            <div className='null-image flex w-[240px] h-[240px]'>
                                 <span className='null-image-icon flex justify-around items-center w-full h-full'>
                                     <PiMusicNotesLight className='text-[60px]' />
                                 </span>
@@ -205,25 +218,26 @@ function DetailMylist({playlist_id, handleRender}) {
                                 </div>
                                 
                                 <p className="font-normal">총 0곡</p>
-                                <div className="flex mt-[50px] ">
-                                    <RiPlayListAddFill className="mr-[10px] text-[24px] text-gray cursor-pointer hover-text-blue" />
-                                </div>
+                                {/* <button className="artist_listplus ml-[-10px]" style={{backgroundImage:`url(${icons})`}} onClick={(e) => playerAdd()}></button> */}
                             </div>
                         </div>
                     </div>
                 </StyledDetail>
                 :
-                <StyledDetail key={index}>
+                <StyledDetail key={index} className='md:w-[1000px] xl:w-[1280px] 2xl:w-[1440px] flex flex-wrap items-center mx-auto'>
                     <div>
-                        <div className="flex items-center p-[30px]">
-                            <img src={"/image/album/"+playlistData[index].thumbnail_image} alt="cover_image" className="w-[230px] h-[230px] rounded-[10px]" />
+                        <div className="flex flex-wrap align-items-center items-center p-[30px]">
+                            <div className='null-image relative'>
+                                <img src={"/image/album/"+playlistData[index].thumbnail_image} alt="cover_image" className="w-[230px] h-[230px] rounded-[6px]" />
+                                <button className='libutton absolute' style={{backgroundImage: `url(${icons})`}} onClick={(e) => playerAdd(true)}>Play Icon</button>
+                            </div>
                             <div className="m-[30px]">
                                 <div className='flex flex-row'>
                                     {
                                         !openEditForm?
                                         <>
                                         <span className="detail-title flex justify-start mb-[10px]">{playlistData[index].playlist_name}</span>
-                                        <button type='button' onClick={clickToOpenEditForm}>
+                                        <button type='button' onClick={clickToOpenEditForm} >
                                             <RiEdit2Fill className='text-[30px] cursor-pointer'/>
                                         </button>
                                         </>
@@ -236,10 +250,8 @@ function DetailMylist({playlist_id, handleRender}) {
                                         </form>
                                     }
                                 </div>
-                                <p className="font-normal">총 {playlistData[index].playlist.length}곡</p>
-                                <div className="flex mt-[50px] ">
-                                    <RiPlayListAddFill className="mr-[10px] text-[24px] text-gray cursor-pointer hover-text-blue" />
-                                </div>
+                                <p className="font-normal">총 {playlistData[index].music_list.length}곡</p>
+                                <button className="artist_listplus ml-[-10px] mt-[10px]" style={{backgroundImage:`url(${icons})`}} onClick={(e) => playerAdd(false)}></button>
                             </div>
                         </div>
                     </div>
@@ -251,18 +263,17 @@ function DetailMylist({playlist_id, handleRender}) {
         }
         {
             playlistData.map((item, index) =>(
-                playlistData[0].playlist == null?
-                <StyledMylistDivFalse key={index} className='md:w-[1000px] xl:w-[1280px] 2xl:w-[1440px] flex flex-wrap justify-center items-center mx-auto'>
-                    <div className='flex flex-col text-center mt-32'>
+                playlistData[0].music_list == null?
+                <StyledMylistDivFalse key={index} className='md:w-[1000px] xl:w-[1280px] 2xl:w-[1440px] h-[450px] flex flex-wrap justify-center items-center mx-auto'>
+                    <div className='flex flex-col text-center'>
                     <img src="/image/noplaylist.svg" alt="noplaylist" />
-                    <p className='mt-2 font-bold'>곡이 하나도 없어용 ㅠㅠ</p>
-                    <span>곡을 추가해주세요!</span>
-                    <button type='button' className='mt-[3px] text-[15px]' onClick={(e) => clickToAddMusicModalOpen(e, item.playlist_id)}> + 곡 추가하기 </button>
+                    <p className='mt-2 font-bold'>내 리스트에 곡이 없어요</p>
+                    <span className='mt-1 mb-3'>곡을 추가해주세요!</span>
+                    <button type='button' onClick={(e) => clickToAddMusicModalOpen(e, item.playlist_id, item.playlist_name)}> + 곡 추가하기 </button>
                     </div>
                 </StyledMylistDivFalse>
-                
                 :
-                <MusicListTable page="detailmylist" lank={false} music_list={albumAndMusicData} handleRender={handleRender}/>
+                <MusicListTable page="detailmylist" lank={false} playlist_id={playlist_id} handleDetailMylistPage={handleDetailMylistPage} music_list={albumAndMusicData} handleRender={handleRender}/>
             ))
         }
 
@@ -273,8 +284,8 @@ function DetailMylist({playlist_id, handleRender}) {
 export default DetailMylist
 
 const StyledDetail = styled.div`
-    width: 1440px;
-    margin: 0 auto;
+    // width: 1440px;
+    // margin: 0 auto;
 
     .detail-title{
         font-size: 28px;
@@ -290,46 +301,54 @@ const StyledDetail = styled.div`
         color: white
     }
 
+    
     .null-image{
         position: relative;
-        background-color: var(--mylist-null-image-after);
-      }
-      .null-image:before{
+        border-radius: 6px;
+        background-color: var(--mylist-null-image-cover);
+    }
+    .null-image::before{
         position: absolute;
         display: block;
-        top: -5px;
+        top: -4px;
         content: "";
-        z-index: 2;
-        left: 6px;
+        z-index: -1;
+        left: 2.5%;
         width: 95%;
-        height: 103%;
+        height: 95%;
         background-color: var(--mylist-null-image-before);
+        opacity: 0.5;
         border-radius: 10px;
-      }
-      .null-image:after{
+    }
+    .null-image::after{
         position: absolute;
         display: block;
-        top: -10px;
+        top: -8px;
         content: "";
-        z-index: 0;
-        left: 10px;
+        z-index: -2;
+        left: 5%;
         width: 90%;
-        height: 105%;
+        height: 90%;
         background-color: var(--mylist-null-image-after);
+        opacity: 0.8;
         border-radius: 10px;
-      }
-      .null-image span{
+    }
+    .null-image span{
         border: 1px solid rgba(0, 0, 0, 0.1);
         border-radius: 10px;
-      }
-      .null-image span:hover{
+    }
+    .null-image span:hover{
         z-index: 1999;
         background-color: rgba(0,0,0,0.2);
-      }
-      .null-image-icon{
+    }
+    .null-image-icon{
         color: var(--main-text-gray-lighter);
         z-index: 1000;
-      }
+    }
+    .libutton{
+          z-index: 5;
+          bottom: 10px;
+    }
 `
 
 export const StyledTableth = styled.th`
@@ -343,8 +362,6 @@ export const StyledTableth = styled.th`
 
 
 export const StyledBrowser = styled.div`
-    width: 1440px;
-    margin: 0 auto;
     // border: 1px solid black;
 
     .chart-title{
@@ -377,9 +394,12 @@ const StyledMylistDivFalse = styled.div`
     height: 130px;
   }
   button{
+    margin-left: 40px;
     margin-top: 5px;
     border: 1px solid var(--main-text-gray-lighter);
-    padding: 5px 10px;
+    padding: 5px;
     border-radius: 20px;
+    font-size: 14px;
+    width: 100px;
   }
 `

@@ -70,7 +70,22 @@ router.post('/resister', async(req,res)=>{
             res.send({status: 500, resisterComplete: false, message: error.message});
         }else{
             console.log(result);
-            res.send({status: 200, resisterComplete: true});
+            const createDefaultCharacterQuery = `insert into characters (character_id, user_id, character_num, character_name, profile_image, prefer_artist, prefer_genre, prefer_chart) values ('${req.body.id}#ch01', '${req.body.id}', 1, '캐릭터1', 'character01.png', null, null, null)`;
+            conn.query(createDefaultCharacterQuery, (error, result, fields)=>{
+                if(error){
+                    console.log(error);
+                }else{
+                    const createDefaultPreferPlaylistQuery = `insert into prefer_playlist (character_id, music_list ) values ('${req.body.id}#ch01','[]')`;
+                    conn.query(createDefaultPreferPlaylistQuery, (error, result, fields)=>{
+                        if(error){
+                            console.log(error);
+                        }else{
+                            console.log(result);
+                            res.send({status: 200, resisterComplete: true});
+                        }
+                    });
+                }
+            })
         }
     });
 })

@@ -14,9 +14,9 @@ const Purchase = () => {
                 <NavLink to={{pathname: 'voucher'}} className={({ isActive }) => isActive ? "nav-menu active" : "nav-menu"}>
                     일반
                 </NavLink>
-                <NavLink to={{pathname: 'promotion'}} className={({ isActive }) => isActive ? "nav-menu active" : "nav-menu"}>
+                {/* <NavLink to={{pathname: 'promotion'}} className={({ isActive }) => isActive ? "nav-menu active" : "nav-menu"}>
                     이벤트
-                </NavLink>
+                </NavLink> */}
                 <NavLink to={{pathname: 'my'}} className={({ isActive }) => isActive ? "nav-menu active" : "nav-menu"}>
                     나의 이용권
                 </NavLink>

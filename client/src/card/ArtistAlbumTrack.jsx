@@ -1,51 +1,46 @@
-import React, {useState, useEffect, MouseEvent, useRef} from 'react'
+import React, {useState, useEffect} from 'react'
 import { Link } from 'react-router-dom';
 import styled from 'styled-components'
-import { RiPlayFill, RiPlayListAddFill, RiFolderAddLine, RiHeart3Line, RiHeart3Fill} from "react-icons/ri";
 import Axios from 'axios';
-import { Cookies } from "react-cookie";
+import { getCookie } from '../config/cookie';
+import { userid_cookies } from '../config/cookie';
 import LikeyBanner from './LikeyBanner';
 import PleaseLoginMessage from '../modal/PleaseLoginMessage';
 import PlayerBanner from '../card/PlayerBanner';
 import PlaylistAdd from '../modal/PlaylistAdd';
+import AddPlaylistBanner from '../card/AddPlaylistBanner';
 import icons from '../assets/sp_button.6d54b524.png'
 import {FiChevronRight} from 'react-icons/fi'
 
-function ArtistAlbumTrack({lank, title, album_title, artist_num, artist, img, music_id, album_size, artist_class ,artist_gender, id, album_id, album_release_date, handleRender}) {
-
-    const searchInputRef = useRef(null);
-    const moreboxRef = useRef(null);
-    const [isSearchMode, setIsSearchMode] = useState(false); 
-
-
-    const cookies = new Cookies();
-    const userid_cookies = cookies.get("client.sid");
-    const [likeyList, setLikeyList] = useState([]);
+function ArtistAlbumTrack({lank, title, album_title, artist_name, artist_id, img, music_id, album_size, artist_class ,artist_gender, id, album_id, album_release_date, handleRender}) {
+    
     const [islikey, setIslikey] = useState(false);
+    // 좋아요 베너
     const [likeyBannerOn, setLikeyBannerOn] = useState(0);
     // 로그인이 필요합니다 모달 변수
     const [loginRequestVal, setLoginrRequestVal] = useState(false);
     // 플레이어 추가 베너
     const [playerBannerOn, setPlayerBannerOn] = useState(false);
+
     let array = [];
 
-
-    ////////// 건우 //////////
+    
+    //////////// 건우 ////////////
     const [playlistModalOpen, setPlaylistModalOpen] = useState(false);
     const [playlistModalData, setPlaylistModalData] = useState([]);
+    const [addPlaylistBannerOn, setAddPlaylistBannerOn] = useState(false);
 
     function handleplaylistModal(){
         setPlaylistModalOpen(playlistModalOpen => {return !playlistModalOpen;})
     }
 
-    const clickPlaylistModalOpen = (e, album_title, img, album_id) =>{
+    const clickPlaylistModalOpen = (e, album_id, img) =>{
         e.preventDefault();
         setPlaylistModalData({
             music_id: null,
-            album_title: album_title,
+            album_id: album_id,
             thumbnail_image: img,
-            theme_playlist: null,
-            album_id: album_id
+            theme_playlist: null
         });
         setPlaylistModalOpen(true);
     }
@@ -53,12 +48,14 @@ function ArtistAlbumTrack({lank, title, album_title, artist_num, artist, img, mu
 
 
     function HandleLikey(){
+        
         setIslikey(islikey => {return !islikey})
     }
 
     function addLikeAlbum(){
-        Axios.post("http://localhost:8080/ezenmusic/addlikey", {
-            userid: userid_cookies,
+
+        Axios.post("/ezenmusic/addlikey", {
+            character_id: userid_cookies,
             id: album_id,
             division: "likealbum"
         })
@@ -72,8 +69,9 @@ function ArtistAlbumTrack({lank, title, album_title, artist_num, artist, img, mu
     }
 
     function delLikeAlbum(){
-        Axios.post("http://localhost:8080/ezenmusic/dellikey", {
-            userid: userid_cookies,
+
+        Axios.post("/ezenmusic/dellikey", {
+            character_id: userid_cookies,
             id: album_id,
             division: "likealbum"
         })
@@ -89,27 +87,16 @@ function ArtistAlbumTrack({lank, title, album_title, artist_num, artist, img, mu
 
     // 2023-12-01 album 플레이어 추가
     function playerAdd(){
-        let array = [];
 
-        console.log(typeof(album_id));
-
-        // for(let i=0; i<albumTrackMusic.length; i++){
-            // array.push(album_id)
-        // }
-
-        Axios.post("http://localhost:8080/playerhandle/playerAdd", {
-            userid: userid_cookies,
+        Axios.post("/playerHandle/playerAdd", {
+            character_id: userid_cookies,
             page: "albumtrack",
             album_id: album_id
         })
-
         .then(({data}) => {
-
             setPlayerBannerOn(true);
             handleRender();
-
         })
-
         .catch((err) => {
             console.log(err);
         })
@@ -118,14 +105,12 @@ function ArtistAlbumTrack({lank, title, album_title, artist_num, artist, img, mu
 
     useEffect(() => {
         if(userid_cookies !== undefined){
-            Axios.post("http://localhost:8080/ezenmusic/detail/album_theme/likey", {
-                userid: userid_cookies,
+            Axios.post("/ezenmusic/detail/album_theme/likey", {
+                character_id: userid_cookies,
                 division: "likealbum"
             })
             .then(({data}) => {
                 array = data;
-                // console.log(array);
-                setLikeyList(data);
                 for(let i=0; i<array.length; i++){
                     if(array[i] === Number(album_id)){
                         setIslikey(!islikey);
@@ -139,73 +124,17 @@ function ArtistAlbumTrack({lank, title, album_title, artist_num, artist, img, mu
     }, [])
         
 
-    useEffect(() => {
-        function handleClickOutside(e){
-            if(searchInputRef.current && !searchInputRef.current.contains(e.target)) {
-                if(moreboxRef.current.contains(e.target)){
-                }
-                else{
-                    setIsSearchMode(false); 
-                }
-            }
-        }
-
-        document.addEventListener("mousedown", handleClickOutside);
-    }, [searchInputRef]);
-
-
     return (    
     <>
-    {
-        playlistModalOpen?
-        <PlaylistAdd setPlaylistModalOpen={setPlaylistModalOpen} playlistModalData={playlistModalData} handleplaylistModal={handleplaylistModal}/>
-        :
-        ""
-    }
-    {
-        playerBannerOn?
-        <PlayerBanner playerBannerOn={playerBannerOn} setPlayerBannerOn={setPlayerBannerOn} page={"albumtrack"} />
-        :
-        ""
-    }
-    <LikeyBanner likeyBannerOn={likeyBannerOn} setLikeyBannerOn={setLikeyBannerOn} pageDivision={"album"}/>
-    {
-        loginRequestVal?
-        <PleaseLoginMessage setLoginrRequestVal={setLoginrRequestVal} />
-        :
-        ""
-    }
-    {/* <li className="inline-block ">
-        <StyledTableli className="d-flex items-center mt-[100px] mb-3 ">
-            <Link to={"/detail/album/" + album_id + "/albumtrack"}><img src={"/image/album/" + img} alt="img02" className="w-[175px] h-[175px] rounded-[5px]" /></Link>
-            <div className="ml-5 overflow-hidden w-72">
-                <p className="text-neutral-950 font-normal text-[16px]"><Link to={"/detail/album/" + album_id + "/albumtrack"}>{album_title}</Link></p>
-                    <StyledTableli className="mb-2"><p className="text-sm"><Link to={"/detail/artist/" + artist_num + "/artisttrack"}>{`${artist} >`}</Link></p></StyledTableli>
-                    <StyledTableli><p className="text-sm">{`${album_release_date}`}</p></StyledTableli>
-                    <StyledTableli></StyledTableli>
-                    <StyledTableli><p className="text-sm">{album_size}</p></StyledTableli>
-            </div> 
-        </StyledTableli>
-        <div className="d-flex ml-44 absolute mt-[-50px]">
-            <StyledTableli className="w-[30px]"><RiPlayFill className="m-auto text-[20px] text-gray cursor-pointer hover-text-blue" onClick={ userid_cookies ? playerAdd : () => (setLoginrRequestVal(true))}/></StyledTableli>
-            <StyledTableli className="w-[30px]"><RiFolderAddLine className="m-auto text-[20px] text-gray cursor-pointer hover-text-blue" onClick={ !userid_cookies && (() => setLoginrRequestVal(true))} /></StyledTableli>
-            <StyledTableli className="w-[30px]">
-                {
-                    userid_cookies?
-                    <>
-                    {
-                        islikey?
-                        <RiHeart3Fill className="mx-[10px] text-[24px] text-pink cursor-pointer" onClick={delLikeAlbum}/>
-                        :
-                        <RiHeart3Line className="mx-[10px] text-[24px] text-gray cursor-pointer hover-text-blue" onClick={addLikeAlbum}/>
-                    }    
-                    </>
-                    :
-                    <RiHeart3Line className="mx-[10px] text-[24px] text-gray cursor-pointer hover-text-blue" onClick={() => setLoginrRequestVal(true)} />
-                }
-            </StyledTableli>
-        </div>
-    </li> */}
+    {/* modal */}
+    { playlistModalOpen && <PlaylistAdd setPlaylistModalOpen={setPlaylistModalOpen} playlistModalData={playlistModalData} handleplaylistModal={handleplaylistModal} setAddPlaylistBannerOn={setAddPlaylistBannerOn} /> }
+    {/* 플레이리스트 추가 베너 */}
+    { addPlaylistBannerOn && <AddPlaylistBanner addPlaylistBannerOn={addPlaylistBannerOn} setAddPlaylistBannerOn={setAddPlaylistBannerOn} /> }
+    { playerBannerOn && <PlayerBanner playerBannerOn={playerBannerOn} setPlayerBannerOn={setPlayerBannerOn} page={"albumtrack"} /> }
+    { likeyBannerOn !== 0 && <LikeyBanner likeyBannerOn={likeyBannerOn} setLikeyBannerOn={setLikeyBannerOn} pageDivision={"album"} /> }
+    { loginRequestVal && <PleaseLoginMessage setLoginrRequestVal={setLoginrRequestVal} /> }
+    {/* ~ modal */}
+
     <li className="artist_Album_li">
         <StyledTablediv className="d-flex w-[412px] items-center">
             <div className="thumbnail w-[175px] h-[175px]">
@@ -214,12 +143,12 @@ function ArtistAlbumTrack({lank, title, album_title, artist_num, artist, img, mu
                     </div>
             <div className="ml-5 w-[204px]">
                 <p className="text-sm font-bold text-truncate"><Link to={"/detail/album/" + album_id + "/albumtrack"}>{album_title}</Link></p>
-                    <StyledTablediv className="mb-2"><p className="text-xs flex"><Link to={"/detail/artist/" + artist_num + "/artisttrack"}>{`${artist}`}</Link><span className="py-1"><FiChevronRight /></span></p></StyledTablediv>
+                    <StyledTablediv className="mb-2"><p className="text-xs flex"><Link to={"/detail/artist/" + artist_id + "/artisttrack"}>{`${artist_name}`}</Link><span className="py-1"><FiChevronRight /></span></p></StyledTablediv>
                     <StyledTablediv><p className="mb-1 font-normal text-xs text-gray-900">{album_size}</p></StyledTablediv>
                     <StyledTablediv><p className="font-normal text-xs text-gray-400">{`${album_release_date}`}</p></StyledTablediv>   
                     <div className="d-flex mt-[30px] ml-[-2px]">
                         <button className="iconslistplus ml-0 mr-[2px]" style={{backgroundImage:`url(${icons})`}} onClick={userid_cookies? playerAdd : setLoginrRequestVal}></button>
-                        <button className="iconsbox ml-2 mr-[2px]" style={{backgroundImage:`url(${icons})`}} onClick={userid_cookies? (e) => clickPlaylistModalOpen(e, album_title, img, album_id) : setLoginrRequestVal} ></button>
+                        <button className="iconsbox ml-2 mr-[2px]" style={{backgroundImage:`url(${icons})`}} onClick={userid_cookies? (e) => clickPlaylistModalOpen(e, album_id, img) : setLoginrRequestVal} ></button>
                         {
                             userid_cookies?
                             <>

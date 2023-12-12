@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react'
 import Axios from "axios"
 import { Swiper, SwiperSlide } from 'swiper/react';
 import styled from 'styled-components';
-import { FreeMode, Navigation, Pagination } from 'swiper/modules';
+import { FreeMode, Navigation } from 'swiper/modules';
 import { Link } from 'react-router-dom';
 
 import 'swiper/css';
@@ -14,7 +14,7 @@ function MoodBanner() {
     const [moodplaylist, setMoodplaylist] = useState([]);
 
     useEffect(() => {
-        Axios.get("http://localhost:8080/ezenmusic/moodbanner")
+        Axios.get("/ezenmusic/moodbanner")
         .then(({data}) => {
             setMoodplaylist(data);
         })
@@ -45,11 +45,11 @@ function MoodBanner() {
             {
                 moodplaylist.map((item, index) => (
                     <SwiperSlide key={index} className={`slide slide${index+1}`}>
-                        <StyledMoodLink to={"/detail/channel/" + item.num} className='row'>
+                        <StyledMoodLink to={"/detail/channel/" + item.themeplaylist_id} className='row'>
                             <div className="mb-[10px]">
                                 <img src={"/image/themeplaylist/" + item.org_cover_image} alt="" className="moodimg w-[100%] h-[100%] m-auto rounded-[10px]" />
                             </div>
-                            <h3>{item.themetitle}</h3>
+                            <h3>{item.themeplaylist_title}</h3>
                         </StyledMoodLink>
                     </SwiperSlide>
                 ))

@@ -4,14 +4,14 @@
 <div>
     <h1 class="text-center">{{title}}</h1>
     <form action="/music/edit_music_form" method="post" class="form-group">
-        <input type="hidden" name="id" value="{{music.id}}">
+        <input type="hidden" name="music_id" value="{{music.music_id}}">
         <div>
             <label class="form-label">제목</label>
-            <input type="text" class="form-control" name="title" value="{{music.title}}">
+            <input type="text" class="form-control" name="music_title" value="{{music.music_title}}">
         </div>
         <div>
-            <label class="form-label">가수</label>
-            <input type="text" class="form-control" name="artist" value="{{music.artist}}">
+            <label class="form-label">가수 번호</label>
+            <input type="text" class="form-control" name="artist_id" value="{{music.artist_id}}">
         </div>
         <div>
             <label class="form-label">국내 or 해외</label>
@@ -42,8 +42,8 @@
             <input type="text" class="form-control" name="arranger" value="{{music.arranger}}">
         </div>
         <div>
-            <label class="form-label">앨범명</label>
-            <input type="text" class="form-control" name="album_title" value="{{music.album_title}}">
+            <label class="form-label">앨범번호</label>
+            <input type="text" class="form-control" name="album_id" value="{{music.album_id}}">
         </div>
         <div>
             <label class="form-label">가사</label>
@@ -61,7 +61,11 @@
             <input type="hidden" name="goToAlbuminfo" value="1">
         {% endif %}
         <div class="mt-5 text-center">
+            {% if albumVal %}
+            <a href="/album/view/{{music.album_id}}" class="btn btn-secondary">이전</a>
+            {% else %}
             <a href="/music" class="btn btn-secondary">이전</a>
+            {% endif %}
             <button type="submit" class="btn btn-info">수정 완료</button>
         </div>
     </form>

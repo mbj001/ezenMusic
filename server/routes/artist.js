@@ -6,23 +6,9 @@ const upload = require("../upload/upload")
 const fs = require('fs-extra');
 //
 router.get("/", (req, res) => {
-    let setCountsql = `SET @count=0`;
-        let updateCountsql = `UPDATE artist SET artist_num = (@count := @count + 1)`;
-        conn.query(setCountsql, (err, row, fields) => {
-            if (err) {
-                console.error(err)
-            } else {
-                conn.query(updateCountsql, (err, row, fields) => {
-                    if (err) {
-                        console.error(err)
-                    } else {
-                        // console.log("삭제성공 번호세팅완료")
-                    }
-                })
-            }
-        })
     console.log("routes => artist.js => router.get('/artist')");
-    let sql = `select * from artist order by artist_num desc`;
+
+    let sql = `select * from artist order by artist_id desc`;
     conn.query(sql, (err, row, fields) => {
         if (err) {
             console.log(err)
@@ -33,25 +19,9 @@ router.get("/", (req, res) => {
 })
 //del
     .post("/", (req, res) => {
-        console.log("*********** DEL 준비")
-        let setCountsql = `SET @count=0`;
-        let updateCountsql = `UPDATE artist SET artist_num = (@count := @count + 1)`;
-        conn.query(setCountsql, (err, row, fields) => {
-            if (err) {
-                console.error(err)
-            } else {
-                conn.query(updateCountsql, (err, row, fields) => {
-                    if (err) {
-                        console.error(err)
-                    } else {
-                        console.log("삭제성공 번호세팅완료")
-                    }
-                })
-            }
-        })
-        const num = req.body.artist_num;
+        const num = req.body.artist_id;
         console.log( num )
-        let sql = "delete from artist where artist_num = ?"
+        let sql = "delete from artist where artist_id = ?"
         conn.query(sql, num , (err, row, fields) => {
             if (err) {
                 console.error(err)
@@ -69,10 +39,10 @@ router.get("/artist_write", (req, res) => {
 })
  // insert
 
-.post("/artist_write", upload.single("artist_img"), (req, res) => {
+.post("/artist_write", upload.single("artist_image"), (req, res) => {
     console.log("routes => artist.js => router.post('/artist_write')");
-    const insertrs = `insert into artist (org_artist_img, artist_img, artist, artist_class, artist_gender, genre) values (?,?,?,?,?,?)`;
-    conn.query(insertrs, [req.file.originalname, req.file.filename, req.body.artist, req.body.artist_class, req.body.artist_gender, req.body.artist_genre],(err, rs, fields) => {
+    const insertrs = `insert into artist (org_artist_image, artist_image, artist_name, artist_class, artist_gender, genre) values (?,?,?,?,?,?)`;
+    conn.query(insertrs, [req.file.originalname, req.file.filename, req.body.artist_name, req.body.artist_class, req.body.artist_gender, req.body.artist_genre],(err, rs, fields) => {
         if(err) {
             console.error(err)
         } else {
@@ -86,14 +56,14 @@ router.get("/artist_write", (req, res) => {
 //edit
 router.get('/artist_edit/:num', (req, res) => {
     console.log("routes => artist.js => router.get ('/artist_edit/:num')")
-    let sql = `select * from artist where artist_num = ?`;
+    let sql = `select * from artist where artist_id = ?`;
     // console.log(req.file);
     // console.log(req.body);
     conn.query(sql,[req.params.num], (err, row, fields) => {
         if (err) {
             console.error(err)
         } else {
-            res.render("artist_edit", { title: "Artist Edit", row, artist_num: req.params.num })
+            res.render("artist_edit", { title: "Artist Edit", row, artist_id: req.params.num })
         }
     })
 })
@@ -127,12 +97,12 @@ router.get('/artist_edit/:num', (req, res) => {
 // })
     
 // MBJ
-router.post("/artist_edit", upload.single("artist_img"),(req, res) => {
+router.post("/artist_edit", upload.single("artist_image"),(req, res) => {
         console.log("Data 전송")
 
         if(req.file === undefined){
             const sql = `update artist set ?,?,?,? where artist_num = ?`;
-            conn.query(sql, [{artist: req.body.artist}, {artist_class: req.body.artist_class}, {artist_gender: req.body.artist_gender}, {genre: req.body.artist_genre}, Number(req.body.artist_num)], (err, sql_result, fields) => {
+            conn.query(sql, [{artist_name: req.body.artist_name}, {artist_class: req.body.artist_class}, {artist_gender: req.body.artist_gender}, {genre: req.body.artist_genre}, Number(req.body.artist_id)], (err, sql_result, fields) => {
                 if(err){
                     console.error(err)
                 }

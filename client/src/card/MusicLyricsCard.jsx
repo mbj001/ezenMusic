@@ -1,9 +1,9 @@
-import React, {useState, useEffect, MouseEvent, useRef} from 'react'
+import React, {useState, useEffect} from 'react'
 import { Link } from 'react-router-dom';
 import styled from 'styled-components'
 import { StyledTabletd } from './MusicListCard';
 
-function MusicLyricsCard({title, album_title, artist, img, music_id, album_id, lyrics, check_all }) {
+function MusicLyricsCard({music_title, album_title, artist_name, img, music_id, album_id, lyrics, check_all }) {
 
     const [chkboxChecked, setChkboxChecked] = useState(false);
     
@@ -28,11 +28,11 @@ function MusicLyricsCard({title, album_title, artist, img, music_id, album_id, l
                 <Link to={"/detail/track/" + music_id + "/details"}><img src={"/image/album/" + img} alt="img02" className="w-[60px] h-[60px] rounded-[5px]" /></Link>
             </div>
             <StyledLyricsBox className="lyrics-box col-8 ml-[20px] h-[60px]">
-                <p className="mb-[5px]">{title}</p>
+                <p className="mb-[5px]">{music_title}</p>
                 <p className="text-gray font-normal text-[12px]"><Link to={"/detail/track/" + music_id + "/details"}>{lyrics}</Link></p>
             </StyledLyricsBox> 
         </StyledTabletd>
-        <StyledTabletd className="w-[250px]"><p><Link to="#">{artist}</Link></p></StyledTabletd>
+        <StyledTabletd className="w-[250px]"><p><Link to="#">{artist_name}</Link></p></StyledTabletd>
         <StyledTabletd className="w-[250px]"><p><Link to="#">{album_title}</Link></p></StyledTabletd>
     </tr>
     )

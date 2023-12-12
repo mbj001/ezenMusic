@@ -16,6 +16,7 @@
     --modal-text-black: #181818;
 
     /* 건우 */
+    --mylist-null-image-cover: #f8f9fa;
     --mylist-null-image-before: #e3e3e3;
     --mylist-null-image-after: #f3f3f3;
 
@@ -27,6 +28,7 @@
     --pagination-dot: #3f3fff;
     
     --main-theme-color: #3f3fff;
+    --main-theme-color-hover: #3030C7;
     --kakao-theme-color: #FEE500;
     --purchase-box-color: #f4f5f8;
     --disabled-button-color: #e1e3e7;
@@ -50,6 +52,14 @@
 html{
     scroll-behavior: smooth;
     scroll-padding-top: 75px;
+}
+body{
+    width: 100%;
+    height:100%;
+    -webkit-user-select:none;
+    -moz-user-select:none;
+    -ms-user-select:none;
+    user-select:none
 }
 body, body>div{
     font-family: 'Noto Sans KR', sans-serif;
@@ -105,6 +115,49 @@ input[type='radio']:checked {
     border: 3px solid var(--main-background-white);
     box-shadow: 0 0 0 1px var(--main-text-gray); 
 }
+.header_main{
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    width: 100%;
+    height: 95px;
+    background-color: #fff;
+    padding: 10px 80px 0;
+    min-width: 955px;
+    max-width: 1600px;
+}
+.session_main{
+    width: 100%;
+    min-width: 955px;
+    max-width: 1600px;
+    height: 100%;
+    margin: 0 auto;
+    padding: 0px 80px 0;
+}
+.session_menu{
+    /* width: 100%; */
+    min-width: 955px;
+    max-width: 1440px;
+    height: 100%;
+    margin: 0 auto;
+    padding: 10px 0 ;
+    /* @media screen and (min-width:1140px) {
+        width: 100%;
+        height: 95px;
+        
+    } */
+}
+.session_list{
+    white-space: nowrap;
+}
+.artist_main{
+    width: 100%;
+    min-width: 800px;
+    max-width: 1600px;
+    padding-top: 50px;
+    margin: 0 auto;
+}
 /************* Settings for Responsible *************/
 
 
@@ -152,6 +205,8 @@ input[type='radio']:checked {
 .hover-bg-gray-dark:hover{ background-color: var(--main-text-gray-darker);}
 .border-gray-dark{ border-color: var(--main-text-gray-darker);}
 .hover-border-gray-dark:hover{ border-color: var(---main-text-gray-darker);}
+
+.M-img-border{ border-color: var(--mylist-null-image-before); }
 /* ~ 병준 ~ */
 
 
@@ -160,7 +215,7 @@ input[type='radio']:checked {
 /*
 
 Artist 사진위 재생아이콘
-.iconsstart / 
+.char_plus / 
 
 Artist 좋아요 버튼
 .iconheart
@@ -172,9 +227,18 @@ Artist Music List 아이콘
 .artist_listplus 재생목록 추가
 .artist_box 내 리스트 추가
 .see_more_btn 더보기버튼
+.redheart 좋아요 하트
 /
+/ 캐릭터쪽 아이콘
+.plus_icons
+.check_icons
+.arrow_icons
+.pensel_icons
+.camera_icons
+.cancel_icons
 Album쪽 아이콘
-.libutton 앨범목록 사진위 재생버튼
+
+.libutton 앨범 사진위 재생버튼
 
 .iconsbox 내 리스트 추가
 
@@ -186,6 +250,10 @@ Album쪽 아이콘
 /*Music Track에 있는 전체듣기 아이콘
 .All_listen
 
+Artist Music List 아이콘
+.artist_listen 재생(듣기) 버튼
+.artist_listplus 재생목록 추가
+.artist_box 내 리스트 추가
 
 Music 전체체크시 나오는 선택해제 듣기  재생목록 리스트 아이콘
 /
@@ -197,7 +265,74 @@ Music 전체체크시 나오는 선택해제 듣기  재생목록 리스트 아�
 / 보관함 좋아요 하트
 .iconsheart3
 */
-/****************************************************************************************
+/****************************************************************************************\
+
+/*캐릭터쪽 아이콘*/
+.check_icons{
+    position: absolute;
+    background-position: -194px -516px;
+    width: 17px;
+    height: 17px;
+    z-index: 3;
+}
+.plus_icons{
+display: inline-block;
+background-position: -303px -663px;
+width: 20px;
+height: 20px;
+content: "";
+}
+.arrow_icons{
+    background-position: -362px -691px;
+    width: 13px;
+    height: 13px;
+    content: "";
+}
+.pensel_icons{
+    background-position: -597px -315px;
+    width: 30px;
+    height: 30px;
+    position: absolute;
+}
+.pensel_icons:hover{
+    background-position: -597px -280px;
+    width: 30px;
+    height: 30px;
+}
+.camera_icons{
+    background-position: -440px -472px;
+    width: 36px;
+    height: 36px;
+    overflow: hidden;
+}
+.camera_icons:hover{
+    background-position: -399px -472px;
+    width: 36px;
+    height: 36px;
+    overflow: hidden;
+
+}
+/*작성글 취소*/
+.cancel_icons{
+    background-position: -632px -280px;
+    width: 29px;
+    height: 29px;
+    overflow: hidden;
+}
+
+/*cancel 클릭시 아이콘*/
+.cancel_icons2{
+    background-position: -630px -314px;
+    width: 29px;
+    height: 29px;
+    overflow: hidden;
+}
+/***/
+.play_start_btn{
+    background-position: -233px -340px;
+    width: 32px;
+    height: 32px;
+}
 
 /*전체 체크시 아이콘*/
 .menu_check{
@@ -258,20 +393,22 @@ Music 전체체크시 나오는 선택해제 듣기  재생목록 리스트 아�
     padding-bottom: 16px;
 }
 .All_listen{
-    background-position: 2px -19px;
+    background-position: 3px -18px;
     background-repeat: no-repeat;
     position: relative;
     padding-left: 17px;
-    margin: 0 15px 0 10px;
+    margin: 0 15px 10px 0px;
     font-size: 13px;
     line-height: 17px;
     color: #222;
     font-size: 13px;
+    vertical-align: middle;
 }
 
 .All_listen:hover{
-    background-position: 2px 2px;
+    background-position: 3px 4px;
     color: var(--main-theme-color);
+    vertical-align: middle;
 }
 .All_listen:after{
     width: 17px;
@@ -286,8 +423,19 @@ Artist Music List 아이콘
 .artist_listen 재생(듣기) 버튼
 .artist_listplus 재생목록 추가
 .artist_box 내 리스트 추가
-
+.redheart 큰 좋아요 아이콘
+.redheart2 작은 좋아요 아이콘
 ***************/
+.redheart{
+    background-position: -421px -230px;
+    width: 41px;
+    height: 41px;
+}
+.redheart2{
+    background-position: -392px -324px;
+    width: 23px;
+    height: 23px;
+}
 .artist_listen{
     background-position: -467px -92px;
     width: 41px;
@@ -313,45 +461,79 @@ Artist Music List 아이콘
     width: 41px;
     height: 41px;
    }
-.see_more:hover{
+   .see_more:hover{
     background-position: -138px -380px;
     width: 41px;
     height: 41px;
-}
-.artist_box{
-    background-position: -368px -380px;
-    width: 41px;
-    height: 41px;
-}
-.artist_box:hover{
-    background-position: -322px -380px;
-    width: 41px;
-    height: 41px;
-}
+   }
+   .artist_box{
+       background-position: -368px -380px;
+       width: 41px;
+       height: 41px;
+   }
+   .artist_box:hover{
+       background-position: -322px -380px;
+       width: 41px;
+       height: 41px;
+   }
 /******************************************/
+.detail-title{
+    font-weight: bold;
+}
+.search_main{
+    width: 100%;
+    padding: 10px 80px 0;
+    min-width: 955px;
+    max-width: 1600px;
+    padding: 0 80px 0;
+}
+.search_track{
+    width: 1600px;
+    margin-left: -80px;
+    margin-right: -80px;
+}
+
+.search_list{
+    width: 100%;
+    padding: 10px 80px 0;
+    min-width: 955px;
+    max-width: 1600px;
+    padding: 0 0px 50px;
+
+}
+
 .artist_main{
     box-sizing: border-box;
     width: 100%;
     padding-left: 50px;
     table-layout: fixed;
 }
+.artist_main_list{
+    padding: 0 100px 30px ;
+}
 .artist_menu{
     height: 43px;
-    padding-right: 40px;
+    padding-right: 0px;
     overflow: hidden;
     padding-top: 5px;
-    margin-bottom: 20px;
-    margin-left: 20px;
+    margin-bottom: 30px;
+    margin-left: 230px;
+    @media screen  and (max-width: 1600px){
+        margin-left: 80px;
+    }
+
 }
 .artist_info{
-    margin: 30px 30px;
+    margin: 60px 30px;
 }
 .artist_info_list{
     position: relative;
     font-size: 15px;
     color: #333;
 }
-
+.music_list_main{
+    padding: 95px 80px 40px;
+}
 .artist_menu_list{
     position: relative;
     z-index: 1;
@@ -359,7 +541,9 @@ Artist Music List 아이콘
     margin: 0 auto;
 
 }
-
+.artist_name{
+    color: var(--main-theme-color);
+}
 .artist_track_main{
     padding-top: 40px;
 }
@@ -371,10 +555,10 @@ Artist Music List 아이콘
 }
 .libutton{
     right: 11px;
-    bottom: 5px;
+    bottom: 15px;
     background-position: -180px -105px;
-    width: 32px;
-    height: 32px;
+    width: 37px;
+    height: 37px;
     color:transparent
 }
 .libutton:hover{
@@ -453,14 +637,14 @@ Artist Music List 아이콘
     color:#333;
 }
 .artist_Album_track{
+    padding-left: 235xpx;
     position: relative;
     display: block;
-    padding-top: 40px;
 }
 .artist_Album_bener{
     font-size: 13px;
     position: absolute;
-    right: 0;
+    right: 215px;
     color:#333;
     z-index: 1;
 }
@@ -481,8 +665,9 @@ Artist Music List 아이콘
     padding-bottom: 16px;
 }
 .artist_Album_ul{
-@media only screen and (min-width:1440px){
-    margin-left: -102px;
+    margin-left: 135px;
+@media only screen and (max-width:1600px){
+    margin-left: -22px;
 }
 
 }
@@ -491,8 +676,9 @@ Artist Music List 아이콘
     width: 412px;
     padding-right: 12px;
     margin-right: -12px;
+    margin-top: 28px;
     vertical-align: top;
-    margin-top: 20px;
+    margin-top: 28px;
     margin-left: 102px;
 @media only screen and (max-width:1440px){
         margin-left: 102px;
@@ -509,22 +695,29 @@ Artist Music List 아이콘
     white-space: nowrap;
 }
 .thumbnail{
-position: relative;
-width: 175px;
-padding-top: 5px;
-margin-bottom: 15px;
-text-align: center;
+    position: relative;
+    width: 175px;
+    padding-top: 14px;
+    margin-bottom: 15px;
+    text-align: center;
 }
-
-.redheart{
-    background-position: -421px -230px;
-    width: 41px;
-    height: 41px;
+.album_main{
+    width: 100%;
+    margin: 0 auto;
 }
-.redheart2{
-    background-position: -392px -324px;
-    width: 23px;
-    height: 23px;
+.album_inner{
+    box-sizing: border-box;
+    width: 100%;
+    padding-left: 230px;
+    table-layout: fixed;
+}
+.album_menu{
+    padding: 10px 220px 40px;
+}
+.album_intro{
+    font-weight: 700;
+    width: 100%;
+    padding: 0 220px 0;
 }
 /* ~ 재호 ~ */
 

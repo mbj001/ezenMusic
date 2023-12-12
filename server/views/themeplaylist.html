@@ -29,13 +29,13 @@
         <tbody>
             {% for playlist in result %}
             <tr>    
-                <th scope="row">{{playlist.num}}</th>
-                <td>{{playlist.themetitle}}</td>
+                <th scope="row">{{playlist.themeplaylist_id}}</th>
+                <td>{{playlist.themeplaylist_title}}({{playlist.count}}곡)</td>
                 <td>{{playlist.description}}</td>
                 <td>{{playlist.release_date_format}}</td>
                 <td>{{playlist.org_cover_image}}</td>
                 <td><img src="/image/themeplaylist/{{playlist.cover_image}}" alt="cover_image" class="M-album-image"></td>
-                <td><a href="/themeplaylist/view/{{playlist.num}}" class="btn btn-primary">정보</a></td>
+                <td><a href="/themeplaylist/view/{{playlist.themeplaylist_id}}" class="btn btn-primary">정보</a></td>
                 <td><a href="/album/edit/{{album.album_id}}" class="btn btn-info">수정</a></td>
                 <!-- <td><a href="/music/delete/{{music.id}}" class="btn btn-danger">삭제</a></td> -->
                 <td><button type="button" id="themeplaylist_delete" name="themeplaylist_delete" class="btn btn-danger" value="{{playlist.num}}">삭제</button></td>

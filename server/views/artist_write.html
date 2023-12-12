@@ -37,17 +37,17 @@
      <tbody class="artist-table">
         {% for rs in row %}
         <tr class="input_list">
-            <td>{{rs.num}}</td>
-            <td>{{rs.artist_img}}</td>
-            <td>{{rs.artist}}</td>
+            <td>{{rs.artist_id}}</td>
+            <td>{{rs.artist_image}}</td>
+            <td>{{rs.artist_name}}</td>
             <td>{{rs.artist_class}}</td>
             <td>{{rs.artist_gender}}</td>
             <td>{{rs.artist_genre}}</td>
         </tr>
             <tr class="insert_list">
-                <th scope="col"><input type="number" id="artist_num"> </th>
-                <th scope="col"><input type="file" id="artist_img" name="artist_img"></th>
-                <th scope="col"><input type="text" id="artist" name="artist"></th>
+                <th scope="col"><input type="number" id="artist_id"> </th>
+                <th scope="col"><input type="file" id="artist_image" name="artist_image"></th>
+                <th scope="col"><input type="text" id="artist_name" name="artist_name"></th>
                 <th scope="col"><input type="text" id="artist_class" name="artist_class"></th>
                 <th scope="col"><input type="text" id="artist_gender" name="artist_gender"></th>
                 <th scope="col"><input type="text" id="artist_genre" name="artist_genre"></th>
@@ -70,8 +70,8 @@
         const Addinsert = `            
         <tr class="insert_list">
                 <th scope="col"><input type="text" placeholder="자동증가 입력X" ></th>
-                <th scope="col"><input type="file" id="artist_img" name="artist_img"></th>
-                <th scope="col"><input type="text" id="artist" name="artist"></th>
+                <th scope="col"><input type="file" id="artist_image" name="artist_image"></th>
+                <th scope="col"><input type="text" id="artist_name" name="artist_name"></th>
                 <th scope="col"><input type="text" id="artist_class" name="artist_class"></th>
                 <th scope="col"><input type="text" id="artist_gender" name="artist_gender"></th>
                 <th scope="col"><input type="text" id="artist_genre" name="artist_genre"></th>
@@ -85,8 +85,8 @@
         $(".insertok").click(function(e){
             e.preventDefault();
             const sendData = {
-                num: $("#artist_num").val(),
-                artist: $("#artist").val(),
+                num: $("#artist_id").val(),
+                artist: $("#artist_name").val(),
                 artist_class: $("#artist_class").val(),
                 artist_gender: $("#artist_gender").val(),
                 artist_genre: $("#artist_genre").val()

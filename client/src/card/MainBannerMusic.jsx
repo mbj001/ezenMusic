@@ -2,18 +2,20 @@ import React, {useState, useEffect} from 'react'
 import styled from 'styled-components';
 import Axios from "axios";
 
-function MainBannerMusic({num}) {
+function MainBannerMusic({themeplaylist_id}) {
     const [thememusic, setThememusic] = useState([]);
 
     useEffect(() => {
-        Axios.get("http://localhost:8080/ezenmusic/mainbannermusic/" + num)
+        Axios.get("/ezenmusic/mainbannermusic/" + themeplaylist_id)
         .then(({data}) => {
+            // music
             setThememusic(data);
         })
         .catch((err) => {
-            console.log("에러");
+            console.log(err);
         })
     },[])
+    
     return (
         <>
         {
@@ -25,8 +27,8 @@ function MainBannerMusic({num}) {
                             <PlaylistThumbs className='w-45 h-45' url={list.org_cover_image}></PlaylistThumbs>
                         </div>
                         <PlaylistInfo className="col-9">
-                            <p className='song-title'>{list.title}</p>
-                            <p className='song-artist'>{list.artist}</p>
+                            <p className='song-title'>{list.music_title}</p>
+                            <p className='song-artist'>{list.artist_name}</p>
                         </PlaylistInfo>
                     </div>
                 </div>

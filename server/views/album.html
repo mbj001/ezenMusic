@@ -35,7 +35,7 @@
             <tr>    
                 <th scope="row">{{album.album_id}}</th>
                 <td>{{album.album_title}}</td>
-                <td>{{album.artist}}</td>
+                <td>{{album.artist_name}}({{album.artist_id}})</td>
                 <td>{{album.album_size}}</td>
                 <td>{{album.publisher}}</td>
                 <td>{{album.agency}}</td>
@@ -43,7 +43,7 @@
                 <!-- <td>{{album.cover_image}}</td> -->
                 <td><img src="/image/album/{{album.cover_image}}" alt="cover_image" class="M-album-image"></td>
                 <td>{{album.release_date_format}}</td>
-                <td><a href="/album/view/{{album.album_title}}" class="btn btn-primary">정보</a></td>
+                <td><a href="/album/view/{{album.album_id}}" class="btn btn-primary">정보</a></td>
                 <td><a href="/album/edit/{{album.album_id}}" class="btn btn-info">수정</a></td>
                 <!-- <td><a href="/music/delete/{{music.id}}" class="btn btn-danger">삭제</a></td> -->
                 <td><button type="button" id="album_delete" name="album_delete" class="btn btn-danger" value="{{album.album_id}}">삭제</button></td>

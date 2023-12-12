@@ -4,13 +4,16 @@ const { route } = require("./main");
 const router = express.Router();
 
 const mysql2 = require('mysql2/promise');
-const pool = mysql2.createPool({
-    host: 'localhost',
-    user: 'root',
-    password: 'Qudwns12!',
-    connectionLimit: 10,
-    database: 'flodb'
-});
+// const pool = mysql2.createPool({
+//     host: 'localhost',
+//     user: 'root',
+//     password: 'Qudwns12!',
+//     connectionLimit: 10,
+//     database: 'flodb'
+// });
+const pool = require("../config/mysqlPool");
+
+
 
 router.get("/", (req, res) => {
     const sql = "select * from likey"
@@ -24,11 +27,11 @@ router.get("/", (req, res) => {
     console.log("routes => likey.js => router.get('/')");
 });
 
-router.get("/likey_view/:userid", (req, res) =>{
-    const {userid} = req.params;
-    const sql = "select music_list from likey where userid = ?"
-    conn.query(sql, [userid], (err, row)=>{
-        // const k_likey_username = userid;
+router.get("/likey_view/:character_id", (req, res) =>{
+    const {character_id} = req.params;
+    const sql = "select music_list from likey where character_id = ?"
+    conn.query(sql, [character_id], (err, row)=>{
+        // const k_likey_username = character_id;
         if(err){
             console.log(err);
         }else{
@@ -46,25 +49,25 @@ router.get("/likey_view/:userid", (req, res) =>{
             // for(i = 0; i < k_music_title.length; i++){
             //     console.log(k_music_title[i]);
             // }
-            res.render("likey_view", {title: userid, row, music_list});
+            res.render("likey_view", {title: character_id, row, music_list});
         }
     });
 });
 // 좋아요를 여러개 눌렀을 때 어떤 로직으로 컬럼에 담겨야 하나
 
-router.get('/likey_insert/:userid', (req, res) =>{
-    const {userid} = req.params;
-    // const select_musicNo_sql = "select music_list from likey where userid = ?";
-    // conn.query(select_musicNo_sql, [userid])
-    res.render('likey_insert', {title: userid});
+router.get('/likey_insert/:character_id', (req, res) =>{
+    const {character_id} = req.params;
+    // const select_musicNo_sql = "select music_list from likey where character_id = ?";
+    // conn.query(select_musicNo_sql, [character_id])
+    res.render('likey_insert', {title: character_id});
 });
 
-router.post('/likey_insert/:userid', (req, res) =>{
-    const {userid} = req.params;
+router.post('/likey_insert/:character_id', (req, res) =>{
+    const {character_id} = req.params;
     let aa;
-    const select_musicNo_sql = "select music_list from likey where userid = ?";
+    const select_musicNo_sql = "select music_list from likey where character_id = ?";
 
-    conn.query(select_musicNo_sql, [userid], (err, row, fields) => {
+    conn.query(select_musicNo_sql, [character_id], (err, row, fields) => {
         if(err){
             console.error(err)
         }
@@ -73,9 +76,9 @@ router.post('/likey_insert/:userid', (req, res) =>{
             console.log(req.body);
             aa.push(Number(req.body.add_list));
             console.log(aa);
-            const insert_musicNo_sql = `update likey set music_list = "[${aa}]" where userid = ?`;
+            const insert_musicNo_sql = `update likey set music_list = "[${aa}]" where character_id = ?`;
 
-            conn.query(insert_musicNo_sql, [userid], (err, row, fields) => {
+            conn.query(insert_musicNo_sql, [character_id], (err, row, fields) => {
                 if(err){
                     console.error(err);
                 }
@@ -87,11 +90,11 @@ router.post('/likey_insert/:userid', (req, res) =>{
     });
 });
 
-router.get("/likey_view/likey_delete/:userid", (req, res) => {
+router.get("/likey_view/likey_delete/:character_id", (req, res) => {
     let aa;
-    const {userid} = req.params;
-    const sql = 'select music_list from likey where userid = ?'
-    conn.query(sql, [userid], (err, row) =>{
+    const {character_id} = req.params;
+    const sql = 'select music_list from likey where character_id = ?'
+    conn.query(sql, [character_id], (err, row) =>{
         if(err){
             console.log(err)
         }else{
@@ -101,17 +104,17 @@ router.get("/likey_view/likey_delete/:userid", (req, res) => {
             //     aa.splice(i, 1);
             // }
             console.log(aa);
-            res.render("likey_delete" , {title: userid, num: aa});
+            res.render("likey_delete" , {title: character_id, num: aa});
         }
     })
 });
 
-router.post('/likey_view/likey_delete/:userid', (req, res) =>{
+router.post('/likey_view/likey_delete/:character_id', (req, res) =>{
     // console.log(req.body);
-    const {userid} = req.params;
+    const {character_id} = req.params;
     let aa;
-    const select_musicNo_sql = "select music_list from likey where userid = ?";
-    conn.query(select_musicNo_sql, [userid], (err, row, fields) =>{
+    const select_musicNo_sql = "select music_list from likey where character_id = ?";
+    conn.query(select_musicNo_sql, [character_id], (err, row, fields) =>{
         if(err){
             console.error(err)
         }
@@ -134,9 +137,9 @@ router.post('/likey_view/likey_delete/:userid', (req, res) =>{
             }
             console.log("2");
             console.log(aa);
-            const insert_query = `update likey set music_list = "[${aa}]" where userid = ?`;
+            const insert_query = `update likey set music_list = "[${aa}]" where character_id = ?`;
 
-            conn.query(insert_query, [userid], (err, row, fields) => {
+            conn.query(insert_query, [character_id], (err, row, fields) => {
                 if(err){
                     console.log('1');
                     console.error(err);
@@ -144,7 +147,7 @@ router.post('/likey_view/likey_delete/:userid', (req, res) =>{
                 }
                 else{
                     // console.log('3');
-                    res.redirect("/likey", row, {title: userid});
+                    res.redirect("/likey", row, {title: character_id});
                     // console.log('4');
                 }
             });
@@ -152,11 +155,11 @@ router.post('/likey_view/likey_delete/:userid', (req, res) =>{
     })
 });
 
-// router.get('/storage/likey/:userid', async(req, res) =>{
+// router.get('/storage/likey/:character_id', async(req, res) =>{
 //     try{
 //         console.log('1');
-//         const {userid} = req.params;
-//         const sql = `select music_list from likey where userid = ${userid}`
+//         const {character_id} = req.params;
+//         const sql = `select music_list from likey where character_id = ${character_id}`
 //         let [result] = await pool.query(sql);
 //         console.log(result);
 //         res.send(result);

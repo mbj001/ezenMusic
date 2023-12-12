@@ -1,52 +1,36 @@
 import React from 'react'
 import styled from 'styled-components'
 import { Link } from 'react-router-dom'
-function Details({id, title, composer, lyricist, arranger, lyrics}) {
+function Details({music_id, music_title, composer, lyricist, arranger, lyrics}) {
 
     return (
     <StyledDetails className='md:w-[1000px] xl:w-[1280px] 2xl:w-[1440px]'>
-
         <div>
-            <p><span className="mr-[15px]">곡명</span> <span className="text-gray font-normal text-[14px]">{title}</span></p>
+            <p><span className="mr-[15px]">곡명</span> <span className="text-gray font-normal text-[14px]">{music_title}</span></p>
             <div className="my-[10px]">
-            {
-                composer?
-                <p><span className="mr-[15px]">작곡</span> <span className="text-gray font-normal text-[14px]">{composer}</span></p>
-                :
-                ""
-            }
+                { composer && <p><span className="mr-[15px]">작곡</span> <span className="text-gray font-normal text-[14px]">{composer}</span></p> }
             </div>
             <div className="my-[10px]">
-            {
-                lyricist?
-                <p><span className="mr-[15px]">작사</span> <span className="text-gray font-normal text-[14px]">{lyricist}</span></p>
-                :
-                ""
-            }
+                { lyricist && <p><span className="mr-[15px]">작사</span> <span className="text-gray font-normal text-[14px]">{lyricist}</span></p> }
             </div>
             <div className="my-[10px]">
-            {
-                arranger?
-                <p><span className="mr-[15px]">편곡</span> <span className="text-gray font-normal text-[14px]">{arranger}</span></p>
-                :
-                ""
-            }
+                { arranger && <p><span className="mr-[15px]">편곡</span> <span className="text-gray font-normal text-[14px]">{arranger}</span></p> }
             </div>
         </div>
         <div className="mt-[50px]">
-                {
-                    lyrics?
-                    <p className="lyrics text-gray font-normal text-[14px] leading-[26px]">{lyrics}</p>
-                    :
-                    <div className="text-center mt-[100px]">
-                        <img src="/image/nolyrics.svg" alt="notintroimage" className="m-auto"/>
-                        <div>
-                            <p>앗!</p>
-                            <p className="text-[14px] text-gray mt-[10px]">등록된 가사가 없어요.</p>
-                        </div>
+            {
+                lyrics ?
+                <p className="lyrics text-gray font-normal text-[14px] leading-[26px]">{lyrics}</p>
+                :
+                <div className="text-center mt-[100px]">
+                    <img src="/image/nolyrics.svg" alt="notintroimage" className="m-auto"/>
+                    <div>
+                        <p>앗!</p>
+                        <p className="text-[14px] text-gray mt-[10px]">등록된 가사가 없어요.</p>
                     </div>
-                }
-            </div>
+                </div>
+            }
+        </div>
     </StyledDetails>
     )
 }

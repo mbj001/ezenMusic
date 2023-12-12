@@ -1,29 +1,29 @@
 import React, { useState, useEffect } from 'react'
 import Axios from "axios"
 import styled from "styled-components"
-import { RiHeart3Line, RiHeart3Fill } from "react-icons/ri";
-import { BiCaretRight } from "react-icons/bi";
 import { Link } from "react-router-dom";
 import ArtistAlbum from "./ArtistAlbum";
 import ArtistTrack from "./ArtistTrack";
 import { NavLink, useParams } from 'react-router-dom';
-import { Cookies } from "react-cookie";
+import { userid_cookies } from '../config/cookie';
 import LikeyBanner from '../card/LikeyBanner';
 import PleaseLoginMessage from '../modal/PleaseLoginMessage';
 import icons from '../assets/sp_button.6d54b524.png';
+import PlayerBanner from '../card/PlayerBanner';
+//승렬
+import { PlayButton } from '../style/StyledIcons';
+
 
 function Artist({ music_id, handleRender }) {
 
-    const [detailArtist, setDetailArtist] = useState([]);
     const [artistInfo, setArtistInfo] = useState([]);
-
     const [islikey, setIslikey] = useState(false);
+    // 좋아요 베너
     const [likeyBannerOn, setLikeyBannerOn] = useState(0);
-    const [likeyList, setLikeyList] = useState([]);
-    // 로그인이 필요합니다 모달 변수
+    // 로그인이 필요합니다 모달
     const [loginRequestVal, setLoginrRequestVal] = useState(false);
-    const cookies = new Cookies();
-    const userid_cookies = cookies.get("client.sid");
+    // 플레이어 추가 베너
+    const [playerBannerOn, setPlayerBannerOn] = useState(false);
 
     const {details} = useParams();
 
@@ -31,13 +31,12 @@ function Artist({ music_id, handleRender }) {
     let array2 = [];
 
     function HandleLikey(){
-        console.log("handlelikey");
         setIslikey(islikey => {return !islikey})
     }
 
     function addLikeArtist(){
-        Axios.post("http://localhost:8080/ezenmusic/addlikey", {
-            userid: userid_cookies,
+        Axios.post("/ezenmusic/addlikey", {
+            character_id: userid_cookies,
             id: music_id,
             division: "likeartist"
         })
@@ -51,8 +50,8 @@ function Artist({ music_id, handleRender }) {
     }
 
     function delLikeArtist(){
-        Axios.post("http://localhost:8080/ezenmusic/dellikey", {
-            userid: userid_cookies,
+        Axios.post("/ezenmusic/dellikey", {
+            character_id: userid_cookies,
             id: music_id,
             division: "likeartist"
         })
@@ -65,15 +64,32 @@ function Artist({ music_id, handleRender }) {
         })
     }
 
+    function playerAdd(){
+        let array = [];
+
+        Axios.post("/playerHandle/playerAdd", {
+            character_id: userid_cookies,
+            page: "artist",
+            artist_id: music_id,
+            change_now_play: true
+        })
+        .then(({data}) => {
+            setPlayerBannerOn(true);
+            handleRender();
+        })
+        .catch((err) => {
+            console.log(err);
+        })
+    }
+
     useEffect(() => {
         if(userid_cookies !== undefined){
-            Axios.post("http://localhost:8080/ezenmusic/detail/album_theme/likey", {
-                userid: userid_cookies,
+            Axios.post("/ezenmusic/detail/album_theme/likey", {
+                character_id: userid_cookies,
                 division: "likeartist"
             })
             .then(({data}) => {
                 array2 = data;
-                setLikeyList(data);
                 for(let i=0; i<array2.length; i++){
                     if(array2[i] === Number(music_id)){
                         setIslikey(true);
@@ -86,13 +102,10 @@ function Artist({ music_id, handleRender }) {
             })
         }
 
-        Axios.get("http://localhost:8080/ezenmusic/detail/artist/" + music_id) //music_id 는 artist_num
+        Axios.get("/ezenmusic/detail/artist/" + music_id) //music_id 는 artist_id
         .then(({ data }) => {
-
-            setDetailArtist(data);
-
-            array.push(data[0]);
-            setArtistInfo(array);            
+            array.push(data[0]);        // 아티스트 정보 저장
+            setArtistInfo(array);
         })
         .catch((err) => {
             { }
@@ -109,29 +122,34 @@ function Artist({ music_id, handleRender }) {
             :
             ""
         }
+        {/* 재생목록 추가 베너 */}
+        { playerBannerOn && <PlayerBanner playerBannerOn={playerBannerOn} setPlayerBannerOn={setPlayerBannerOn} page={"artist"}/> }
         {
             artistInfo.map((item, index) => (
-                <StyledDetail key={index} className='md:w-[1000px] xl:w-[1280px] 2xl:w-[1440px]'>
-                    <div>
-                        <div className="flex p-[30px]">
-                            <div className="Imgbox mb-[10px]">
-                                <img src={"/image/artist/" + item.org_artist_img} alt="artist_img" className="w-[230px] h-[230px] rounded-[50%] hover:brightness-75" />
-                                <StyledButton><BiCaretRight className="artist_img_button"/></StyledButton>
-                                {/* <button title={item.artist+"  듣기"} className="iconsstart" style={{ backgroundImage: `url(${icons})` }}></button> */}
+                <StyledDetail key={index} className='artist_inner'>
+                    <div className="artist_main">
+                        <div className="flex artist_main_list">
+                            <div className="Imgbox">
+                                <div className="w-[230px] h-[230px] rounded-[50%] hover:brightness-75 overflow-hidden" >
+                                    <img src={"/image/artist/"+item.org_artist_image} alt="artist_image" className="w-full h-full object-cover"/>
+                                </div>
+                                {/* <button title={item.artist+" 듣기"} className="iconsstart" style={{ backgroundImage: `url(${icons})`}} onClick={userid_cookies? playerAdd : () => setLoginrRequestVal(true)}></button> */}
+                                <PlayButton title={item.artist_name+" 듣기"} className='absolute bottom-5 right-0' onClick={userid_cookies? playerAdd : () => setLoginrRequestVal(true)}></PlayButton>
                             </div>
-                            <div className="m-[30px] w-[1210px] h-[50px] relative mt-[45px]">
-                                <Link to={item.artist_num}><h3 className="detail-title mb-[10px]">{item.artist}</h3></Link>
+                            <div className="artist_info">
+                                <Link to={item.artist_id}><h3 className="detail-title mb-[10px]">{item.artist_name}</h3></Link>
                                 <StyledTable>
-                                <dl className="artist_info_list flex items-center">
-                                    <dt className="hidden">아티스트 정보</dt>
-                                    <dd>{item.artist_class}</dd>
-                                    <dd className="text-[8px] text-gray "><span className="mx-[5px]">|</span></dd>
-                                    <dd className="info_list">{item.artist_gender}</dd>
-                                    <dd className="text-[8px] text-gray "><span className="mx-[5px]">|</span></dd>                                    
+                                <dl className="artist_info_list ml-[-6px]">
+                                    {item.artist_class === "solo" && <dd className="ml-[0px]">솔로</dd>}
+                                    {item.artist_class === "duo" && <dd>듀오</dd>}
+                                    {item.artist_class === "group" && <dd>그룹</dd>}
+                                    {item.artist_gender === "male" && <dd className="info_list">남성</dd>}
+                                    {item.artist_gender === "duo" && <dd className="info_list">듀오</dd>}
+                                    {item.artist_gender === "female" && <dd className="info_list">여성</dd>}
                                     <dd className="info_list">{item.genre}</dd>
                                 </dl>
                                 </StyledTable>
-                                <div className="flex mt-[30px] ">
+                                <div className="flex mt-[10px] ">
                                 {
                                     userid_cookies?
                                     <>
@@ -145,33 +163,19 @@ function Artist({ music_id, handleRender }) {
                                     :
                                     <button className="iconsheart ml-[-5px]" style={{backgroundImage:`url(${icons})`}} onClick={() => setLoginrRequestVal(true)}></button>
                                 }
-                                    {/* {
-                                        userid_cookies?
-                                        <>
-                                        {
-                                            islikey?
-                                            <RiHeart3Fill className="mx-[10px] text-[24px] text-pink cursor-pointer" onClick={delLikeArtist}/>
-                                            :
-                                            <RiHeart3Line className="mx-[10px] text-[24px] text-gray-500 cursor-pointer hover:text-blue-500" onClick={addLikeArtist}/>
-                                        }
-                                        </>
-                                        :
-                                        <RiHeart3Line className="mx-[10px] text-[24px] text-gray-500 cursor-pointer hover:text-blue-500" onClick={() => setLoginrRequestVal(true)}/>
-
-                                    } */}
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div className="mb-[40px] artist_menu">
-                    <NavLink to={"/detail/artist/"+item.artist_num+"/artisttrack"} className={({ isActive }) => isActive ? "likey-nav active" : "likey-nav text-gray" }>곡</NavLink>
-                    <NavLink to={"/detail/artist/"+item.artist_num+"/albumtrack"} className={({ isActive }) => isActive ? "likey-nav active" : "likey-nav text-gray" }>앨범</NavLink>
+                    <NavLink to={"/detail/artist/"+item.artist_id+"/artisttrack"} className={({ isActive }) => isActive ? "likey-nav active" : "likey-nav text-gray" }>곡</NavLink>
+                    <NavLink to={"/detail/artist/"+item.artist_id+"/albumtrack"} className={({ isActive }) => isActive ? "likey-nav active" : "likey-nav text-gray" }>앨범</NavLink>
                     </div>
                     {
-                        details === "albumtrack" && <ArtistAlbum music_id={music_id} album_title={item.album_title} artist_num={item.artist_num} artist={item.artist} album_size={item.album_size} handleRender={handleRender} />
+                        details === "albumtrack" && <ArtistAlbum music_id={music_id} album_title={item.album_title} artist_id={item.artist_id} artist_name={item.artist_name} album_size={item.album_size} handleRender={handleRender} />
                     }
                     {
-                        details === "artisttrack" && <ArtistTrack artist_img={item.org_artist_img} artist={item.artist} artist_num={item.artist_num} music_id={music_id} handleRender={handleRender}/>
+                        details === "artisttrack" && <ArtistTrack artist_image={item.org_artist_image} artist_name={item.artist_name} artist_id={item.artist_id} music_id={music_id} handleRender={handleRender}/>
                     } 
                 </StyledDetail>
             ))
@@ -199,7 +203,7 @@ const StyledButton = styled.button`
         box-shadow: 1px 1px 15px #efefef;
         border-radius: 45%;
     }
-`
+    `
 // const StyledDetail = styled.div`
 //     width: 1440px;
 //     margin: 0 auto;
@@ -222,7 +226,7 @@ const StyledButton = styled.button`
 //     }
 // `
 const StyledDetail = styled.div`
-    width: 1440px;
+    width: 100%;
     margin: 0 auto;
 
     .detail-title{
@@ -254,17 +258,19 @@ const StyledDetail = styled.div`
 
 const StyledTable = styled.dl`
     dd{
+        font-size: 15px;
+        position: relative;
         display: inline-block;
-        margin: 2px;
-    }  
-    dd::after{
+        margin: 0 10px;
+    } 
+    .info_list:after{
     position: absolute;
-    top: 4px;
-    left: 4px;
+    top: 7px;
+    left: -8px;
     display: block;
     width: 1px;
     height: 8px;
     content: "";
-    background-color: #dcdcdc;
+    background-color: #ececec;
     }
 `

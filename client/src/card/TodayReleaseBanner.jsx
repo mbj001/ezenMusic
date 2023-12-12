@@ -18,7 +18,7 @@ function TodayReleaseBanner() {
     let array = [];
 
     useEffect(() => {
-        Axios.get("http://localhost:8080/ezenmusic/todayrelease")
+        Axios.get("/ezenmusic/todayrelease")
         .then(({data}) => {
             setMoodplaylist(data);
             for(let i=0; i<15; i++){
@@ -38,7 +38,7 @@ function TodayReleaseBanner() {
 
     return (
     <StyledMoodBanner>
-        <h1 className="font-bold text-[22px] mb-[30px]">오늘 발매 음악</h1>
+        <h1 className="font-bold text-[22px] mb-[30px]">EzenMusic 앨범</h1>
         <div className="swiper-button-next todaybanner"></div>
         <div className="swiper-button-prev todaybanner"></div>
         <Swiper
@@ -61,17 +61,17 @@ function TodayReleaseBanner() {
                     <SwiperSlide key={index} className={`slide slide${index+1}`}>
                         <StyledMoodLink to={"/detail/album/" + moodplaylist_first[index].album_id + "/albumtrack"} className='row mb-[30px]'>
                             <div className="mb-[10px] col">
-                                <img src={"/image/album/" + moodplaylist_first[index].org_cover_image} alt="" className="todayimg w-[100%] h-[100%] m-auto rounded-[10px]" />
+                                <img src={"/image/album/" + moodplaylist_first[index].org_cover_image} alt="" className="todayimg w-[175px] h-[175px] m-auto rounded-[10px]" />
                             </div>
                             <p className="text-[14px]">{moodplaylist_first[index].album_title}</p>
-                            <p className="text-[13px] text-gray">{moodplaylist_first[index].artist}</p>
+                            <p className="text-[13px] text-gray">{moodplaylist_first[index].artist_name}</p>
                         </StyledMoodLink>
                         <StyledMoodLink to={"/detail/album/" + moodplaylist_twice[index].album_id + "/albumtrack"} className='row mb-[30px]'>
                             <div className="mb-[10px] col">
-                                <img src={"/image/album/" + moodplaylist_twice[index].org_cover_image} alt="" className="todayimg w-[100%] h-[100%] m-auto rounded-[10px]" />
+                                <img src={"/image/album/" + moodplaylist_twice[index].org_cover_image} alt="" className="todayimg w-[175px] h-[175px] m-auto rounded-[10px]" />
                             </div>
                             <p className="text-[14px]">{moodplaylist_twice[index].album_title}</p>
-                            <p className="text-[13px] text-gray">{moodplaylist_twice[index].artist}</p>
+                            <p className="text-[13px] text-gray">{moodplaylist_twice[index].artist_name}</p>
                         </StyledMoodLink>
                     </SwiperSlide>
                 ))
@@ -86,7 +86,7 @@ export const StyledMoodBanner = styled.div`
     --swiper-navigation-size: 18px;
 
     width: 100%;
-    margin-bottom: 30px;
+    margin-bottom: 60px;
     // height: 400px;
     position: relative;
 

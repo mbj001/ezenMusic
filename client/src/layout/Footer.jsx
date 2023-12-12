@@ -2,10 +2,12 @@ import React from 'react'
 import MainStyledSection from '../layout/MainStyledSection'
 import { AiOutlineGithub, AiOutlineInstagram, AiOutlineMail } from 'react-icons/ai'
 import { FiArrowUpRight } from 'react-icons/fi'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import styled from 'styled-components'
 
 const Footer = () => {
+    const locationNow = useLocation();
+    if (locationNow.pathname === "/discovery") return null;
     return (
         <>
             <StyledFooter className='border-t pt-4 md:w-[1000px] xl:w-[1280px] 2xl:w-[1440px] mx-auto mt-5'>

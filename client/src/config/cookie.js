@@ -13,3 +13,6 @@ export const getCookie = (name)=>{
 export const removeCookie = (name) => {
     return cookies.remove(name);
 };
+
+// const cookies = new Cookies();
+export const userid_cookies = cookies.get("character.sid");

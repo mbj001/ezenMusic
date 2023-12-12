@@ -106,7 +106,7 @@ const Resister = () => {
 
     const checkDuplicateId = async() => {
         if(id !== '' && onlyEnglishAndNumber(id)){
-            const responseFromServer = await axios.post('http://localhost:8080/guest/check_duplication', {id: id});
+            const responseFromServer = await axios.post('/guest/check_duplication', {id: id});
             // console.log(responseFromServer);
             if(responseFromServer.data.useable){
                 setModalOpen(true);
@@ -245,7 +245,6 @@ const Resister = () => {
         validEmail(email)&&
         emailRef.current.value !== 'none'
         ){
-            console.log('ok!!! ready to send to server');
             return true;
         }else{
             return false;
@@ -254,18 +253,14 @@ const Resister = () => {
 
     const signUp = async(e) => {
         e.preventDefault();
-        console.log(signUpData);
         if(checkAllData()){
-            console.log(signUpData);
             setLoading(true);
-            const responseFromServer = await axios.post('http://localhost:8080/guest/resister',signUpData);
+            const responseFromServer = await axios.post('/guest/resister',signUpData);
             setLoading(false);
-            console.log(responseFromServer);
             if(responseFromServer.data.resisterComplete){
                 setResisterComplete(true);
             }
         }else{
-            console.log('no');
             setResisterFailure(true);
         }
     }

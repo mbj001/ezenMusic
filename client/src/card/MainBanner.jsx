@@ -10,25 +10,101 @@ import 'swiper/css/pagination';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import MainBannerMusic from './MainBannerMusic';
+import { getCookie, userid_cookies } from '../config/cookie';
+import { PlayButtonTrans as PlayButton } from '../style/StyledIcons';
+import PlayerBanner from '../card/PlayerBanner';
 
-const MainBanner = () => {
+const MainBanner = ({handleRender}) => {
     const [themeplaylist, setThemeplaylist] = useState([]);
-    const [thememusic, setThememusic] = useState([]);
+    const [ loading, setLoading ] = useState(false);
+
+    //LSR
+    const [ recommend, setRecommend ] = useState(false);
+    const [ bannerArtistImage, setBannerArtistImage ] = useState([]);
+    const [ isPreferExist, setIsPreferExist ] = useState(false);
+    const [ bannerUrl, setBannerUrl ] = useState('');
+    // MBJ
+    // 플레이어 추가 베너
+    const [playerBannerOn, setPlayerBannerOn] = useState(false);
+
+
+    const getBannerImage = async() => {
+        const response = await Axios.post('/verifiedClient/getBannerImage', {token: getCookie('connect.sid'), characterId: getCookie('character.sid')});
+        console.log("response");
+        console.log(response);
+        if(response.data.length > 1){
+            // prefer playlist 존재
+            setRecommend(true);
+            setIsPreferExist(true);
+            setBannerArtistImage(response.data);
+            setLoading(false);
+        }else{
+            // res.json(-1) 
+            setRecommend(false);   
+            setIsPreferExist(false);
+        }
+    }
 
     useEffect(() => {
-        Axios.get("http://localhost:8080/ezenmusic/mainbanner")
-        .then(({data}) => {
-            setThemeplaylist(data);
-        })
-        .catch((err) => {
-            console.log("에러");
-        })
+        setLoading(true);
+        const url = generateRandomInt(11);
+        // console.log(url); 
+        setBannerUrl(url);
+
+        getBannerImage();
+
+        if(!recommend){
+            Axios.get("/ezenmusic/mainbanner")
+            .then(({data}) => {
+                setThemeplaylist(data);
+            })
+            .catch((err) => {
+                console.log("에러");
+            })
+        }
     }, [])
 
+    function playerAdd(){
+        let array = [];
 
+        Axios.post("/playerHandle/playerAdd", {
+            character_id: userid_cookies,
+            page: "mainbanner_prefer_playlist",
+            change_now_play: true
+        })
+        .then(({data}) => {
+            setPlayerBannerOn(true);
+            handleRender();
+        })
+        .catch((err) => {
+            console.log(err);
+        })
+    }
+
+    /**
+     * 
+     * @param {number} range 
+     * @returns 1 ~ range random number
+     */
+    const generateRandomInt = (range) => {
+        let random = Math.round(Math.random() * range);
+        if(random === 0){random += 1}
+        if(random < 10){
+            random = '0' + random;
+        }else{
+
+        }
+        return random
+    }
+
+    useEffect(()=>{
+        
+    }, [])
 
     return (
-        <StyledBanner className='banner-cover'>
+        <>
+        { playerBannerOn && <PlayerBanner playerBannerOn={playerBannerOn} setPlayerBannerOn={setPlayerBannerOn} page={"channel"} /> }
+        <StyledBanner className='banner-cover' $url={bannerUrl}>
             <div className="swiper-button-next banner"></div>
             <div className="swiper-button-prev banner"></div>
             <Swiper
@@ -46,37 +122,151 @@ const MainBanner = () => {
                 centeredSlides={true}
                 pagination={{ clickable: true }}
                 >
-            
-                {
-                    themeplaylist.map((data, index)=>{
-                        return (
-                            <SwiperSlide key={index} className={`slide slide${index+1}`}>
-                                {/* <StyledLink to={`${playlistData.playlistId}`} className='row'> */}
-                                <StyledLink to={"/detail/channel/" + data.num} className='row'>
-                                    <div className='banner-left col-4'>
-                                        <h3>{data.themetitle}</h3>
+                    
+                    {
+                        isPreferExist ? 
+                        <>
+                        {
+                            <>
+                            <SwiperSlide className={`recommended relative`}>
+                            {/* <StyledLink to={`${playlistData.playlistId}`} className='row'> */}
+                                <StyledLink to={"/detail/recommend"} className='row'>
+                                    <div className='banner-left col-5'>
+                                        <p className='title'>좋아할만한 아티스트 MIX</p>
+                                        <h3 className='sub-title mt-[10px]'>EZEN MUSIC에서 취향에 맞는 음악을 골라봤어요.</h3>
                                         <div className='playlist-info'>
-                                            {/* <span>총 {data.playlistCount}곡</span> */}
-                                            <span>{data.release_date_format}</span>
+                                            <span className='update-date'>2023.12.04</span>
+                                            <span className='icon'></span>
                                         </div>
+                                        
                                     </div>
-                                    <div className='banner-right col-8'>
+                                    <BannerRight className='banner-right col-7'>
                                         <div className='row h-100' style={{padding:"40px 0"}}>
-                                            <MainBannerMusic num={data.num} />
-                                            
+                                            <div className='thumb-box'>
+                                                <div className='thumb-main'>
+                                                    <img src={`/image/artist/${bannerArtistImage[0] || '../test.png'}`} alt="test" />
+                                                </div>
+                                                <div className='thumb-left'>
+                                                    <img src={`/image/artist/${bannerArtistImage[1] || '../test.png'}`} alt="test" />
+                                                </div>
+                                                <div className='thumb-right'>
+                                                    <img src={`/image/artist/${bannerArtistImage[2] || '../test.png'}`} alt="test" />
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
+                                    </BannerRight>
                                 </StyledLink>
                             </SwiperSlide>
-                        )
-                    })
-                }
+                            
+                            </>
+                        }
+                        </>
+                        :
+                        <>
+                        {
+                            themeplaylist.map((data, index)=>{
+                                return (
+                                    <SwiperSlide key={index} className={`slide slide${index+1}`}>
+                                        {/* <StyledLink to={`${playlistData.playlistId}`} className='row'> */}
+                                        <StyledLink to={"/detail/channel/" + data.themeplaylist_id} className='row'>
+                                            <div className='banner-left col-4'>
+                                                <h3>{data.themeplaylist_title}</h3>
+                                                <div className='playlist-info'>
+                                                    {/* <span>총 {data.playlistCount}곡</span> */}
+                                                    <span>{data.release_date_format}</span>
+                                                </div>
+                                            </div>
+                                            <div className='banner-right col-8'>
+                                                <div className='row h-100' style={{padding:"40px 0"}}>
+                                                    <MainBannerMusic themeplaylist_id={data.themeplaylist_id} />
+                                                    
+                                                </div>
+                                            </div>
+                                        </StyledLink>
+                                    </SwiperSlide>
+                                )
+                            })
+                        }
+                        </>
+                        
+                    }
             </Swiper>
+            <>
+            {
+                isPreferExist ? 
+                <div className='absolute bottom-[75px] left-[35px] z-50'>
+                    <span className='play-icon'>
+                        <PlayButton title='플레이리스트 재생하기' onClick={playerAdd}></PlayButton>
+                    </span>
+                </div>
+                :
+                <></>
+            }
+            </>
         </StyledBanner>
+        </>
     )
 }
 
 export default MainBanner
+
+const BannerRight = styled.div`
+    div{
+        .thumb-box{
+            position: relative;
+            .thumb-main{
+                width: 230px;
+                height: 230px;
+                border-radius: 50%;
+                overflow: hidden;
+                position: absolute;
+                z-index: 99;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                img{
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }
+            }
+            .thumb-left{
+                width: 190px;
+                height: 190px;
+                border-radius: 50%;
+                overflow: hidden;
+                position: absolute;
+                z-index: 9;
+                top: 50%;
+                left: 20%;
+                transform: translate(-50%, -50%);
+                img{
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }
+            }
+            .thumb-right{
+                width: 190px;
+                height: 190px;  
+                border-radius: 50%;
+                overflow: hidden;
+                position: absolute;
+                z-index: 9;
+                top: 50%;
+                left: 80%;
+                transform: translate(-50%, -50%);
+                img{
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }
+            }
+        }
+    }
+`;
+
+
 export const StyledLink = styled(Link)`
     width: 100%;
     height: 100%;
@@ -94,25 +284,50 @@ export const StyledLink = styled(Link)`
             
             margin-top: 20px;
             >span{
-                font-weight: 400;
+                font-size: 14px;
+                font-weight: 100;
+                line-height: 20px;
+                color: #fff;
                 margin-right: 30px;
                 position: relative;
+                
                 &:first-child::after{
                     content: "";
                     display: inline-block;
-                    width: 1px;
-                    height: 70%;
-                    background-color: var(--main-text-gray-lighter);
-                    position: absolute;
-                    top: 20%;
-                    bottom: auto;
-                    right: -15px;
-                    left: auto;
+                    
+                    
+                }
+            }
+            .new-icon{
+
+            }
+        }
+        div{
+            width: 50px;
+            height: 50px;
+            .play-icon{
+                
+                >button{
+                    width: 54px;
+                    height: 54px;
+                    border-radius: 50%;
+                    background-image: url(/image/icon_.png);
+                    background-size: 714px 706px;
+                    background-position: -119px -208px;
+                    &:hover{
+                        background-image: url(/image/icon_.png);
+                        background-size: 714px 706px;
+                        background-position: -60px -208px;
+                        width: 54px;
+                        height: 54px;
+                    }
                 }
             }
         }
     }
 `;
+
+
 
 export const StyledBanner = styled.div`
     width: 100%;
@@ -147,6 +362,9 @@ export const StyledBanner = styled.div`
             }
             .slide.slide5{
                 background-color: #61484b;
+            }
+            .recommended{
+                background-image: url(/image/preferplaylist/bg${props=>props.$url}.jpg);
             }
         }
         

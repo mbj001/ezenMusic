@@ -1,26 +1,21 @@
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect, useContext} from 'react'
 import styled from 'styled-components'
 import Axios from 'axios';
-import { Cookies } from 'react-cookie';
-import MusicListCard from '../card/MusicListCard';
-import { StyledBrowser, StyledTableth } from '../pages/Browse';
-import { RiPlayLine } from "react-icons/ri";
-import MusicListHeader from '../card/MusicListHeader';
-import AllCheckedModal from '../modal/AllCheckedModal';
-import LikeyBanner from '../card/LikeyBanner';
+import { userid_cookies } from '../config/cookie';
 import LoginRequest from '../card/LoginRequest';
 import MusicListTable from '../card/MusicListTable';
+import { AppContext } from '../App'
 
 function LikeTrack({division, handleRender}) {
-    const cookies = new Cookies();
-    const userid_cookies = cookies.get("client.sid");
+    // LSR
+    // 로그아웃한 상태에서 쿠키에 character.sid 아무렇게나 만들어두면 userid_cookies에 이상한 값 들어가면서 
+    // LoginRequest 페이지가 풀려버려서 app.js에서 뿌려주는 context 추가했어요
+    const isSessionValid = JSON.parse(useContext(AppContext));
 
     const [likeyList, setLikeyList] = useState([]);
     const [likeypageCheck, setLikeypageCheck] = useState(false);
-
     // 좋아요 곡 정보 없을 때 (초기값 = false)
     const [hasLikeyList, setHasLikeyList] = useState(false);
-
 
     let array = [];
 
@@ -30,11 +25,9 @@ function LikeTrack({division, handleRender}) {
 
 
     useEffect(() =>{
-        // console.log("**********************")
-        // console.log(data);
         if(userid_cookies !== undefined){
-            Axios.post(`http://localhost:8080/ezenmusic/storage/likey`, {
-                userid: userid_cookies,
+            Axios.post(`/ezenmusic/storage/likey`, {
+                character_id: userid_cookies,
                 division: division
             })
             .then(({data}) =>{
@@ -59,12 +52,12 @@ function LikeTrack({division, handleRender}) {
     return (
         <>
         {
-            userid_cookies ? 
+            isSessionValid && userid_cookies ? 
             <>
             {
                 hasLikeyList === false?
-                <StyledMylistDiv className='w-[1440px] h-[768px] flex flex-wrap justify-around mx-auto'>
-                    <div className='text-center mt-[150px]'>
+                <StyledMylistDiv className='md:w-[1000px] xl:w-[1280px] 2xl:w-[1440px] h-[450px] flex flex-wrap justify-center items-center mx-auto'>
+                    <div className='text-center'>
                         <img src="/image/nolike.svg" alt="nolike" className=' ml-16'/>
                         <p className='pt-2 font-bold'>좋아요 한 곡이 없어요</p>
                         <p className='pt-1'>좋아요를 많이 할수록 Ezenmusic과 가까워 져요</p>

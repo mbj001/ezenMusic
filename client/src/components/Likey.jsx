@@ -20,18 +20,10 @@ const Likey = ({handleRender}) => {
                 <NavLink to={"/storage/likeartist"} className={({ isActive }) => isActive ? "likey-nav active" : "likey-nav text-gray" }>아티스트</NavLink>
                 <NavLink to={"/storage/liketheme"} className={({ isActive }) => isActive ? "likey-nav active" : "likey-nav text-gray" }>리스트</NavLink>
             </div>
-            {
-                storage_params === "liketrack" && <LikeTrack division={storage_params} handleRender={handleRender}/>
-            }
-            {
-                storage_params === "likealbum" && <LikeAlbum division={storage_params} />
-            }
-            {
-                storage_params === "likeartist" && <LikeArtist division={storage_params} />
-            }
-            {
-                storage_params === "liketheme" && <LikeTheme division={storage_params} />
-            }
+            { storage_params === "liketrack" && <LikeTrack division={storage_params} handleRender={handleRender}/> }
+            { storage_params === "likealbum" && <LikeAlbum division={storage_params} handleRender={handleRender} /> }
+            { storage_params === "likeartist" && <LikeArtist division={storage_params} handleRender={handleRender} /> }
+            { storage_params === "liketheme" && <LikeTheme division={storage_params} handleRender={handleRender} /> }
         </StyledLikey>
         </>
     )

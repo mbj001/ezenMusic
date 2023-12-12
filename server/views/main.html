@@ -6,7 +6,6 @@
     <h1>{{title}}</h1>    
 </div>
 
-{% if user %}
     <div>
         <ul class="list-group">
             <li class="list-group-item list-group-item-action">
@@ -21,9 +20,9 @@
             <li class="list-group-item list-group-item-action">
                 <a href="/likey">Likey</a>
             </li>
-            <li class="list-group-item list-group-item-action">
+            <!-- <li class="list-group-item list-group-item-action">
                 <a href="/music">Music</a>
-            </li>
+            </li> -->
             <li class="list-group-item list-group-item-action">
                 <a href="/playlist">Playlist</a>
             </li>
@@ -32,23 +31,6 @@
             </li>
         </ul>
     </div>
-{% else %}
-<form action="/login" method="post" class="container py-4">
-    <!-- Email input -->
-    <input type="hidden" id="administrator" name="isAdmin" value="administrator" />
-    <div class="form-outline mb-4">
-        <label class="form-label" for="adminId">관리자 아이디</label>
-        <input type="text" id="adminId" name="adminId" class="form-control" />
-    </div>
-    <!-- Password input -->
-    <div class="form-outline mb-4">
-        <label class="form-label" for="adminPw">관리자 비밀번호</label>
-        <input type="text" id="adminPw" name="adminPw" class="form-control" />
-    </div>
-    
-    <!-- Submit button -->
-    <button type="submit" class="btn btn-outline-dark btn-block my-4">로그인</button>
-</form>
-{% endif %}
+
 
 {% endblock %}

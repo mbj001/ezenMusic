@@ -7,7 +7,6 @@ const AgreedAllTerms = ({setModalOpen}) => {
     }
     const now = new Date();
     const agreedDate = `${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일`;
-    console.log(now);
     return (
         <StyledModal>
             <div className='modal-box'>

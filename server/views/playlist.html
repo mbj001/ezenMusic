@@ -2,11 +2,15 @@
 
 {% block style %}
 <style>
-    .btn{
-        float: right;
+    img{
+        width: 150px;
+        height: 150px;
     }
-    .btn a{
-        text-decoration: none;
+    form{
+        display: inline-block;
+    }
+    form button{
+        margin-left: 10px;
     }
 </style>
 {% endblock %}
@@ -14,22 +18,38 @@
 {% block content %}
 
 <h1>{{title}}</h1>
-<a href="/" class="btn btn-secondary">목록</a>
+<a href="/" class="btn btn-secondary" style="float: right;">메인</a>
+<form action="/playlist/insert" id="insert-form" method="post" target="blankifr">
+    <label for="">캐릭터 ID</label>
+    <input type="text" name="character_id">
+    <label for="" style="margin-left: 10px;">재생목록 이름</label>
+    <input type="text" name="playlist_name">
+    <button type="button" class="btn btn-primary" id="insert-submit">재생목록 추가</button>
+</form>
+
+
+<!-- <th scope="col">
+    <form action="/playlist/insert" method="post">
+        <input type="text" name="character_id" id="" required>
+        <button type="submit">
+            추가
+        </button>
+    </form>
+</th> -->
 
 <!--bootstrap table layout-->
-<table class="table">
+<table class="table align-middle table-striped">
     <thead>
         <tr>
-            <th scope="col">#</th>
-            <th scope="col">userid(PK)</th>
-            <th scope="col">
-                <form action="/playlist/insert" method="post">
-                    <input type="text" name="userid" id="" required>
-                    <button type="submit">
-                        추가
-                    </button>
-                </form>
-            </th>
+            <th scope="col" class="col">#</th>
+            <th scope="col" class="col">playlist_id</th>
+            <th scope="col" class="col">character_id</th>
+            <th scope="col" class="col">playlist_name</th>
+            <th scope="col" class="col">thumbnail_image</th>
+            <!-- <th scope="col">create_date</th>
+            <th scope="col">update_date</th> -->
+            <th scope="col-3" class="col-3" style="width: 30%;">music_list</th>
+            <th scope="col" class="col">Task</th>
         </tr>
     </thead>
     <tbody>
@@ -37,27 +57,63 @@
         <tr>    
             <th scope="row">{{loop.index}}</th>
             <!-- <th scope="row">{{list.userid}}</th> -->
-            
-            <!-- {% if list.userid == null %}
+            <td>{{list.playlist_id}}</td>
+            <td>{{list.character_id}}</td>
+            <td>{{list.playlist_name}}</td>
+            {% if list.music_list == null %}
+                <td>
+                    ...
+                </td>
+                <td>
+                    재생목록이 비어있습니다.
+                </td>
             {% else %}
                 <td>
-                    <a href="/playlist/playlist_name_view/{{list.userid}}">{{list.userid}}</a>
+                    <img src="../image/album/{{list.thumbnail_image}}" alt="cover_image">
                 </td>
-            {% endif %} -->
-
-            
-            <td>
-                {% if list.userid == null %}
-                    null값
+                <!-- <td>{{list.create_date}}</td>
+                <td>{{list.update_date}}</td> -->
+                {% if list.music_list.length == 2 %}
+                <td style="overflow: hidden;">{{list.music_list[0]}}, {{list.music_list[1]}}</td>
                 {% else %}
-                    <a href="/playlist/playlist_name_view/{{list.userid}}">{{list.userid}}</a>
+                    {% if list.music_list.length > 2 %}
+                    <td style="overflow: hidden;">{{list.music_list[0]}}, {{list.music_list[2]}},...</td>
+                    {% else %}
+                    <td style="overflow: hidden;">{{list.music_list}}</td>
+                    {% endif %}
                 {% endif %}
-
+            {% endif %}
+            <td>
+                <form action="/playlist/delete" method="post" id="delete-form" target="blankifr">
+                    <input type="hidden" id="playlist_id" name="playlist_id" value="{{list.playlist_id}}">
+                    <button type="submit" id="delete-submit" class="btn btn-danger">삭제</button>
+                </form>
+                <form action="/playlist/playlist_detail" method="post">
+                    <input type="hidden" id="playlist_id" name="playlist_id" value="{{list.playlist_id}}">
+                    <button type="submit" class="btn btn-primary">조회</button>
+                </form>
             </td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
-<!--bootstrap table layout-->
+<iframe name='blankifr' style='display:none;'></iframe>
+{% block script %}
+    <script>
+        const insert_form = document.querySelector("#insert-form");
+        const insert_btn = document.querySelector("#insert-submit");
+        const delete_form = document.querySelector("#delete-form");
+        const delete_btn = document.querySelector('#delete-submit');
+
+        insert_btn.addEventListener('click', function() {
+            insert_form.submit()
+        });
+
+        delete_btn.addEventListener('click', function(){
+            delete_form.submit()
+        });
+    </script>
+{% endblock %}
 
 {% endblock %}
+<!--bootstrap table layout-->

@@ -3,37 +3,55 @@ import Axios from 'axios';
 import styled from 'styled-components';
 import { RiCloseLine } from "react-icons/ri";
 import MusicListTable from '../card/MusicListTable';
-import { useCookies, Cookies } from 'react-cookie';
+import { userid_cookies } from '../config/cookie';
 
 
-const DetailMylistAddMusic = ({setDetailMylistAddMusicOpen, clickToAddMusicModalClose, detailMylistAddMusicModalData}) => {
+const DetailMylistAddMusic = ({setDetailMylistAddMusicOpen, clickToAddMusicModalClose, detailMylistAddMusicModalData, handleRender}) => {
     
-    const cookies = new Cookies();
-    let userid_cookies = cookies.get("client.sid");
-    console.log(detailMylistAddMusicModalData);
+    const [musicListData, setMusicListData] = useState([]);
+    const [likeyListData, setLikeyListData] = useState([]);
+    const [selectedBtn, setSelectedBtn] = useState(false);
+
 
     useEffect(()=>{
         const userData = {
             playlist_id: detailMylistAddMusicModalData[0],
-            userid: userid_cookies
+            playlist_name: detailMylistAddMusicModalData[1],
+            character_id: userid_cookies
         }
 
-        Axios.post(`http://localhost:8080/playlist/detailmylist/addmusicmodal`, userData)
+        Axios.post(`/playlist/detailmylist/addmusicmodal`, userData)
              .then(({data}) =>{
-                console.log(data);
+                setMusicListData(data);
              })
              .catch((err) =>{
                 {}
              })
     }, [])
 
-    const [selectedBtn, setSelcetedBtn] = useState(false);
     
-    const clickToSelectList = () =>{
+    const clickToSelectLikeyList = async(e) =>{
+        e.preventDefault();
+        const userData = {
+            playlist_id: detailMylistAddMusicModalData[0],
+            playlist_name: detailMylistAddMusicModalData[1],
+            character_id: userid_cookies
+        }
 
+        await Axios.post(`/playlist/detailmylist/addmusicmodal/selectlikeylist`, userData)
+                   .then(({data}) =>{
+                        setLikeyListData(data);
+                   })
+
+        setSelectedBtn(true);
     }
+    const clickToSelectPlaylist = (e) =>{
+        e.preventDefault();
+        setSelectedBtn(false);
+    } 
 
-  return (
+
+    return (
     <StyledDetailMylistAddMusic className=''>
         <div className='pt-[70px] md:w-[1000px] xl:w-[1280px] 2xl:w-[1440px] mx-auto'>
             <div className='flex justify-between'>
@@ -41,17 +59,42 @@ const DetailMylistAddMusic = ({setDetailMylistAddMusicOpen, clickToAddMusicModal
                 <span className='flex text-[50px] cursor-pointer'><RiCloseLine onClick={clickToAddMusicModalClose}/></span>
             </div>
             <div className='pt-[10px] flex justify-start'>
-                <button className='select-btn w-[80px] h-[30px]'>재생목록</button>
-                <button className='select-btn ml-[10px] w-[100px] h-[30px]'>좋아요 한 곡</button>
-                <button className='select-btn ml-[10px] w-[100px] h-[30px]'>최근 들은 곡</button>
+                <button className={ selectedBtn === false? 'select-btn-active ml-[10px] w-[100px] h-[30px]' : 'select-btn ml-[10px] w-[100px] h-[30px]'} onClick={clickToSelectPlaylist}>재생목록</button>
+                <button className={ selectedBtn === true? 'select-btn-active ml-[10px] w-[100px] h-[30px]' : 'select-btn ml-[10px] w-[100px] h-[30px]'} onClick={clickToSelectLikeyList}>좋아요 한 곡</button>
             </div>
         </div>
 
-        <div className='modal-contents'>
-
+        <div className='modal-contents overflow-scroll h-[70%] mt-[30px]'>
+            {
+                
+                selectedBtn === false?
+                (
+                    // 플레이어리스트가 비어있을 때
+                    musicListData === 1?
+                    <div className='flex flex-col items-center text-center mt-80'>
+                        <img src="/image/noplaylist.svg" alt="noplaylist" className='w-[180px] h-[130px]' />
+                        <p className='mt-2 font-bold'>앗!</p>
+                        <p className='mt-1'>재생목록이 비어있어요...</p>
+                    </div>
+                    :
+                    <MusicListTable page="detailmylistaddmusic" lank={false} music_list={musicListData} setDetailMylistAddMusicOpen={setDetailMylistAddMusicOpen} handleRender={handleRender} detailMylistAddMusicModalData={detailMylistAddMusicModalData}/>
+                )
+                :
+                (
+                    // 좋아요 목록(track)이 비어있을 때
+                    likeyListData === 1?
+                    <div className='flex flex-col items-center text-center mt-80'>
+                        <img src="/image/nolike.svg" alt="nolike" className='w-[180px] h-[130px]' />
+                        <p className='mt-2 font-bold'>앗!</p>
+                        <p className='mt-1'>좋아요 한 곡이 비어있어요...</p>
+                    </div>
+                    :
+                    <MusicListTable page="detailmylistaddmusic" lank={false} music_list={likeyListData} setDetailMylistAddMusicOpen={setDetailMylistAddMusicOpen} handleRender={handleRender} detailMylistAddMusicModalData={detailMylistAddMusicModalData}/>
+                )
+            }
         </div>
     </StyledDetailMylistAddMusic>
-  )
+    )
 }
 
 const StyledDetailMylistAddMusic = styled.div`
@@ -62,6 +105,12 @@ const StyledDetailMylistAddMusic = styled.div`
     margin: 0 auto;
     background-color: var(--main-background-white);
     z-index: 99999;
+
+    -webkit-scrollbar, 
+    div::-webkit-scrollbar{
+        display: none;
+    }
+
     .select-btn{
         color: var(--main-text-black);
         border-radius: 20px;
@@ -73,6 +122,7 @@ const StyledDetailMylistAddMusic = styled.div`
         border-radius: 20px;
         font-size: 15px
     }
+
 `
 
 export default DetailMylistAddMusic

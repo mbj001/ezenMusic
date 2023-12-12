@@ -31,8 +31,8 @@ import ScrollToTop from '../components/ScrollTop';
 // import PostTest from '../pages/PostTest';
 import Likey from '../components/Likey';
 import Mylist from '../components/Mylist';
-import DetailMylist from '../components/DetailMylist';
-import LikeyBanner from '../card/LikeyBanner';
+import Character from '../pages/Character';
+import Discovery from '../pages/Discovery';
 
 const Router = () => {
 
@@ -42,16 +42,17 @@ const Router = () => {
     }
     
     return (
+        <>
         <BrowserRouter>
+            <Header/>
             <ScrollToTop />
-            <Header />
             <Routes>
-                <Route path='/' element={ <Home /> } />
+                <Route path='/' element={ <Home handleRender={handleRender}/> } />
                 <Route path='/browse' element={ <Browse handleRender={handleRender}/> }>
                     <Route path=":genre_num" element={ <Browse handleRender={handleRender}/> } />
                 </Route>
                 <Route path="/detail">
-                    <Route path=":track" >
+                    <Route path=":track" element={<Detail handleRender={handleRender}/>}>
                         <Route path=":music_id" element={<Detail handleRender={handleRender}/>}>
                             <Route path=":details" element={<Detail handleRender={handleRender}/>} />
                             {/* <Route path=":similar" element={<Detail />} /> */}
@@ -62,10 +63,8 @@ const Router = () => {
                     </Route> */}
                 </Route>
                 <Route path='/storage' element={<Storage />} >
-                    <Route path='mylist' element={ <Mylist /> } /> 
+                    <Route path='mylist' element={ <Mylist handleRender={handleRender}/> } /> 
                     <Route path=":storage_params" element={<Likey handleRender={handleRender}/>} />
-
-                    {/* <Route path='likey' element={ <Likey /> } /> */}
                 </Route>
                 <Route path='/purchase' element={ <Purchase /> } >
                     <Route path='voucher' element={ <Voucher/> } />
@@ -82,6 +81,8 @@ const Router = () => {
                 <Route path='/signup/email' element={ <EmailSignUp /> } />
                 <Route path='/signup/resister' element={ <Resister /> } />
 
+                <Route path='/character' element={ <Character /> } />
+                <Route path='/discovery' element={ <Discovery />} />
 
                 <Route path='/find'>
                     <Route path='' element={ <Find findWhat={''}/> }/>
@@ -96,7 +97,7 @@ const Router = () => {
                 </Route>
 
                 <Route path='/search'>
-                    <Route path=":search_params1" element={<Search />}>
+                    <Route path=":search_params1" element={<Search handleRender={handleRender} />}>
                         {/* <Route path=":search_input" /> */}
                         
                     </Route>
@@ -109,6 +110,7 @@ const Router = () => {
             <Playlist handleRender={handleRender} render={render}/>
             {/* <Player /> */}
         </BrowserRouter>
+        </>
     )
 }
 

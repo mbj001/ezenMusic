@@ -9,7 +9,7 @@ import SearchTheme from '../components/SearchTheme';
 import SearchLyrics from '../components/SearchLyrics';
 import { Outlet, NavLink } from 'react-router-dom';
 
-function Search() {
+function Search({handleRender}) {
 
     const {search_params1} = useParams();
     
@@ -18,11 +18,11 @@ function Search() {
 
     return (
     <>
-    <StyledSearchHeader className="md:w-[1000px] xl:w-[1280px] 2xl:w-[1440px] m-auto">
+    <StyledSearchHeader className="search_main">
         <div className="mb-[40px]">
             <p><span className="font-bold text-[20px]">'{search}'</span> <span className="text-[20px] text-gray">검색결과</span></p>
         </div>
-        <div className="mb-[60px]">
+        <div className="mt-[40px] search_list">
             <NavLink to={"/search/all?keyward=" + search} id="search-actice" className={({ isActive }) => isActive ? "search-nav active" : "search-nav text-gray" }>전체</NavLink>
             <NavLink to={"/search/track?keyward=" + search} id="search-actice" className={({ isActive }) => isActive ? "search-nav active" : "search-nav text-gray" }>곡</NavLink>
             <NavLink to={"/search/album?keyward=" + search} id="search-actice" className={({ isActive }) => isActive ? "search-nav active" : "search-nav text-gray" }>앨범</NavLink>
@@ -30,24 +30,14 @@ function Search() {
             <NavLink to={"/search/theme?keyward=" + search} id="search-actice" className={({ isActive }) => isActive ? "search-nav active" : "search-nav text-gray" }>테마리스트</NavLink>
             <NavLink to={"/search/lyrics?keyward=" + search} id="search-actice" className={({ isActive }) => isActive ? "search-nav active" : "search-nav text-gray" }>가사</NavLink>
         </div>
-        {
-            search_params1 === "all" && <SearchAll keyward={search} />
-        }
-        {
-            search_params1 === "track" && <SearchTrack keyward={search} />
-        }
-        {
-            search_params1 === "album" && <SearchAlbum keyward={search} />
-        }
-        {
-            search_params1 === "artist" && <SearchArtist keyward={search} />
-        }
-        {
-            search_params1 === "theme" && <SearchTheme keyward={search} />
-        }
-        {
-            search_params1 === "lyrics" && <SearchLyrics keyward={search} />
-        }
+
+        { search_params1 === "all" && <SearchAll keyward={search} handleRender={handleRender}/> }
+        { search_params1 === "track" && <SearchTrack keyward={search} handleRender={handleRender}/> }
+        { search_params1 === "album" && <SearchAlbum keyward={search} /> }
+        { search_params1 === "artist" && <SearchArtist keyward={search} /> }
+        { search_params1 === "theme" && <SearchTheme keyward={search} /> }
+        { search_params1 === "lyrics" && <SearchLyrics keyward={search} /> }
+        
     </StyledSearchHeader>
     </>
     )

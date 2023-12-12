@@ -8,7 +8,7 @@ const fs = require("fs-extra");
 router.get("/", (req, res) => {
     console.log("routes => themeplaylist.js => router.get('/')");
 
-    const select_themeplaylist_query = `select *, date_format(release_date, "%Y.%m.%d") as release_date_format from themeplaylist`;
+    const select_themeplaylist_query = `select *, date_format(release_date, "%Y.%m.%d") as release_date_format, JSON_LENGTH(JSON_EXTRACT(music_list, '$')) as count from themeplaylist`;
     conn.query(select_themeplaylist_query, (err, select_themeplaylist_result, fields) => {
         if(err){
             console.error(err)
@@ -30,9 +30,9 @@ router.get("/add_themeplaylist", (req, res) => {
 router.post("/add_themeplaylist_form", upload.single("cover_image"), (req, res) => {
     console.log("routes => themeplaylist.js => router.post('/add_themeplaylist_form')");
 
-    const insert_themeplaylist_query = `insert into themeplaylist (themetitle, description, org_cover_image, cover_image, release_date) values (?, ?, ?, ?, ?)`;
+    const insert_themeplaylist_query = `insert into themeplaylist (themeplstlist_title, description, org_cover_image, cover_image, release_date) values (?, ?, ?, ?, ?)`;
 
-    conn.query(insert_themeplaylist_query, [req.body.themetitle, req.body.description, req.file.originalname, req.file.filename, req.body.release_date], (err ,insert_themeplaylist_result, fields) => {
+    conn.query(insert_themeplaylist_query, [req.body.themeplaylist_title, req.body.description, req.file.originalname, req.file.filename, req.body.release_date], (err ,insert_themeplaylist_result, fields) => {
         if(err){
             console.error(err)
         }
@@ -44,11 +44,11 @@ router.post("/add_themeplaylist_form", upload.single("cover_image"), (req, res) 
 
 })
 
-router.get("/delete/:num", (req, res) => {
-    console.log("routes => themeplaylist.js => router.post('/delete:num')");
+router.get("/delete/:themeplaylist_id", (req, res) => {
+    console.log("routes => themeplaylist.js => router.post('/themeplaylist_id')");
 
     const delete_themeplaylist_query = `delete from themeplaylist where ?`;
-    conn.query(delete_themeplaylist_query, [{num: req.params.num}], (err, delete_music_result, fields) => {
+    conn.query(delete_themeplaylist_query, [{themeplaylist_id: req.params.themeplaylist_id}], (err, delete_music_result, fields) => {
         if(err){
             console.error(err);
         }
@@ -59,41 +59,38 @@ router.get("/delete/:num", (req, res) => {
     })
 })
 
-router.get("/view/:num", (req, res) => {
-    console.log("routes => themeplaylist.js => router.get('/view/:id')");
+router.get("/view/:themeplaylist_id", (req, res) => {
+    console.log("routes => themeplaylist.js => router.get('/view/:themeplaylist_id')");
     
     let music_array;
 
-    const select_themeplaylist_query = `select num, themetitle, music from themeplaylist where ?`;
-    conn.query(select_themeplaylist_query, [{num: req.params.num}], (err, select_themeplaylist_result, fields) => {
+    const select_themeplaylist_query = `select themeplaylist_id, themeplaylist_title, music_list from themeplaylist where ?`;
+    conn.query(select_themeplaylist_query, [{themeplaylist_id: req.params.themeplaylist_id}], (err, select_themeplaylist_result, fields) => {
         if(err){
             console.error(err)
         }
         else{
             // console.log(select_themeplaylist_result[0].music);
             // console.log(select_themeplaylist_result.music)
-            if(!select_themeplaylist_result[0].music){
-                res.render("info_themeplaylist", {title: "수록곡", num: select_themeplaylist_result[0].num, themetitle: select_themeplaylist_result[0].themetitle})
+            if(!select_themeplaylist_result[0].music_list){
+                res.render("info_themeplaylist", {title: "수록곡", themeplaylist_id: select_themeplaylist_result[0].themeplaylist_id, themeplaylist_title: select_themeplaylist_result[0].themeplaylist_title})
             }
             else{
-                let select_music_query = "select id, title, artist from music where "
-                for(let i=0; i<select_themeplaylist_result[0].music.length; i++){
-                    console.log(select_themeplaylist_result[0].music[i]);
-                    if(i == (select_themeplaylist_result[0].music.length - 1)){
-                        select_music_query += "id = " + select_themeplaylist_result[0].music[i];
+                let select_music_query = "select music.music_id, music.music_title, artist.artist_name, artist.artist_id from music inner join artist on artist.artist_id = music.artist_id where "
+                for(let i=0; i<select_themeplaylist_result[0].music_list.length; i++){
+                    if(i == (select_themeplaylist_result[0].music_list.length - 1)){
+                        select_music_query += "music.music_id = " + select_themeplaylist_result[0].music_list[i];
                     }
                     else{
-                        select_music_query += "id = " + select_themeplaylist_result[0].music[i] + " or ";
+                        select_music_query += "music.music_id = " + select_themeplaylist_result[0].music_list[i] + " or ";
                     }
                 }
-                console.log(select_music_query);
                 conn.query(select_music_query, (err, select_music_result, fields) => {
                     if(err){
                         console.log(err)
                     }
                     else{
-                        console.log(select_music_result);
-                        res.render("info_themeplaylist", {title: "수록곡", num: select_themeplaylist_result[0].num, themetitle: select_themeplaylist_result[0].themetitle, ListMusic: select_music_result});
+                        res.render("info_themeplaylist", {title: "수록곡", themeplaylist_id: select_themeplaylist_result[0].themeplaylist_id, themeplaylist_title: select_themeplaylist_result[0].themeplaylist_title, ListMusic: select_music_result});
                     }
                 })
             }
@@ -140,31 +137,29 @@ router.get("/delete_music/:num&:id", (req, res) => {
 })
 
 router.post("/add_theme_music", (req, res) => {
-    console.log("routes => themeplaylist.js => router.get('/add_theme_music')");
+    console.log("routes => themeplaylist.js => router.post('/add_theme_music')");
 
-    console.log(req.body);
+    const add_theme_music_query = `select music_list from themeplaylist where ?`;
 
-    const add_theme_music_query = `select music from themeplaylist where ?`;
-
-    conn.query(add_theme_music_query, [{num: req.body.num}], (err, add_theme_music_result, fields) => {
+    conn.query(add_theme_music_query, [{themeplaylist_id: req.body.themeplaylist_id}], (err, add_theme_music_result, fields) => {
         if(err){
             console.error(err)
         }
         else{
             let add_array = [];
-            if(add_theme_music_result[0].music){
-                add_array = add_theme_music_result[0].music;
+            if(add_theme_music_result[0].music_list){
+                add_array = add_theme_music_result[0].music_list;
             }
-            add_array.push(Number(req.body.id));
+            add_array.push(Number(req.body.music_id));
 
-            const delete_themeplaylist_query = `update themeplaylist set music = "[?]" where num = ?`;
-            conn.query(delete_themeplaylist_query, [add_array, Number(req.body.num)], (err, delete_themeplaylist_result, fields) => {
+            const delete_themeplaylist_query = `update themeplaylist set music_list = "[?]" where themeplaylist_id = ?`;
+            conn.query(delete_themeplaylist_query, [add_array, Number(req.body.themeplaylist_id)], (err, delete_themeplaylist_result, fields) => {
                 if(err){
                     console.error(err)
                 }
                 else{
                     // res.json(1);
-                    res.redirect("/themeplaylist/view/"+req.body.num);
+                    res.redirect("/themeplaylist/view/"+req.body.themeplaylist_id);
                 }
             });
         

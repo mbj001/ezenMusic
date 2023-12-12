@@ -20,7 +20,7 @@ const MyInfo = () => {
     const getdata = async () =>{
         const id = getCookie('client.sid');
         const token = getCookie('connect.sid');
-        await axios.post(`http://localhost:8080/verifiedClient/info`,{id: id, token: token}).then((res)=>{
+        await axios.post(`/verifiedClient/info`,{id: id, token: token}).then((res)=>{
             if(res.data.valid === false){
                 // console.log('세션이 만료되어 자동 로그아웃됩니다.');
                 sessionExpiredLogoutMethod(true);

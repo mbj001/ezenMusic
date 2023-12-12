@@ -51,7 +51,7 @@ const FindId = () => {
                 name: userInputName,
                 phone: userInputPhone
             };
-            const getData = await axios.post(`http://localhost:8080/client/find`,sendDataToServer);
+            const getData = await axios.post(`/client/find`,sendDataToServer);
             const recievedData = JSON.parse(getData.request.response);
             console.log(recievedData);
             if(recievedData.databaseError){

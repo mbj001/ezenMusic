@@ -10,7 +10,7 @@ function SearchArtist({keyward, page}) {
     const [hasArtist, setHasArtist] = useState(false);
 
     useEffect(() => {
-        Axios.get("http://localhost:8080/ezenmusic/search/artist/" + keyward)
+        Axios.get("/ezenmusic/search/artist/" + keyward)
         .then(({data}) => {
             if(data.length == 0){
                 setHasArtist(false);
@@ -46,12 +46,22 @@ function SearchArtist({keyward, page}) {
             artistInfo.map((item, index) => (
                 <div key={index}>
                     <div className='flex items-center'>
-                        <img src={"/image/artist/" + item.org_artist_img} alt="artist_img" className="w-[170px] h-[170px] rounded-[50%]"/>
+                        <div className="w-[180px] h-[180px] rounded-[50%] hover:brightness-75 overflow-hidden" >
+                            <img src={"/image/artist/"+item.org_artist_image} alt="img" className="w-full h-full object-cover"/>
+                        </div>
                         <div className="pl-[20px]">
-                            <p className="font-bold mb-[10px]">{item.artist}</p>
-                            <p className="text-[11px] text-gray mb-[20px]">{item.artist_class} <span className="mx-[5px]">|</span> {item.artist_gender}</p>
+                            <p className="font-bold mb-[10px]">{item.artist_name}</p>
+                            <p className="text-[12px] text-gray mb-[20px]">
+                                {item.artist_class === "solo" && "솔로"} 
+                                {item.artist_class === "duo" && "듀오"} 
+                                {item.artist_class === "group" && "그룹"} 
+                                <span className="mx-[5px]">|</span> 
+                                {item.artist_gender === "male" && "남성"}
+                                {item.artist_gender === "duo" && "듀오"}
+                                {item.artist_gender === "female" && "여성"}
+                            </p>
                             <div className="flex items-center">
-                                <RiPlayLine className="mt-[2px] mr-[5px] text-[18px]"/>
+                                <RiPlayLine className="mt-[2px] ml-[-4px] mr-[5px] text-[18px]"/>
                                 <p className="text-[13px]">인기곡 듣기</p>
                             </div>   
                         </div>

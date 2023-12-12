@@ -1,31 +1,150 @@
-import React, {useState, useEffect, useContext}  from 'react'
-import { Link } from 'react-router-dom'
+import React, {useState, useEffect, useContext, useRef}  from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import { RiSearchLine } from "react-icons/ri";
 import styled from 'styled-components';
 import { AppContext } from '../App';
-import { getCookie } from '../config/cookie';
+import { getCookie, removeCookie, setCookie } from '../config/cookie';
 import axios from 'axios';
 import {logoutMethod} from '../methods/logout'
 import LogoutConfirm from '../modal/LogoutConfirm';
+import { BsSuitHeart } from "react-icons/bs";
+import { AiOutlinePlus } from "react-icons/ai";
+import { MdArrowForwardIos } from "react-icons/md";
+import { voucherSwitch } from '../methods/voucherSwitch';
+import CreateCharacterModal from '../modal/CreateCharacterModal'
+import { IoMdCheckmark } from "react-icons/io";
 
 function Header() {
-    const isSessionValid = useContext(AppContext);
+    const isSessionValid = JSON.parse(useContext(AppContext));
     const [ loginStatus, setLoginStatus ] = useState(isSessionValid);
     const [ modalOpen, setModalOpen ] = useState(false);
-    const [inputVal, setInputVal] = useState("");
-    function searchSubmit(e){
-        e.preventDefault();
-    }
-    const logout = async() =>{
-        //setModalOpen(true);
+    const [ inputVal, setInputVal ] = useState("");
+    const [ character, setCharacter ] = useState([]);
+    const [ characterNumber, setCharacterNumber ] = useState('');
+    const [ additionalData, setAdditionalData ] = useState([]);
+    const [ preferGenre, setPreferGenre ] = useState([]);
+    const [ openPopup, setOpenPopup ] = useState(false);
+    const [ createCharacterModalOpen, setCreateCharacterModalOpen ] = useState(false);
+    const [ selectedCharacter, setSelectedCharacter ] = useState(0);
+    const [ pfimg, setpfimg ] = useState('');
+    const [ loading, setLoading ] = useState(false);
+    const [activePage, setActivePage] = useState(0);
+    const locationPath = useLocation().pathname;
 
+    const popupRef = useRef();
+    const openerRef = useRef();
+
+    function searchSubmit(e){
+        // e.preventDefault();
+    }
+
+    const getCharacterData = async() => {
+        // setLoading(true);
+        const characterData = await axios.post('/verifiedClient/getCharacter', {token: getCookie('connect.sid'), id: getCookie('client.sid')});
+        // console.log(characterData);
+        // setPreferGenre(characterData.data.prefer_genre);
+        if(characterData.data === -1){ 
+            console.log('Header getCharacter Data 유효하지 않은 응답 if');
+        }else if(characterData.data.valid === false){
+            console.log('Header getCaracter Date 유효하지 않은 응답 else if');
+            console.log("Header removeCookie");
+            removeCookie('connect.sid');
+            removeCookie('client.sid');
+            removeCookie('character.sid');
+            removeCookie('pfimg');
+        }else{
+            console.log('ok');
+            let url = [];
+            let arr = [];
+            const chardata = characterData.data.slice(0, characterData.data.length-1);
+            chardata.forEach((char)=>{
+                arr.push(char?.profile_image);
+            });
+            if(!arr.includes('character01.png')){
+                // console.log("url push 1");
+                url.push(1);
+            }
+            if(!arr.includes('character02.png')){
+                // console.log("url push 2");
+
+                url.push(2);
+            }
+            if(!arr.includes('character03.png')){
+                // console.log("url push 3");
+
+                url.push(3);
+            }
+            // console.log(chardata);
+            setCharacterNumber(url[0]);
+            
+            setCharacter(characterData.data.filter((item, index) => index < characterData.data.length - 1));
+            // console.log(character)
+            
+            const additional = characterData.data.pop();
+            console.log(additional)
+            additional.plan_type = voucherSwitch(additional.plan_type);
+            setAdditionalData(additional);
+            setLoading(false);
+        }
+    }
+
+    const createCharacter = () => {
+        setOpenPopup(false);
+        setCreateCharacterModalOpen(true);
+    }
+
+    const changeCharacter = async(clickedId) =>{
+        if(getCookie('pfimg') === clickedId){
+            setOpenPopup(false);
+        }else{
+            const response = await axios.post('/verifiedClient/getCharacterData', {token: getCookie('connect.sid'), id: getCookie('client.sid'), characterNum: clickedId});
+            // console.log(response)
+            if(response.data){
+                console.log("Header --> setCookie");
+
+                // MBJ
+                removeCookie('character.sid');
+                removeCookie('pfimg');
+    
+                setCookie('character.sid', response.data.character_id, {
+                    path: '/',
+                    secure: false,
+                    secret: process.env.COOKIE_SECRET
+                });
+                setCookie('pfimg', response.data.character_num, {
+                    path: '/',
+                    secure: false,
+                    secret: process.env.COOKIE_SECRET
+                });
+
+                window.location = '/';
+            }else{
+    
+            }
+        }
+    }
+
+    const open = (e) => {
+        e.preventDefault();
+        if(openPopup){
+            setOpenPopup(false);    
+        }else{
+            setOpenPopup(true);
+        }
+    }
+
+    const close = () => {
+        setOpenPopup(false); 
+    }
+
+    const logout = async() =>{
         let serverResponse = await removeServerSession();
-        console.log(serverResponse);
         logoutMethod(serverResponse);
     };
+
     const removeServerSession = async() =>{
         try{
-            const isRemovedServerSession = await axios.post('http://localhost:8080/verifiedClient/logout', {token: getCookie('connect.sid')});
+            const isRemovedServerSession = await axios.post('/verifiedClient/logout', {token: getCookie('connect.sid')});
             
             if(isRemovedServerSession.data.logoutSuccess){
                 return true;
@@ -38,59 +157,248 @@ function Header() {
             window.location = '/';
         }
     }
+
     useEffect(()=>{
         setLoginStatus(isSessionValid);
     },[isSessionValid]);
 
+    useEffect(()=>{
+        // console.log("Header useEffect [character]");
+        character.forEach((data, index)=>{
+            if(getCookie('pfimg') === data.character_num){
+                setSelectedCharacter(index);
+            }
+        });
+    },[character])
+
+    useEffect(()=>{
+        setLoading(true);
+        if(isSessionValid){
+            // console.log("Header useEffect []");            
+            getCharacterData();
+            if(getCookie('pfimg') === undefined || getCookie('pfimg') === null){
+                console.log("Header setCookie")
+                setCookie('character.sid', getCookie('client.sid')+'#ch01' ,{
+                    path: '/',
+                    secure: false,
+                    secret: process.env.COOKIE_SECRET
+                });
+                setCookie('pfimg', 1,{
+                    path: '/',
+                    secure: false,
+                    secret: process.env.COOKIE_SECRET
+                });
+                setpfimg(1);
+            }else{
+                // console.log(getCookie('pfimg'))
+                setpfimg(getCookie('pfimg'));
+            }
+        }
+    },[])
+
+    function activeFunc(num){
+        setActivePage(num);
+    }
+
+    useEffect(() => {
+        if(locationPath.indexOf("/browse") != -1){
+            setActivePage(1);
+        }
+        else if(locationPath.indexOf("/storage") != -1){
+            setActivePage(2);
+        }
+        else if(locationPath.indexOf("/purchase") != -1){
+            setActivePage(3);
+        }
+    }, [])
+
+
+    useEffect(() => {
+        console.log("Header useEffect [openPopup, createCharacterModalOpen]")
+        function handleClickOutside(e){
+            if(openPopup === true && createCharacterModalOpen === true){
+                // console.log('닫지마');
+                return;
+            }else{
+                if(popupRef.current && !popupRef.current.contains(e.target)) {
+                    if(openerRef.current.contains(e.target)){
+                        // console.log('닫지마');
+                        return;
+                    }else{
+                        // console.log("닫아");
+                        setOpenPopup(false);
+                    }
+                }
+            }
+        }
+        if(openPopup === true && createCharacterModalOpen === true){
+            document.removeEventListener("mousedown", handleClickOutside);
+        }else{
+            document.addEventListener("mousedown", handleClickOutside);
+        }
+        // console.log(popupRef);
+    }, [openPopup, createCharacterModalOpen]);
+
+
+    const locationNow = useLocation();
+    if(locationNow.pathname === "/discovery"){
+        return null;  
+    } 
+
+
     return (
-        <StyledHeader className="header-box d-flex justify-content-between align-items-center md:w-[1000px] xl:w-[1280px] 2xl:w-[1440px]">
+        <StyledHeader className="header-box d-flex justify-content-between align-items-center header_main">
+            {createCharacterModalOpen && <CreateCharacterModal setModalOpen={setCreateCharacterModalOpen} characterNumber={characterNumber}/>}
             {modalOpen && <LogoutConfirm setModalOpen={setModalOpen}/>}
             <div className='header-left-side flex flex-row align-items-center justify-start'>
-                <Link to="/" className="logo">
+                <Link to="/" className="logo" onClick={() => activeFunc(0)}>
                     EzenMusic
                 </Link>
-                
                 <div className='header-link-area flex align-items-center justify-start px-10'>
                     <div className=''>
-                        <Link to="/browse" className="header-chart-link mr-8">
+                        <Link to="/browse" className={activePage === 1 ? "active mr-8" : "header-chart-link mr-8"} onClick={() => activeFunc(1)}>
                             <span className="text-[15px]">둘러보기</span>
                         </Link>
                     </div>
                     <div className=''>
-                        <Link to="/storage/mylist" className="header-chart-link mr-8">
+                        <Link to="/storage/mylist" className={activePage === 2 ? "active mr-8" : "header-chart-link mr-8"} onClick={() => activeFunc(2)}>
                             <span className="text-[15px]">보관함</span>
                         </Link>
                     </div>
                     <div className=''>
-                        <Link to="/purchase/voucher" className="header-chart-link">
+                        <Link to="/purchase/voucher" className={activePage === 3 ? "active" : "header-chart-link"} onClick={() => activeFunc(3)}>
                             <span className="text-[15px]">이용권</span>
                         </Link>
                     </div>
                 </div>
 
-                <form className="search-box col-6 position-relative mt-[2px]">
+                <div className="search-box col-6 position-relative mt-[2px]">
                     <RiSearchLine />
                     <form action={"/search/all"} onSubmit={searchSubmit}>
                         <input type="text" id='search' name="keyward" className="block col-4 header-search" placeholder='검색어를 입력하세요' value={inputVal} onChange={(e) => setInputVal(e.target.value)} />
                         <button type="submit" className="d-none"></button>
                     </form>
-                </form>
+                </div>
             </div>
             
-            
-            <div className='header-right-side'>
-                { 
-                    loginStatus ==='false' ?             
-                    <Link to="/signin" className="header-login-link text-[12px]">로그인</Link>
-                    :
-                    <button type='button' onClick={logout} className="header-login-link text-[12px]">로그아웃</button>
-                }
+            <div className='header-right-side relative'>
                 {
-                    loginStatus === 'false' ?             
-                    <Link to="/signup" className="header-login-link text-[12px]">회원가입</Link>
+                    isSessionValid ? 
+                    <MyInfoCover >
+                        <button type='button' onClick={open} ref={openerRef}>
+                            <span className='character-name'>
+                                {character && character[selectedCharacter]?.character_name}
+                            </span>
+                            <span className='profile-image'>
+                                {
+                                    loading ? 
+                                    <img src={`/image/character/loadingCircle.png`} alt='character'/>
+                                    :
+                                    <img src={`/image/character/${character[selectedCharacter]?.profile_image}`} alt='character' />
+                                }
+                            </span>
+                        </button>
+                        {
+                            openPopup && 
+                            <MyInfoPopUp ref={popupRef}>
+                                <div className='select-character'>
+                                    {   
+                                        character && character.map((data, index)=>{
+                                            return (
+                                                <button className='character' id={index} onClick={()=>changeCharacter(data.character_num)} key={index}>
+                                                    <div className='inner-profile-image'>
+                                                        <img src={`/image/character/${character[index]?.profile_image}`} alt="chracter" />
+                                                        {
+                                                            pfimg === data.character_num ? <span className='current-character'><IoMdCheckmark/></span> : <></>
+                                                        }
+                                                    </div>
+                                                    <div className={`character-info character${index}`}>
+                                                        <div className='character-name'>{data.character_name}</div>
+                                                        <div className='character-prefer-info'>
+                                                            {
+                                                                data.prefer_genre !== null ?
+                                                                <span className='heart-icon'>
+                                                                    {/* 하트 */}
+                                                                    {/* <img src="/image/icons/heart3.png" alt="heart-icon" /> */}
+                                                                    <BsSuitHeart />
+                                                                </span>
+                                                                :
+                                                                <></>
+                                                            }
+                                                            <p>
+                                                                {
+                                                                    data.prefer_genre !== null ?
+                                                                    data.prefer_genre.map((el, index)=>{
+                                                                        return (
+                                                                            <>{
+                                                                                <>{el} </>
+                                                                            }</>
+                                                                        )
+                                                                    })
+                                                                    :
+                                                                    <>{'장르 취향을 선택해주세요'}</>
+                                                                }
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <div className='prefer-control'>
+                                                        {
+                                                            pfimg === data.character_num ? <Link to={'character'}>관리</Link> : <></>
+                                                        }
+                                                        
+                                                    </div>
+                                                </button>
+                                            )
+                                        })
+                                    }
+                                    {
+                                        character.length < 3 ?
+                                            <button onClick={createCharacter} className='character add-character'>
+                                                <div className='inner-profile-image'>
+                                                    <div className='background'>
+                                                        <AiOutlinePlus />
+                                                    </div>
+                                                </div>
+                                                <div className='add-character-text'>
+                                                    <p>캐릭터 추가하기  </p>
+                                                </div>
+                                            </button>
+                                        :
+                                        <></>
+                                    }
+                                    
+                                </div>
+                                <Link to={'/myinfo/password'} onClick={close} className='control info-control'>
+                                    <div className='inner-control'>
+                                        <p>정보관리</p>
+                                        <MdArrowForwardIos/>
+                                    </div>
+                                    <div className='info-text'>
+                                        {additionalData.email}
+                                    </div>
+                                </Link>
+                                <Link to={'/purchase/my'} onClick={close} className='control voucher-control'>
+                                    <div className='inner-control'>
+                                        <p>이용권 관리</p>
+                                        <MdArrowForwardIos/>
+                                    </div>
+                                    <div className='info-text'>
+                                        {additionalData.plan_type}
+                                    </div>
+                                </Link>
+                                <div className='logout-button'>
+                                    <LogoutButton onClick={logout}>
+                                        로그아웃
+                                    </LogoutButton>
+                                </div>
+                            </MyInfoPopUp>
+                        }
+                    </MyInfoCover>
                     :
-                    <Link to="/myinfo/password" className="header-login-link text-[12px]">내정보</Link>
-                    
+                    <>
+                        <Link to="/signin" className="header-login-link text-[12px]">로그인</Link>
+                        <Link to="/signup" className="header-login-link text-[12px]">회원가입</Link>
+                    </>
                 }
             </div>
         </StyledHeader>
@@ -98,9 +406,196 @@ function Header() {
 }
 
 export default Header
-const HeaderCover = styled.div`
-    width: 100vw;
-    padding: 0 80px;
+
+const MyInfoCover = styled.div`
+    button{
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: end;
+        .character-name{
+            min-width: 50px;
+            padding-right: 20px;
+            font-size: 13px;
+            text-align: end;
+        }
+        .profile-image{
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            img{
+                width: 100%;
+                height: 100%;
+            }
+        }
+    }
+`;
+const MyInfoPopUp = styled.div`
+    width: 320px;
+    min-height: 350px;
+    background-color: var(--main-background-white);
+    position: absolute;
+    top: 60px;
+    right: 0;
+    border-radius: 3px;
+    box-shadow: 0 0 30px 0 rgba(0,0,0,0.09);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: start;
+    &::before{
+        width: 7px;
+        height: 7px;
+        content: '';
+        display: block;
+        position: absolute;
+        top: -14px;
+        right: 12px;
+        border-width: 7px;
+        border-color: transparent transparent var(--main-background-white) transparent;
+    }
+    .select-character{
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin-top: 15px;
+        .character{
+            width: 100%;
+            padding: 4px 15px;
+            display: flex;
+            flex-column: row;
+            align-items: center;
+            justify-content: start;
+            .inner-profile-image{
+                width: 60px;
+                height: 60px;
+                padding: 5px;
+                position: relative;
+                img{
+                    display: inline-block;
+                    width: 100%;
+                    height: 100%;
+                }
+                .current-character{
+                    width: 18px;
+                    height: 18px;
+                    position: absolute;
+                    z-index: 99999999999999999999999999999;
+                    bottom: 5px;
+                    right: 5px;
+                    border-radius: 50%;
+                    background-color: var(--main-theme-color);
+                    padding: 2px;
+                    >svg{
+                        width: 100%;
+                        height: 100%;
+                        display: inilne-block;
+                        color: var(--main-text-white);
+                    }
+                }
+                .background{
+                    width: 100%;
+                    height: 100%;
+                    border-radius: 50%;
+                    background-color: #f3f3f3;
+                    border: 1px solid #e9e9e9;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    svg{
+                        color: var(--main-theme-color);
+                        width: 60%;
+                        height: 60%;
+                    }
+                }
+            }
+            .character-info{
+                width: 170px;
+                height: 40px;
+                padding-left: 10px;
+                .character-name{
+                    text-align: start; 
+                    font-size: 15px;
+                    font-weight: 600;
+                }
+                .character-prefer-info{
+                    font-size: 13px;
+                    color: #999;
+                    display: flex;
+                    flex-direction: row;
+                    align-items: center;
+                    justify-content: start;
+                    .heart-icon{
+                        padding-top: 4px;
+                        margin-right: -2px;
+                        width: 20px;
+                        height: 20px;
+                        background-image: url('/image/icons.png');
+                        background-size: 578px 558px;
+                        background-position: -26px -516px;
+                    }
+                    p{
+                        width: 150px;
+                        overflow: hidden;
+                        text-align: start;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                        
+                    }
+                }
+            }
+            .prefer-control{
+                a{
+                    font-size: 14px;
+                    color: #3f3fff;
+                }
+            }
+            &:hover{
+                background-color: #F0F0F0;
+            }
+        }
+        .add-character-text{
+            font-size: 14px;
+            font-weight: 400;
+            padding-left: 10px;
+        }
+    }
+    .control{
+        width: 100%;
+        heigth: 70px;
+        padding: 16px 25px;
+        border-top: 1px solid #eee;
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+        justify-content: start;
+        .inner-control{
+            display: flex;
+            flex-direction: row;
+            align-items: start;
+            justify-content: center;
+            p{
+                font-size: 13px;
+                color: #333;
+            }
+            svg{
+                width: 13px;
+                height: 13px;
+                margin-top: 4px;
+                margin-left: -1px;
+                color: #333;
+            }
+        }
+        .info-text{
+            font-size: 14px;
+            color: #999;
+        }
+    }
+    .logout-button{
+        margin-bottom: 20px;
+    }
 `;
 
 const StyledHeader = styled.div`
@@ -110,6 +605,7 @@ const StyledHeader = styled.div`
     position: sticky; 
     top: 0;
     left: 0;
+    right: 0;
     z-index: 5000;
     background-color: var(--main-text-white);
     .header-left-side{
@@ -131,7 +627,14 @@ const StyledHeader = styled.div`
                         color: var(--main-theme-color);
                     }
                 }
+                .active{
+                    color: var(--main-theme-color);
+                    text-decoration: none;
+                    font-size: 17px;
+                    font-weight: 400;
+                }
             }
+            
         }
         .search-box{
             >svg{
@@ -153,6 +656,11 @@ const StyledHeader = styled.div`
         }
     }
     .header-right-side{
+        width: 150px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: end;
         .header-login-link{
             color: var(--main-text-gray);
             text-decoration: none;
@@ -163,4 +671,16 @@ const StyledHeader = styled.div`
             }
         }
     }
+`;
+
+const LogoutButton = styled.button`
+    padding: 5px 11px;
+    background-color: var(--main-background-color);
+    color: var(--main-theme-color);
+    border: 1px solid var(--main-theme-color);
+    border-radius: 16px;
+
+    font-size: 14px;
+    line-height: 1.2;
+    text-align: center;
 `;

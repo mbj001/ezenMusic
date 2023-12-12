@@ -10,7 +10,7 @@ const router = express.Router();
 router.get("/", (req, res) => {
     console.log("routes => album.js => router.get('/')");
 
-    const select_album_query = 'select *, date_format(release_date, "%Y-%m-%d") as release_date_format from album'
+    const select_album_query = 'select album.*, artist.artist_name, date_format(release_date, "%Y-%m-%d") as release_date_format from album inner join artist on artist.artist_id = album.artist_id order by album.album_id desc'
 
     conn.query(select_album_query, (err, select_album_result, fields) => {
         if(err){
@@ -36,9 +36,9 @@ router.get("/add_album", (req, res) => {
 router.post("/add_album_form", upload.single("cover_image"), (req, res) => {
     console.log("routes => album.js => router.post('/add_album_form')");
 
-    const insert_album_query = `insert into album (album_title, artist, album_size, org_cover_image, cover_image, release_date, intro, publisher, agency) values (?, ?, ?, ?, ?, ?, ?, ?, ?);`;
+    const insert_album_query = `insert into album (album_title, artist_id, album_size, org_cover_image, cover_image, release_date, intro, publisher, agency) values (?, ?, ?, ?, ?, ?, ?, ?, ?);`;
 
-    conn.query(insert_album_query, [req.body.album_title, req.body.artist, req.body.album_size, req.file.originalname, req.file.filename, req.body.release_date, req.body.intro, req.body.publisher, req.body.agency], (err, insert_album_result, fields) => {
+    conn.query(insert_album_query, [req.body.album_title, Number(req.body.artist_id), req.body.album_size, req.file.originalname, req.file.filename, req.body.release_date, req.body.intro, req.body.publisher, req.body.agency], (err, insert_album_result, fields) => {
         if(err){
             console.error(err)
         }
@@ -85,7 +85,7 @@ router.post("/edit_album_form", upload.single("cover_image"), (req, res) => {
     if(req.body.imgchk){
         const update_album_query = `update album set ?, ?, ?, ?, ?, ?, ?, ?, ? where ?;`;
         
-        conn.query(update_album_query, [{album_title: req.body.album_title}, {artist: req.body.artist}, {album_size: req.body.album_size}, {org_cover_image: req.file.originalname}, {cover_image: req.file.filename}, {release_date: req.body.release_date}, {intro: req.body.intro}, {publisher: req.body.publisher}, {agency: req.body.agency}, {album_id: req.body.album_id}], (err, update_album_result, fields) => {
+        conn.query(update_album_query, [{album_title: req.body.album_title}, {artist_id: req.body.artist_id}, {album_size: req.body.album_size}, {org_cover_image: req.file.originalname}, {cover_image: req.file.filename}, {release_date: req.body.release_date}, {intro: req.body.intro}, {publisher: req.body.publisher}, {agency: req.body.agency}, {album_id: req.body.album_id}], (err, update_album_result, fields) => {
             if(err){
                 console.error(err);
             }
@@ -99,7 +99,7 @@ router.post("/edit_album_form", upload.single("cover_image"), (req, res) => {
     else{
         const update_album_query = `update album set ?, ?, ?, ?, ?, ?, ? where ?;`;
         
-        conn.query(update_album_query, [{album_title: req.body.album_title}, {artist: req.body.artist}, {album_size: req.body.album_size}, {release_date: req.body.release_date}, {intro: req.body.intro}, {publisher: req.body.publisher}, {agency: req.body.agency}, {album_id: req.body.album_id}], (err, update_album_result, fields) => {
+        conn.query(update_album_query, [{album_title: req.body.album_title}, {artist_id: req.body.artist_id}, {album_size: req.body.album_size}, {release_date: req.body.release_date}, {intro: req.body.intro}, {publisher: req.body.publisher}, {agency: req.body.agency}, {album_id: req.body.album_id}], (err, update_album_result, fields) => {
             if(err){
                 console.error(err);
             }
@@ -112,15 +112,18 @@ router.post("/edit_album_form", upload.single("cover_image"), (req, res) => {
 
 router.get("/view/:id", (req, res) => {
     console.log("routes => album.js => router.get('/view/:id')");
-    
-    const select_albumList_query = "select * from music where ?";
-    conn.query(select_albumList_query, [{album_title: req.params.id}], (err, select_albumList_result, fields) => {
-        if(err){
-            console.error(err)
-        }
-        else{
-            res.render("info_album", {title: req.params.id, Music: select_albumList_result});
-        }
+    const select_album_title_query = `select album_title from album where ?`;
+    conn.query(select_album_title_query, [{album_id: Number(req.params.id)}], (err, select_album_title_result, fields) => {
+        const select_albumList_query = `select music.*, artist.artist_name, album.album_title from music inner join artist on music.artist_id = artist.artist_id
+        inner join album on music.album_id = album.album_id where music.?`;
+        conn.query(select_albumList_query, [{album_id: Number(req.params.id)}], (err, select_albumList_result, fields) => {
+            if(err){
+                console.error(err)
+            }
+            else{
+                res.render("info_album", {album_title: select_album_title_result[0].album_title, album_id: req.params.id, Music: select_albumList_result});
+            }
+        })
     })
 })
 
@@ -129,19 +132,19 @@ router.get("/view/:id", (req, res) => {
 
 //     res.render("add_album_music", ({albumTitle: req.params.id}));
 // })
-router.get("/add_album_music/:id", (req, res) => {
+router.get("/add_album_music/:album_id&:album_title", (req, res) => {
     console.log("routes => album.js => router.get('/add_album_music/:id')");
-    
-    res.render("add_music", ({title: "ADD MUSIC", albumTitle: req.params.id}));
+    console.log(req.params);
+    res.render("add_music", ({title: "ADD MUSIC", albumId: req.params.album_id, albumTitle: req.params.album_title}));
 })
 
-router.get("/edit_music/:id", (req, res) => {
-    console.log("routes => music.js => router.get('/edit_music/:id')");
+router.get("/edit_music/:music_id", (req, res) => {
+    console.log("routes => album.js => router.get('/edit_music/:music_id')");
 
     // const select_music_query = `select *, date_format(release_date, "%Y-%m-%d") as release_date_format from music where ?`;
-    const select_music_query = "select music.*, date_format(album.release_date, '%Y-%m-%d') as release_date_format from music inner join album on music.album_title = album.album_title where ?";
+    const select_music_query = "select music.*, date_format(album.release_date, '%Y-%m-%d'), artist.artist_name as release_date_format from music inner join album on music.album_id = album.album_id inner join artist on artist.artist_id = album.artist_id where ?";
 
-    conn.query(select_music_query, [{id: req.params.id}], (err, select_music_result, fields) => {
+    conn.query(select_music_query, [{music_id: req.params.music_id}], (err, select_music_result, fields) => {
         if(err){
             console.error(err)
         }

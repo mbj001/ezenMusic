@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom'
 import axios from 'axios'
 import { AppContext, SetAppContext } from '../App'
 import LoginFailure from '../modal/LoginFailure'
-import { setCookie } from '../config/cookie'
+import { getCookie, setCookie } from '../config/cookie'
 import Loading from '../components/Loading'
 
 const SignIn = () => {
@@ -55,12 +55,13 @@ const SignIn = () => {
     }
 
     const login = async() => {
+        console.log('login 실행')
         const sendDataToServer = {
             adminId: idInput.current.value,
             adminPw: userInputPassword,
             isAdmin: 'client'
         };
-        const recievedData = await axios.post(`http://localhost:8080/login`,sendDataToServer);
+        const recievedData = await axios.post(`/login`,sendDataToServer);
         console.log(recievedData);
         if(recievedData.data.loginSucceed){
             console.log('로그인 성공!!!');
@@ -70,6 +71,18 @@ const SignIn = () => {
                 secret: process.env.COOKIE_SECRET
             });
             setCookie('connect.sid', recievedData.data.sessionID, {
+                path: '/',
+                secure: false,
+                secret: process.env.COOKIE_SECRET
+            });
+            const character = await axios.post('/verifiedClient/issuanceCharacterCookie', {token: getCookie('connect.sid'), clientId: getCookie('client.sid')});
+            // console.log(character);
+            setCookie('character.sid', character.data.characterId, {
+                path: '/',
+                secure: false,
+                secret: process.env.COOKIE_SECRET
+            });
+            setCookie('pfimg', character.data.characterNum, {
                 path: '/',
                 secure: false,
                 secret: process.env.COOKIE_SECRET

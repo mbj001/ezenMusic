@@ -1,9 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
-import { IoCheckmark, IoPlayOutline, IoTrashOutline } from "react-icons/io5";
-import { TbPlaylistAdd, TbTrash } from "react-icons/tb";
-import { PiFolderSimplePlus } from "react-icons/pi";
-import PlaylistDeleteConfirm from './MylistDeleteConfirm';
+import { IoCheckmark } from "react-icons/io5";
+import { TbTrash } from "react-icons/tb";
 function MylistSelectModal({clickToSelectdelAllPlaylist, handleDeleteConfirm}) {
 
   return (

@@ -6,11 +6,11 @@
     <form action="/music/add_music_form" method="post" class="form-group">
         <div>
             <label class="form-label">제목</label>
-            <input type="text" class="form-control" name="title">
+            <input type="text" class="form-control" name="music_title">
         </div>
         <div>
-            <label class="form-label">가수</label>
-            <input type="text" class="form-control" name="artist">
+            <label class="form-label">가수 번호</label>
+            <input type="text" class="form-control" name="artist_id">
         </div>
         <div>
             <label class="form-label">국내 or 해외</label>
@@ -41,12 +41,12 @@
             <input type="text" class="form-control" name="arranger">
         </div>
         <div>
-            <label class="form-label">앨범명</label>
+            <label class="form-label">앨범명: {{albumTitle}}</label>
             {% if albumTitle %}
-            <input type="text" class="form-control" name="album_title" value="{{albumTitle}}">
+            <input type="text" class="form-control" name="album_id" value="{{albumId}}">
             <input type="hidden" name="goToAlbuminfo" value="1">
             {% else %}
-            <input type="text" class="form-control" name="album_title">
+            <input type="text" class="form-control" name="album_id">
             {% endif %}
         </div>
         <div>

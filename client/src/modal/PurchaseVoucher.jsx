@@ -25,7 +25,7 @@ const PurchaseVoucher = ({setModalOpen, plan_type}) => {
     let userchoiceplan = plan.description;
 
     const check = async()=>{
-        const check = await axios.post('http://localhost:8080/verifiedClient/checkCurrentVoucher', {token: getCookie('connect.sid'), id: getCookie('client.sid')});
+        const check = await axios.post('/verifiedClient/checkCurrentVoucher', {token: getCookie('connect.sid'), id: getCookie('client.sid')});
 
         if(check.data.standbyVoucher){
             console.log('사용대기 있음');
@@ -47,7 +47,6 @@ const PurchaseVoucher = ({setModalOpen, plan_type}) => {
             e.preventDefault();
         }else{
             if(alreadyHave && !keepGoing){
-                console.log('already have');
                 setNewModalOpen(true);
             }else{
                 const userData = {
@@ -59,12 +58,11 @@ const PurchaseVoucher = ({setModalOpen, plan_type}) => {
                     currentVoucherEndDate: currentVoucherEndDate
                 }
                 alreadyHave ? userData.database = 'standby_voucher' : userData.database = 'voucher';
-                // console.log(userData);
-                const res = await axios.post('http://localhost:8080/verifiedClient/buy', userData);
-                if(res.data.success === false){
-                    console.log('결제 실패했습니다.');
+                const res = await axios.post('/verifiedClient/buy', userData);
+                if(res.data.success === false){ 
+                    // 결제 실패
                 }else{
-                    console.log('결제 성공');
+                    // 결제 성공
                     setSuccess(true);
                 }
             }

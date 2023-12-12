@@ -6,12 +6,12 @@
     <form action="/album/edit_album_form" method="post" enctype="multipart/form-data">
         <input type="hidden" value="{{album.album_id}}" name="album_id">
         <div class="mb-3">
-            <label class="form-label">앨범명</label>
+            <label class="form-label">앨범</label>
             <input type="text" class="form-control" name="album_title" value="{{album.album_title}}">
         </div>
         <div class="mb-3">
-            <label class="form-label">가수</label>
-            <input type="text" class="form-control" name="artist" value="{{album.artist}}">
+            <label class="form-label">가수 번호</label>
+            <input type="text" class="form-control" name="artist_id" value="{{album.artist_id}}">
         </div>
         <div class="mb-3">
             <label class="form-label">앨범 분류</label>

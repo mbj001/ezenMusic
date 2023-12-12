@@ -6,7 +6,7 @@ import axios from 'axios';
 
 const ChangePasswordSuccess = ({setModalOpen}) => {
     const closeModal = async() =>{
-        const removeOk = await axios.post('http://localhost:8080/verifiedClient/logout', {token: getCookie('connect.sid')});
+        const removeOk = await axios.post('/verifiedClient/logout', {token: getCookie('connect.sid')});
         if(removeOk){
             removeCookie('connect.sid');
             removeCookie('client.sid');

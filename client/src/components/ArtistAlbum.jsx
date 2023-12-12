@@ -6,11 +6,11 @@ import { StyledBrowser } from '../pages/Browse';
 
 
 
-function ArtistAlbum({details, artist, artist_num, handleRender}) {
+function ArtistAlbum({details, artist_name, artist_id, handleRender}) {
 
     const [artistAlbumtrack, setartistAlbumtrack] = useState([]);
     const [albumRelease, setalbumRelease] = useState([]);
-    const [ order, setOrder ] = useState('');
+    const [order, setOrder] = useState('');
     const [albumAsc, setalbumAsc] = useState([]);
     
     const handleOrder = (e) => {
@@ -18,24 +18,23 @@ function ArtistAlbum({details, artist, artist_num, handleRender}) {
     }
     
     useEffect(() => {
-        console.log(order);
     }, [order])
     
     useEffect(() => {
-        Axios.get("http://localhost:8080/ezenmusic/detail/artist/albumtrack/asc/" + artist)
+        Axios.get("/ezenmusic/detail/artist/albumtrack/asc/" + artist_id)
             .then(({ data }) => {
             setalbumAsc(data)
             }).catch((err) => {
             console.error(err)
         })
-        Axios.get("http://localhost:8080/ezenmusic/detail/artist/albumtrack/release_date/"+ artist)
+        Axios.get("/ezenmusic/detail/artist/albumtrack/release_date/"+ artist_id)
             .then(({ data }) => {
                 setalbumRelease(data)
             }).catch((err) => {
                 console.error(err)
             })
         
-        Axios.get("http://localhost:8080/ezenmusic/detail/artist/albumtrack/"+ artist)
+        Axios.get("/ezenmusic/detail/artist/albumtrack/"+ artist_id)
             .then(({ data }) => {
                 setartistAlbumtrack(data)
             })
@@ -43,7 +42,7 @@ function ArtistAlbum({details, artist, artist_num, handleRender}) {
             console.error(err)
             })
         
-    },[artist])
+    },[artist_id])
 
     return (
         <StyledBrowser className="relative">
@@ -61,37 +60,37 @@ function ArtistAlbum({details, artist, artist_num, handleRender}) {
                         <>
                         {  
                             artistAlbumtrack.map((item, index) => (
-                                <ArtistAlbumTrack key={index} title={item.title} album_title={item.album_title} artist_num={artist_num} artist={item.artist} img={item.org_cover_image} album_id={item.album_id} album_release_date={item.release_date_format} album_size={item.album_size} handleRender={handleRender}/>
+                                <ArtistAlbumTrack key={index} music_title={item.music_title} album_title={item.album_title} artist_id={artist_id} artist_name={item.artist_name} img={item.org_cover_image} album_id={item.album_id} album_release_date={item.release_date_format} album_size={item.album_size} handleRender={handleRender}/>
                             ))
                         }
                         </>
-                            :
+                        :
                         order === 'recent' ? 
-                            <>
-                                { 
-                                    albumRelease.map((item, index) => (
-                                        <ArtistAlbumTrack key={index} title={item.title} album_title={item.album_title} artist_num={artist_num} artist={item.artist} img={item.org_cover_image} album_id={item.album_id} album_release_date={item.release_date_format} album_size={item.album_size} handleRender={handleRender}/>
-                                    ))
-                                } 
-                            </>
-                            :
-                        order === 'asc' ?
-                                <>
-                                    {                             
-                                        albumAsc.map((item, index) => (
-                                            <ArtistAlbumTrack key={index} title={item.title} album_title={item.album_title} artist_num={artist_num} artist={item.artist} img={item.org_cover_image} album_id={item.album_id} album_release_date={item.release_date_format} album_size={item.album_size} handleRender={handleRender}/>
-                                        ))
-                                    }
-                                </>
-                                :
-                            <>
-                            {                
-                            artistAlbumtrack.map((item, index) => (
-                                    <ArtistAlbumTrack key={index} title={item.title} album_title={item.album_title} artist_num={artist_num} artist={item.artist} img={item.org_cover_image} album_id={item.album_id} album_release_date={item.release_date_format} album_size={item.album_size} handleRender={handleRender}/>
-
-                            ))
+                        <>
+                            { 
+                                albumRelease.map((item, index) => (
+                                    <ArtistAlbumTrack key={index} music_title={item.title} album_title={item.album_title} artist_id={artist_id} artist_name={item.artist_name} img={item.org_cover_image} album_id={item.album_id} album_release_date={item.release_date_format} album_size={item.album_size} handleRender={handleRender}/>
+                                ))
                             } 
-                            </>
+                        </>
+                        :
+                        order === 'asc' ?
+                        <>
+                            {                             
+                                albumAsc.map((item, index) => (
+                                    <ArtistAlbumTrack key={index} music_title={item.music_title} album_title={item.album_title} artist_id={artist_id} artist_name={item.artist_name} img={item.org_cover_image} album_id={item.album_id} album_release_date={item.release_date_format} album_size={item.album_size} handleRender={handleRender}/>
+                                ))
+                            }
+                        </>
+                        :
+                        <>
+                        {                
+                        artistAlbumtrack.map((item, index) => (
+                                <ArtistAlbumTrack key={index} music_title={item.music_title} album_title={item.album_title} artist_id={artist_id} artist_name={item.artist_name} img={item.org_cover_image} album_id={item.album_id} album_release_date={item.release_date_format} album_size={item.album_size} handleRender={handleRender}/>
+
+                        ))
+                        } 
+                        </>
                     }
                 </ul>
             </div>

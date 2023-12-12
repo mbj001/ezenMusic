@@ -6,8 +6,9 @@ import MusicListHeader from '../card/MusicListHeader';
 import { StyledTableth } from '../pages/Browse';
 import { RiArrowRightSLine } from "react-icons/ri";
 import { Link } from 'react-router-dom';
+import MusicListTable from '../card/MusicListTable';
 
-function SearchLyrics({keyward, page}) {
+function SearchLyrics({keyward, page, handleRender}) {
     
     const [searchLyrics, setSearchLyrics] = useState([]);
     const [haslyrics, setHaslyrics] = useState(false);
@@ -16,7 +17,7 @@ function SearchLyrics({keyward, page}) {
     let array = [];
 
     useEffect(() => {
-        Axios.get("http://localhost:8080/ezenmusic/search/lyrics/" + keyward)
+        Axios.get("/ezenmusic/search/lyrics/" + keyward)
         .then(({data}) => {
             if(data.length == 0){
                 setHaslyrics(false);
@@ -33,9 +34,8 @@ function SearchLyrics({keyward, page}) {
                         for(let i=0; i<5; i++){
                             array.push(data[i]);
                         }
-                        setSearchLyrics(array);
-                        console.log(array);
                     }
+                    setSearchLyrics(array);
                 }
                 else{
                     setSearchLyrics(data);
@@ -56,17 +56,20 @@ function SearchLyrics({keyward, page}) {
         ""
     }
     <StyledSearchLyrics>
-        <table className="table table-hover">
+        
+        {/* <table className="table table-hover">
             <MusicListHeader lank={false} page="search" setAllcheckVal={setAllcheckVal} />
             <tbody>
                 {
                     searchLyrics.map((item, index) => (
-                        <MusicLyricsCard key={index} title={item.title} album_title={item.album_title} artist={item.artist} img={item.org_cover_image} music_id={item.id} album_id={item.album_id} lyrics={item.lyrics} check_all={allcheckVal} />
+                        <MusicLyricsCard key={index} music_title={item.music_title} album_title={item.album_title} artist_name={item.artist_name} img={item.org_cover_image} music_id={item.music_id} album_id={item.album_id} lyrics={item.lyrics} check_all={allcheckVal} />
                     ))
 
                 }
             </tbody>
-        </table>
+        </table> */}
+        <MusicListTable page="search" lank={false} music_list={searchLyrics} handleRender={handleRender}/>
+
     </StyledSearchLyrics>
     </>
     )

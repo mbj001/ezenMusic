@@ -1,160 +1,196 @@
-// 플레이리스트에 노래를 추가 할 때마다 한 줄씩 테이블에 추가됨
-
 const express = require("express");
 const conn = require("../config/mysql");
 const { route } = require("./main");
 const router = express.Router();
-
-
 const mysql2 = require('mysql2/promise');
-const pool =  mysql2.createPool({
-    host: process.env.MYSQL_HOST,
-    user: process.env.MYSQL_USER,
-    password: process.env.MYSQL_PASS,
-    database: process.env.MYSQL_DB
-});
-
+const pool = require("../config/mysqlPool");
 
 
 router.get("/", (req, res) => {
     console.log("routes => playlist.js => router.get('/')");
-    const sql = 'select distinct userid from playlist';
+    const sql = 'select playlist.* from playlist order by update_date desc';
     conn.query(sql, (err, row, fields) =>{
         if(err){
             console.log(err);
         }else{
             res.render("playlist", {title: "PLAYLIST", row});
+            // console.log(row);
         }
     })
 });
 
 router.post('/insert', (req, res) =>{
-    const userid = req.body.userid
-    const sql = `insert into playlist(userid, playlist_name) values('${userid}', '1')`;
-    conn.query(sql, (err, row, fields) =>{
-        if(err){
-            console.log(err);
+    console.log("routes => playlist.js => router.post('/insert')");
+    console.log(req.body);
+    const sql = `select playlist_name from playlist where character_id = '${req.body.character_id}'`;
+    conn.query(sql, (err, row) =>{
+        // console.log(row);
+        if(row.length == 0){
+            const sql2 = `insert into playlist(character_id, playlist_name) values('${req.body.character_id}', '${req.body.playlist_name}')`;
+            conn.query(sql2, (err, row) =>{
+                res.send("<script> alert( '재생목록 추가 완료!' ); window.location.replace('/playlist'); </script>");
+            });
         }else{
-            res.redirect('/playlist')
-        }
-    })
-})
-
-router.get("/playlist_name_view/:userid", (req, res) =>{
-    const {userid} = req.params;
-    const sql = 'select distinct playlist_name from playlist where userid = ?'
-    conn.query(sql, [userid], (err, row, fields) =>{
-        if(err){
-            console.log(err);
-        }else{
-            console.log(row);
-
-            res.render('playlist_name_view', {title: userid, userid, row});
+            let arr = [];
+            for(i = 0; i < row.length; i++){
+                arr.push(row[i].playlist_name);
+            }
+            // console.log(arr);
+            for(i = 0; i < arr.length; i++){
+                if(req.body.playlist_name === arr[i]){
+                    res.send("<script> alert( '중복된 재생목록 이름이 존재합니다!' ); window.location.replace('/playlist'); </script>");
+                    return;
+                }
+            }
+            const sql2 = `insert into playlist(character_id, playlist_name) values('${req.body.character_id}', '${req.body.playlist_name}')`;
+            conn.query(sql2, (err, row) =>{
+                res.send("<script> alert( '재생목록 추가 완료!' ); window.location.replace('/playlist'); </script>");
+            });
         }
     })
 });
 
-router.post('/playlist_name_view/insert', (req, res) =>{
-    const {userid, playlist_name} = req.body;
-    const sql = `insert into playlist(userid, playlist_name, music) values('${userid}', '${playlist_name}', 1) `;
-    console.log('정상적으로 들어옴');
+router.post('/delete', (req, res) =>{
+    console.log("routes => playlist.js => router.post('/delete')");
+    // console.log(req.body);
+    const sql = `delete from playlist where playlist_id = ${req.body.playlist_id}`;
     conn.query(sql, (err, row) =>{
         if(err){
             console.log(err);
         }else{
-            res.redirect('/playlist/playlist_name_view/' + req.body.userid);
+            res.redirect('/playlist');
         }
     })
 });
 
-router.post('/playlist_name_view/delete/:playlist_name', (req, res) =>{
-    const userid = req.body.userid;
-    console.log(req.body);
-    const {playlist_name} = req.params;    
-    console.log(playlist_name);
-    const sql = `delete from playlist where playlist_name = ? and userid = '${userid}'`
-    conn.query(sql, [playlist_name], (err, row, fields) =>{
-        if(err){
-            console.log(err);
-        }else{
-            console.log(row);
-            console.log('1');
-            // const dummy_num_reset = `call playlist_reset;`;
-            // conn.query(dummy_num_reset, (err) =>{
-            //     console.log('playlist 테이블 - num값 재배열 완료')
-            // })
-            res.redirect('/playlist/playlist_name_view/' + req.body.userid);
-        }
-    })
-})
+router.post('/playlist_detail', (req, res) =>{
+    console.log("routes => playlist.js => router.post('/playlist_detail')");
+    // console.log(req.body);
+    let array = [];
+    const sql = `select * from playlist where playlist_id = ${req.body.playlist_id}`;
+    conn.query(sql, (err, row) =>{
+        let title = row[0].playlist_id;
+        let user = row[0].character_id;
+        let playlist_name = row[0].playlist_name;
+        let thumbnail_image = row[0].thumbnail_image;
 
+        let music = row[0].music_list;
+        // console.log(music.length);
+        if(music == null){
+            res.render('playlist_detail', {title, user, row});
+            return;
+        }else if(music.length == 1){
+            const select_music = `select distinct album.album_title, album.org_cover_image, music.music_id, music.music_title, album.album_id, artist.artist_id, artist.artist_name 
+            from album inner join music on album.album_id = music.album_id inner join artist on music.artist_id = artist.artist_id where music.music_id = ${row[0].music_list[0]}`;
+            conn.query(select_music, (err, row2) =>{
+                res.render('playlist_detail', {title, user, playlist_name, thumbnail_image, music, row2})
+            })
+            return;
+        }else{            
+            let select_music_list = `select distinct album.album_title, album.org_cover_image, music.music_id, music.music_title, album.album_id, artist.artist_id, artist.artist_name 
+            from album inner join music on album.album_id = music.album_id inner join artist on music.artist_id = artist.artist_id where `;
 
-
-router.get('/playlist_name_view/playlist_list_view/:playlist_name&:userid', (req, res) =>{
-    console.log("router.get('/playlist_name_view/playlist_list_view/:playlist_name&:userid')");
-    const {playlist_name, userid} = req.params;
-    const sql = 'select music from playlist where playlist_name = ?';
-    conn.query(sql, [playlist_name], (err, row, fields) =>{
-        if(err){
-            console.log(err);
-        }else{
-            console.log(playlist_name);
-            res.render('playlist_list_view', {row, playlist_name});
-        }
-    })
-});
-
-
-router.post('/playlist_name_view/playlist_list_view/insert', (req, res) =>{
-    const {playlist_name, music} = req.body;
-    // const {music} = req.params
-    // console.log(req.params);
-    const sql = `insert into playlist(playlist_name, music) values('${playlist_name}', ?) `;
-    console.log('정상적으로 들어옴');
-    conn.query(sql, [music], (err, row) =>{
-        if(err){
-            console.log(err);
-            console.log('여기냐');
-        }else{
-            console.log(row);
-            res.redirect('/playlist/playlist_name_view/playlist_list_view/' + req.body.playlist_name);
+            for(i = 0; i < row[0].music_list.length; i++){
+                if(i == (row[0].music_list.length - 1)){
+                    select_music_list += "music.music_id = " + row[0].music_list[i];
+                }
+                else{
+                    select_music_list += "music.music_id = " + row[0].music_list[i] + " or ";
+                }
+            }
+            select_music_list += " order by field(music.music_id";
+    
+            for(i = row[0].music_list.length - 1; i>=0; i--){
+                select_music_list += ", " + row[0].music_list[i];
+            }
+            select_music_list += ")"
+            conn.query(select_music_list, (err, row2) =>{
+                res.render('playlist_detail', {title, user, playlist_name, thumbnail_image, music, row2})
+            })
         }
     })
 });
 
-router.post('/playlist_name_view/playlist_list_view/delete/:music', (req, res) =>{
-    const {music} = req.params;
-    const {playlist_name} = req.body;    
-    console.log(playlist_name);
-    const sql = `delete from playlist where music = ? and playlist_name = '${playlist_name}'`
-    console.log('1');
-    conn.query(sql, [music], (err, row, fields) =>{
-        if(err){
-            console.log(err);
-        }else{
-            console.log('1');
-            // const dummy_num_reset = `call playlist_reset;`;
-            // conn.query(dummy_num_reset, (err) =>{
-            //     console.log('playlist 테이블 - num값 재배열 완료')
-            // })
-            res.redirect('/playlist/playlist_name_view/playlist_list_view/' + req.body.playlist_name);
+router.post('/playlist_detail/insert', (req, res) =>{
+    console.log("routes => playlist.js => router.post('/playlist_detail/insert')");
+    // console.log(req.body);
+
+    const sql = `select music_list from playlist where playlist_id = ${req.body.playlist_id}`;
+    conn.query(sql, (err, row) =>{
+        let arr = row[0].music_list
+        // console.log(arr);
+        for(i = 0; i < arr.length; i++){
+            if(Number(req.body.music_id) === arr[i]){
+                res.send("<script>alert('해당 플레이리스트에 중복된 music_id가 있습니다'); window.location.replace('/playlist');</script>");
+                return;
+            }
         }
+        arr.push(Number(req.body.music_id))
+        // console.log(arr);
+        const lastValue = arr[arr.length - 1];
+        const sql2 = `select album.org_cover_image from album inner join music on album.album_id = music.album_id where music_id = ${lastValue}`;
+        conn.query(sql2, (err, row) =>{
+            const sql3 = `update playlist set thumbnail_image = '${row[0].org_cover_image}', music_list = '[${arr}]' where playlist_id = ${req.body.playlist_id}`;
+            conn.query(sql3, (err, row) =>{
+                res.send("<script>alert('노래 추가 완료!!'); window.location.replace('/playlist');</script>");
+            });
+        });
+    });
+});
+
+router.post('/playlist_detail/delete', (req, res) =>{
+    console.log("routes => playlist.js => router.post('/playlist_detail/delete')");
+    // console.log(req.body);
+    const sql = `select music_list from playlist where playlist_id = ${req.body.playlist_id}`;
+    conn.query(sql, (err, row) =>{
+        // console.log(row);
+        let arr = row[0].music_list;
+        // console.log("arr");
+        // console.log(arr);
+        for(i = 0; i < arr.length; i++){
+            if(arr[i] === Number(req.body.music_id)){
+                arr.splice(i, 1);
+                i--;
+                break;
+            }
+        }
+        // console.log(arr.length);
+        if(arr.length == 0){
+            const sql2 = `update playlist set thumbnail_image = NULL, music_list = NULL where playlist_id = ${req.body.playlist_id}`;
+            conn.query(sql2, (err, row) =>{
+                // console.log(sql2);
+                res.redirect('/playlist');
+            })
+
+        }else{
+            const lastValue = arr[arr.length - 1];
+            // console.log(lastValue);
+            const sql2 = `select album.org_cover_image from album inner join music on album.album_id = music.album_id where music_id = ${lastValue}`;
+            conn.query(sql2, (err, row) =>{
+                // console.log(row);
+                const sql3 = `update playlist set thumbnail_image = '${row[0].org_cover_image}', music_list = '[${arr}]' where playlist_id = ${req.body.playlist_id}`;
+                conn.query(sql3, (err, row) =>{
+                    // console.log(sql3);
+                    res.redirect('/playlist');
+                })
+            });
+        }
+
     })
-})
+});
+
 
 
 // 클라이언트 단
 
-router.get('/storage/mylist/:userid', (req, res) =>{
+router.post('/storage/mylist', (req, res) =>{
     console.log("routes => playlist.js => router.get('/storage/mylist/:userid')");
-    const {userid} = req.params;
-    console.log(userid)
-    const sql = `select playlist_id, playlist_name, create_date, playlist, thumbnail_image from playlist where userid = ${userid} order by update_date desc`;
-    conn.query(sql, (err, row) =>{
+    console.log(req.body);
+    const sql = `select playlist_id, playlist_name, create_date, music_list, thumbnail_image from playlist where ? order by update_date desc`;
+    conn.query(sql, [{character_id: req.body.character_id}],(err, row) =>{
         if(err){
             console.log(err);
         }else{
-            // console.log(row);
             res.send(row);
         }
     })
@@ -163,28 +199,24 @@ router.get('/storage/mylist/:userid', (req, res) =>{
 
 
 
-router.post(`/storage/mylist/`, (req, res) =>{
+router.post(`/storage/mylist/insert`, (req, res) =>{
     console.log(`routes => playlist.js => router.post('/storage/mylist')`);
-    const {userid} = req.body;
+    const {character_id} = req.body;
     let {date} = req.body;
     // console.log(req.body);
-    const select_playlist_sql = `select playlist_name from playlist where userid = '${userid}'`;
+    const select_playlist_sql = `select playlist_name from playlist where character_id = '${character_id}'`;
     conn.query(select_playlist_sql, (err, select_playlist_result) =>{
-        console.log(select_playlist_result);
+        
         for(i = 0; i < select_playlist_result.length; i++){
             if(date == select_playlist_result[i].playlist_name){
                 date = `${req.body.date}(${i + 1})`
-                // date += `(${i + 1})` 
-                console.log(date);
             }
         }
-        let insert_playlist_sql = "insert into playlist(userid, playlist_name) values('" + userid + "', '" + date + "')";
+        let insert_playlist_sql = "insert into playlist(character_id, playlist_name) values('" + character_id + "', '" + date + "')";
         // console.log(insert_playlist_sql);
         conn.query(insert_playlist_sql, (err, insert_playlist_result) =>{
-            console.log(insert_playlist_result);
-            let select_playlist_sql2 = `select playlist_id from playlist where userid = '${userid}' order by playlist_id desc`;
+            let select_playlist_sql2 = `select playlist_id from playlist where character_id = '${character_id}' order by create_date desc`;
             conn.query(select_playlist_sql2, (err, select_playlist_result2) =>{
-                // console.log(select_playlist_result2);
                 res.send(select_playlist_result2);
             })
         })
@@ -194,7 +226,7 @@ router.post(`/storage/mylist/`, (req, res) =>{
 router.get('/detail/detailmylist/:playlist_id', (req, res) =>{
     console.log("routes => playlist.js => router.get('/detail/detailmylist:userid')");
     const {playlist_id} = req.params;
-    const sql = `select playlist_id, playlist_name, create_date, playlist, thumbnail_image from playlist where playlist_id = ${playlist_id}`;
+    const sql = `select playlist_id, playlist_name, create_date, music_list, thumbnail_image from playlist where playlist_id = ${playlist_id}`;
     conn.query(sql, (err, row) =>{
         if(err){
             console.log(err);
@@ -207,10 +239,10 @@ router.get('/detail/detailmylist/:playlist_id', (req, res) =>{
 
 router.post('/detail/detailmylist/changeplaylistname', (req, res) =>{
     console.log("routes => playlist.js => router.post('/detail/detailmylist/changeplaylistname')");
-    const {playlist_id, playlist_name, userid} = req.body;
+    const {playlist_id, playlist_name, character_id} = req.body;
     // console.log(req.body);
     const sql = `select playlist_name from playlist where ?`;
-    conn.query(sql, [{userid}], (err, row) =>{
+    conn.query(sql, [{character_id}], (err, row) =>{
         // console.log(row);
         for(i = 0; i < row.length; i++){
             if(req.body.playlist_name === row[i].playlist_name){
@@ -226,7 +258,104 @@ router.post('/detail/detailmylist/changeplaylistname', (req, res) =>{
         })
 
     })
-})
+});
+
+router.post('/detail/detailmylist/deletemusic', (req, res) =>{
+    console.log("routes => playlist.js => router.post('/detail/detailmylist/deletemusic')");
+    console.log(req.body);
+    const sql = `select music_list from playlist where playlist_id = ${Number(req.body.playlist_id)}`;
+    conn.query(sql, (err, row) =>{
+        console.log(row);
+        if(req.body.music_id.length > 1){
+            // 노래 여러개 선택해서 삭제 할 때
+            console.log("으악");
+            let array = row[0].music_list;
+            let client_array = req.body.music_id;
+            console.log(array);
+            console.log(client_array);
+
+            // array = array.filter(x => !client_array.includes(x))
+
+            for(let i=0; i<client_array.length; i++){
+                for(let j=0; j<row[0].music_list.length; j++){
+
+                    if(Number(client_array[i]) === row[0].music_list[j]){
+
+                        array.splice(j, 1);
+                        j--;
+                        // array.push(Number(client_array[i]));
+                        break;
+                    }
+                    if(j === row[0].music_list.length - 1){
+                        array.push(Number(client_array[i]));
+                    }
+
+                }
+            }
+            console.log(array);
+            if(array.length == 0){
+                const sql2 = `update playlist set thumbnail_image = NULL, music_list = NULL where playlist_id = ${req.body.playlist_id}`;
+                conn.query(sql2, (err, row) =>{
+                    console.log("끄읏");
+                    res.json(1);
+                    return;
+                })
+    
+            }else{
+                const lastValue = array[array.length - 1];
+                // console.log(lastValue);
+                const sql2 = `select album.org_cover_image from album inner join music on album.album_id = music.album_id where music_id = ${lastValue}`;
+                conn.query(sql2, (err, row) =>{
+                    // console.log(row);
+                    const sql3 = `update playlist set thumbnail_image = '${row[0].org_cover_image}', music_list = '[${array}]' where playlist_id = ${req.body.playlist_id}`;
+                    conn.query(sql3, (err, row) =>{
+                        // console.log(sql3);
+                        console.log("끄읏");
+                        res.json(1);
+                        return;
+                    })
+                });
+            }
+        }else{
+            // 노래 하나 선택해서 삭제 할 때
+            let arr = row[0].music_list;
+            for(i = 0; i < arr.length; i++){
+                if(arr[i] === Number(req.body.music_id)){
+                    arr.splice(i, 1);
+                    i--;
+                    break;
+                }
+            }
+            console.log(arr)
+            if(arr.length == 0){
+                const sql2 = `update playlist set thumbnail_image = NULL, music_list = NULL where playlist_id = ${req.body.playlist_id}`;
+                conn.query(sql2, (err, row) =>{
+                    console.log("끄읏");
+                    res.json(1);
+                    return;
+                })
+    
+            }else{
+                const lastValue = arr[arr.length - 1];
+                // console.log(lastValue);
+                const sql2 = `select album.org_cover_image from album inner join music on album.album_id = music.album_id where music_id = ${lastValue}`;
+                conn.query(sql2, (err, row) =>{
+                    // console.log(row);
+                    const sql3 = `update playlist set thumbnail_image = '${row[0].org_cover_image}', music_list = '[${arr}]' where playlist_id = ${req.body.playlist_id}`;
+                    conn.query(sql3, (err, row) =>{
+                        // console.log(sql3);
+                        console.log("끄읏");
+                        res.json(1);
+                        return;
+                    })
+                });
+            }
+        }
+
+    })
+
+    
+});
 
 
 
@@ -242,7 +371,7 @@ router.post(`/browse/addplaylist/`, (req, res) =>{
     // console.log(req.body);
     // const {userid} = req.params;
     const select_playlist_sql = `select * from playlist where ?`
-    conn.query(select_playlist_sql, [{userid: req.body.userid}], (err, select_playlist_sql_result) =>{
+    conn.query(select_playlist_sql, [{character_id: req.body.character_id}], (err, select_playlist_sql_result) =>{
         if(err){
             console.log(err);
         }else{
@@ -281,306 +410,440 @@ router.post(`/browse/addplaylist/`, (req, res) =>{
 // playlistAdd 모달에서 이미 존재하는 플레이리스트에 음악을 추가하는 라우터
 router.post('/browse/addmusictoplaylist/', async (req, res) =>{
     console.log(`routes => playlist.js => router.post('/browse/addmusictoplaylist')`);
-    // console.log(req.body)
-    const {userid, thumbnail_image, playlist_name, playlist_id} = req.body;
-    let {music_id, album_title, album_id, playlist} = req.body;
+    const {character_id, thumbnail_image, playlist_name, playlist_id} = req.body;
+    let {music_id, album_id, theme_playlist} = req.body;
     console.log("바디");
     console.log(req.body);
+    
 
     let array = [];
     let client_array = [];
+    let condition_array = [];
     
-    console.log(req.body);
-
-    // 페이지가 albumtrack 일 때 (music 리스트 전달 x) (albumtrack)
-    try{
-        const select_music_query = `select music.id from music inner join album on album.album_title = music.album_title where album.album_id = ${req.body.album_id}`;
-        
-        let [select_music_result] = await pool.query(select_music_query);
-    
-        for(let i=0; i<select_music_result.length; i++){
-            // array.push(select_music_result[i].id);
-            client_array.push(select_music_result[i].id);
-        }
-        console.log("### client Add ###");
-        console.log(client_array);
-        const sql = `select thumbnail_image, playlist from playlist where ? and ? and ?`
-        conn.query(sql, [{userid}, {playlist_name}, {playlist_id}], (err, row) =>{
-            if(err){
-                console.error(err)
+    // track, 노래 하나 or 다수의 정보를 집어넣을때
+    if(album_id == null && theme_playlist == null){
+        if(typeof(music_id) == 'object'){
+            for(i = 0; i < music_id.length; i++){
+                condition_array.push(Number(music_id[i]));
             }
-            else{
-                console.log("### playlist ###" );
-                console.log(row[0].playlist);
-                array = row[0].playlist;
-
-                for(let i=0; i<client_array.length; i++){
-                    for(let j=0; j<row[0].playlist.length; j++){
-    
-                        if(Number(client_array[i]) === row[0].playlist[j]){
-    
-                            array.splice(j, 1);
-                            array.push(Number(client_array[i]));
-                            break;
+        }else{
+            condition_array.push(Number(music_id));
+        }
+        console.log(condition_array.length);
+        // 다수의 노래를 선택해서 집어넣을때
+        if(condition_array.length > 1){
+            try{
+                const sql = `select thumbnail_image, music_list from playlist where ? and ? and ?`
+                conn.query(sql, [{character_id}, {playlist_name}, {playlist_id}], (err, row) =>{
+                    if(row[0].music_list == null){
+                        const lastValue = condition_array[condition_array.length - 1];
+                        console.log(lastValue);
+                        const select_thumbnail_image_query = `select album.org_cover_image from album inner join music on music.album_id = album.album_id where music.music_id = ${lastValue}`;
+                        conn.query(select_thumbnail_image_query, (err, row) =>{
+                            const insert_music_query = `update playlist set music_list = "[?]", thumbnail_image = ? where ?`;
+                            conn.query(insert_music_query, [condition_array, row[0].org_cover_image, {playlist_id: playlist_id}], (err, update_playlist_result, fields) =>{
+                                res.json(1);
+                            })
+                        })
+                        
+                    }else{
+                        // client_array.push(music_id);
+                        array = row[0].music_list;
+                        console.log('1')
+                        console.log(condition_array);
+                        console.log(array);
+        
+                        for(let i=0; i<condition_array.length; i++){
+                            for(let j=0; j<row[0].music_list.length; j++){
+            
+                                if(condition_array[i] === row[0].music_list[j]){
+            
+                                    array.splice(j, 1);
+                                    array.push(condition_array[i]);
+                                    break;
+                                }
+                                if(j === row[0].music_list.length - 1){
+                                    array.push(condition_array[i]);
+                                }
+            
+                            }
                         }
-                        if(j === row[0].playlist.length - 1){
-                            array.push(Number(client_array[i]));
-                        }
-    
-                    }
-                }
-                console.log("### result ###");
-                console.log(array);
+                        console.log("### result ###");
+                        console.log(array);
 
-                const update_playlist_query = `update playlist set playlist = "[?]", thumbnail_image = ? where ?`;
-                conn.query(update_playlist_query, [array, thumbnail_image, {playlist_id: playlist_id}], (err, update_playlist_result, fields) => {
-                    if(err){
-                        console.error(err)
-                    }
-                    else{
-                        res.json(1);
+                        const lastValue = array[array.length - 1];
+                        console.log(lastValue);
+                        const select_thumbnail_image_query = `select album.org_cover_image from album inner join music on music.album_id = album.album_id where music.music_id = ${lastValue}`;
+                        conn.query(select_thumbnail_image_query, (err, row) =>{
+                            const insert_music_query = `update playlist set music_list = "[?]", thumbnail_image = ? where ?`;
+                            conn.query(insert_music_query, [array, row[0].org_cover_image, {playlist_id: playlist_id}], (err, update_playlist_result, fields) =>{
+                                res.json(1);
+                            })
+                        })
                     }
                 })
+    
+            }catch(e){
+                console.log(err);
             }
-        })
-
-
-    }
-    catch(e){
-        console.log(err);
-    }
-
-    // const sql = `select thumbnail_image, playlist from playlist where ? and ? and ?`
-    // conn.query(sql, [{userid}, {playlist_name}, {playlist_id}], (err, row) =>{
-    //     if(err){
-    //         console.log(err);
-    //     }else{
-    //         if(album_title == (null || undefined) && playlist == (null || undefined)){
-    //             if(row[0].thumbnail_image == null && row[0].playlist == null){
-    //                 const sql1_1 = `update playlist set thumbnail_image = '${thumbnail_image}', playlist = '[${Number(music_id)}]' where playlist_id = ${playlist_id}`
-    //                 conn.query(sql1_1, (err, row) =>{
-    //                     res.send('플레이리스트 추가됨');
-    //                 })
-    //             }else{
-    //                 let music_id_arr = []
-    //                 music_id_arr.push(Number(music_id));
-
-    //                 const newarr = new Set([...row[0].playlist, ...music_id_arr]); // returns [1, 4, 3, 2, 5, 6, 7]
-    //                 console.log(Array.from(newarr));
-    //                 const insert_arr = Array.from(newarr);
-    //                 // console.log(insert_arr.length);
-    //                 // console.log(row[0].playlist.length);
-                    
-    //                 if(insert_arr.length === row[0].playlist.length){
-    //                     console.log('중복값 차단')
-    //                     res.send('플레이리스트 중복됨')
-    //                 }else{
-    //                     const sql_2 = `update playlist set thumbnail_image = '${thumbnail_image}', playlist = '[${insert_arr}]' where  playlist_id = ${playlist_id}`;
-    //                     console.log(sql_2);
-    //                     conn.query(sql_2, (err, row) =>{
-    //                         res.send('플레이리스트 추가됨');
-    //                     })
-    //                 }
-    //             }
-
-    //         }else if(music_id == (null || undefined) && playlist == (null || undefined)){
-    //             const sql2_1 = `select id from music where album_id = "${album_id}"`
-    //             conn.query(sql2_1, (err, row) =>{
-    //                 console.log(row);
-    //                 const album_title_playlist_arr = [];
-    //                 for(i = 0; i < row.length; i++){
-    //                     album_title_playlist_arr.push(Number(row[i].id));
-    //                 }
-    //                 console.log(album_title_playlist_arr);
-    //                 const sql2_2 = `select thumbnail_image, playlist from playlist where playlist_id = ${playlist_id}`
-    //                 conn.query(sql2_2, (err, row) =>{
-    //                     console.log(row);
-
-    //                     if(row[0].thumbnail_image == null && row[0].playlist == null){
-    //                         const sql2_3 = `update playlist set thumbnail_image = '${thumbnail_image}', playlist = '[${album_title_playlist_arr}]' where playlist_id = ${playlist_id}`
-    //                         conn.query(sql2_3, (err, result) =>{
-    //                             console.log(sql2_3);
-    //                             console.log(result);
-    //                             res.send('플레이리스트 추가됨');
-    //                         })
-    //                     }else{
-    //                         const newarr = new Set([...row[0].playlist, ...album_title_playlist_arr]); // returns [1, 4, 3, 2, 5, 6, 7]
-    //                         console.log(Array.from(newarr));
-    //                         const insert_arr = Array.from(newarr);
-                            
-    //                         console.log(insert_arr.length);
-    //                         console.log(row[0].playlist.length);
-                            
-    //                         if(insert_arr.length === row[0].playlist.length){
-    //                             console.log('중복값 차단')
-    //                             res.send('플레이리스트 중복됨')
-    //                         }else{
-    //                             const sql2_4 = `update playlist set thumbnail_image = '${thumbnail_image}', playlist = '[${insert_arr}]' where  playlist_id = ${playlist_id}`;
-    //                             conn.query(sql2_4, (err, row) =>{
-    //                                 res.send('플레이리스트 추가됨');
-    //                             })
-    //                         }
-    //                         // let array = [];
-    //                         // for(i = 0; i < row[0].playlist.length; i++){
-    //                         //     for(j = 0; j < album_title_playlist_arr[0].length; j++){
-    //                         //         if(album_title_playlist_arr[i] == row[j].playlist){
-    //                         //             array.push(row[i].playlist)
-    //                         //         }
-    //                         //     }
-    //                         // }
-    //                         // console.log(array);
-    //                         // let array = row[0].playlist;
-    //                         // for(let i=0; i<row[0].playlist.length; i++){
-    //                         //     if( Number(music_id) === row[0].playlist.length ) {
-    //                         //         array.splice(i, 1);
-    //                         //     }
-    //                         // }
-    //                         // array.push(Number(music_id));
-    //                     }
-    //                 })
-    //             })
-    //         }else if(music_id == (null || undefined) && album_title == (null || undefined)){
+        }else{
+            // 노래 하나만 플레이리스트에 넣을 때
+            try{
+                const sql = `select thumbnail_image, music_list from playlist where ? and ? and ?`
+                conn.query(sql, [{character_id}, {playlist_name}, {playlist_id}], (err, row) =>{
+                    if(row[0].playlist == null){
+                        console.log('11');
+                        console.log(Number(music_id));
+                        const select_thumbnail_image_query = `select album.org_cover_image from album inner join music on music.album_id = album.album_id where music.music_id = ${Number(music_id)}`;
+                        conn.query(select_thumbnail_image_query, (err, row) =>{
+                            console.log(row)
+                            const insert_music_query = `update playlist set music_list = "[?]", thumbnail_image = ? where ?`;
+                            conn.query(insert_music_query, [Number(music_id), row[0].org_cover_image, {playlist_id: playlist_id}], (err, update_playlist_result, fields) =>{
+                                res.json(1);
+                            })
+                        })
+                    }else{
+                        client_array.push(music_id);
+                        array = row[0].music_list;
+                        console.log('1')
+                        console.log(client_array);
+                        console.log(array);
         
-    //         }
-    //         }
-    //     })
-
-
-})
-
-
-//  MBJ
-// 플레이어 추가에 array 형태로 전달하는 경우
-router.post("/playerAdd", async (req, res) => {
-    console.log("routes => playerHandle.js => router.post('/checklistAdd')");
-
-    try{    
-
-        let array = [];
-        let client_array = [];
+                        for(let i=0; i<client_array.length; i++){
+                            for(let j=0; j<row[0].music_list.length; j++){
+            
+                                if(Number(client_array[i]) === row[0].music_list[j]){
+            
+                                    array.splice(j, 1);
+                                    array.push(Number(client_array[i]));
+                                    break;
+                                }
+                                if(j === row[0].music_list.length - 1){
+                                    array.push(Number(client_array[i]));
+                                }
+            
+                            }
+                        }
+                        console.log("### result ###");
+                        console.log(array);
         
-        console.log(req.body);
+                        const update_playlist_query = `update playlist set music_list = "[?]", thumbnail_image = ? where ?`;
+                        conn.query(update_playlist_query, [array, thumbnail_image, {playlist_id: playlist_id}], (err, update_playlist_result, fields) => {
+                            if(err){
+                                console.error(err)
+                            }
+                            else{
+                                res.json(1);
+                            }
+                        })
+                    }
+                })
+    
+            }catch(e){
+                console.log(err);
+            }
+        }
 
-        // 페이지가 albumtrack 일 때 (music 리스트 전달 x) (albumtrack)
-        if(req.body.page === "albumtrack"){
-            const select_music_query = `select music.id from music inner join album on album.album_title = music.album_title where album.album_id = ${req.body.album_id}`;
+    }// album트랙의 정보를 가져올 때
+    else if(music_id == null && theme_playlist == null){
+        try{
+            const select_music_query = `select music.music_id from music inner join album on album.album_id = music.album_id where album.album_id = ${req.body.album_id}`;
             
             let [select_music_result] = await pool.query(select_music_query);
         
             for(let i=0; i<select_music_result.length; i++){
-                // array.push(select_music_result[i].id);
-                client_array.push(select_music_result[i].id);
+                client_array.push(select_music_result[i].music_id);
             }
-        
-            console.log(array);
-        }
-
-
-        // client 에서 music 리스트를 보내줄 때 (channel, browse)
-        if(req.body.music_list){
-            for(let i=0; i<req.body.music_list.length; i++){
-                // array.push(select_music_result[i].id);
-                client_array.push(req.body.music_list[i]);
-            }
-        }
-
-        const select_musiclist_query = `select * from playerlist where ?`;
-        conn.query(select_musiclist_query, [{userid: req.body.userid}], (err, select_musiclist_result, fields) => {
-
-            if(err){
-                console.error(err);
-            }
-            else{
-                
-                if(select_musiclist_result.length === 0){
-                    for(let i=0; i<client_array.length; i++){
-                        array.push(Number(req.body.music_list[i]));
-                    }
-    
-                    const insert_playerlist_query = `insert into playerlist(userid, now_play_music, music_list) values (?, ?, "[?]")`;
-                    conn.query(insert_playerlist_query, [req.body.userid, String(array[array.length-1]), array], (err, insert_playerlist_result, fields) => {
-                        if(err){
-                            console.error(err);
-                        }
-                        else{
-                            res.json(1);
-                        }
-                    })
-    
+            console.log("### client Add ###");
+            console.log(client_array);
+            const sql = `select thumbnail_image, music_list from playlist where ? and ? and ?`
+            conn.query(sql, [{character_id}, {playlist_name}, {playlist_id}], (err, row) =>{
+                if(err){
+                    console.error(err)
                 }
-                
                 else{
-                    array = select_musiclist_result[0].music_list;
-    
-                    for(let i=0; i<client_array.length; i++){
-                        for(let j=0; j<select_musiclist_result[0].music_list.length; j++){
-        
-                            if(Number(client_array[i]) === select_musiclist_result[0].music_list[j]){
-        
-                                array.splice(j, 1);
-                                array.push(Number(client_array[i]));
-                                break;
-                            }
-                            if(j === select_musiclist_result[0].music_list.length - 1){
-                                array.push(Number(client_array[i]));
-                            }
-        
+                    console.log("### playlist ###" );
+                    console.log(row[0].music_list);
+                    if(row[0].music_list == null){
+                        // array = Number(client_array);
+                        for(i = 0; i < client_array.length; i++){
+                            array.push(Number(client_array[i]));
                         }
+                        
+                        console.log("### result ###");
+                        console.log(array);
+        
+                        const update_playlist_query = `update playlist set music_list = "[?]", thumbnail_image = ? where ?`;
+                        conn.query(update_playlist_query, [array, thumbnail_image, {playlist_id: playlist_id}], (err, update_playlist_result, fields) => {
+                            if(err){
+                                console.error(err)
+                            }
+                            else{
+                                res.json(1);
+                            }
+                        })
+                    }else{
+                        array = row[0].music_list;
+        
+                        for(let i=0; i<client_array.length; i++){
+                            for(let j=0; j<row[0].music_list.length; j++){
+            
+                                if(Number(client_array[i]) === row[0].music_list[j]){
+            
+                                    array.splice(j, 1);
+                                    array.push(Number(client_array[i]));
+                                    break;
+                                }
+                                if(j === row[0].music_list.length - 1){
+                                    array.push(Number(client_array[i]));
+                                }
+            
+                            }
+                        }
+                        console.log("### result ###");
+                        console.log(array);
+        
+                        const update_playlist_query = `update playlist set music_list = "[?]", thumbnail_image = ? where ?`;
+                        conn.query(update_playlist_query, [array, thumbnail_image, {playlist_id: playlist_id}], (err, update_playlist_result, fields) => {
+                            if(err){
+                                console.error(err)
+                            }
+                            else{
+                                res.json(1);
+                            }
+                        })
                     }
-    
-                    const select_playerlist_query = `update playerlist set now_play_music = ?, music_list = "[?]" where ?`;
-                    conn.query(select_playerlist_query, [String(array[array.length-1]), array, {userid: req.body.userid}], (err, select_playerlist_result, fields) => {
-                        if(err){
-                            console.error(err);
-                        }
-                        else{
-                            res.json(1);
-                        }
-                    })
-    
                 }
-    
-    
-            }
-        })
-    }
-    catch(e){
-        console.log(e);
+            })   
+        }
+        catch(e){
+            console.log(err);
+        }
+    // 테마 플레이리스트 추가 할 때   
+    }else if(music_id == null && album_id == null){
+        try{
+            const select_music_query = `select music_list from themeplaylist where themeplaylist_id = ${req.body.theme_playlist}`;
+            
+            let [select_music_result] = await pool.query(select_music_query);
+
+            client_array = select_music_result[0].music_list;
+            console.log("### client Add ###");
+            console.log(client_array);
+            const sql = `select thumbnail_image, music_list from playlist where ? and ? and ?`
+            conn.query(sql, [{character_id}, {playlist_name}, {playlist_id}], (err, row) =>{
+                if(err){
+                    console.error(err)
+                }
+                else{
+                    console.log("### playlist ###" );
+                    console.log(row[0].music_list);
+                    if(row[0].music_list == null){
+                        // array = Number(client_array);
+                        for(i = 0; i < client_array.length; i++){
+                            array.push(Number(client_array[i]));
+                        }
+                        
+                        console.log("### result ###");
+                        console.log(array);
+
+                        const lastValue = array[array.length - 1];
+                        console.log(lastValue);
+                        const select_thumbnail_image_query = `select album.org_cover_image from album inner join music on music.album_id = album.album_id where music.music_id = ${lastValue}`;
+                        conn.query(select_thumbnail_image_query, (err, row) =>{
+                            const update_playlist_query = `update playlist set music_list = "[?]", thumbnail_image = ? where ?`;
+                            conn.query(update_playlist_query, [array, row[0].org_cover_image, {playlist_id: playlist_id}], (err, update_playlist_result, fields) => {
+                                if(err){
+                                    console.error(err)
+                                }
+                                else{
+                                    res.json(1);
+                                }
+                            })
+                        })
+        
+                    }else{
+                        array = row[0].music_list;
+        
+                        for(let i=0; i<client_array.length; i++){
+                            for(let j=0; j<row[0].music_list.length; j++){
+            
+                                if(Number(client_array[i]) === row[0].music_list[j]){
+            
+                                    array.splice(j, 1);
+                                    array.push(Number(client_array[i]));
+                                    break;
+                                }
+                                if(j === row[0].music_list.length - 1){
+                                    array.push(Number(client_array[i]));
+                                }
+            
+                            }
+                        }
+                        console.log("### result ###");
+                        console.log(array);
+                        
+                        const lastValue = array[array.length - 1];
+                        console.log(lastValue);
+                        const select_thumbnail_image_query = `select album.org_cover_image from album inner join music on music.album_id = album.album_id where music.music_id = ${lastValue}`;
+                        conn.query(select_thumbnail_image_query, (err, row) =>{
+                            const update_playlist_query = `update playlist set music_list = "[?]", thumbnail_image = ? where ?`;
+                            conn.query(update_playlist_query, [array, row[0].org_cover_image, {playlist_id: playlist_id}], (err, update_playlist_result, fields) => {
+                                if(err){
+                                    console.error(err)
+                                }
+                                else{
+                                    res.json(1);
+                                }
+                            })
+                        })
+                    }
+                }
+            })   
+        }
+        catch(e){
+            console.log(err);
+        }
     }
 })
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 
 // playlistAdd 모달에서 새 플레이리스트를 만듦과 동시에 해당 플레이리스트에 곡을 추가하는 라우터
 router.post('/browse/addnewmusicandplaylist/', (req, res) =>{
     console.log(`routes => playlist.js => router.post('/browse/addnewmusicandplaylist')`);
-    const {userid, music_id, thumbnail_image} = req.body;
-    let playlist_name = req.body.playlist_name;
+    const {character_id, thumbnail_image, playlist_name, playlist_id} = req.body;
+    let {music_id, album_id, theme_playlist} = req.body;
+    console.log("바디");
     console.log(req.body);
+    console.log(typeof(music_id));
+    
+
+    let array = [];
+    let client_array = [];
+    let condition_array = [];
 
     const sql = `select playlist_name from playlist where ?`;
-    conn.query(sql, [{userid}], (err, row) =>{
+    conn.query(sql, [{character_id}], (err, row) =>{
         console.log(row);
+        // 재생목록의 이름이 중복인지 확인하는 for문
         for(i = 0; i < row.length; i++){
             if(req.body.playlist_name == row[i].playlist_name){
                 res.json(1);
                 return;
             }
         }
-        console.log(playlist_name);
-        const insert_playlist_query = `insert into playlist (userid, playlist_name, thumbnail_image, playlist) values (?, ?, ?, "[?]")`;
-        conn.query(insert_playlist_query, [userid, playlist_name, thumbnail_image, Number(music_id)], (err, insert_playlist_result, fields) => {
-            if(err){
-                console.error(err);
+        // 
+        if(album_id == null && theme_playlist == null){
+            if(typeof(music_id) == 'object'){
+                for(i = 0; i < music_id.length; i++){
+                    condition_array.push(Number(music_id[i]));
+                }
+            }else{
+                condition_array.push(Number(music_id));
             }
-            else{
-                console.log(insert_playlist_query);
-                res.json(2);
+            // console.log(condition_array);
+            // 다수의 노래를 선택해서 집어넣을때
+            if(condition_array.length > 1){
+                try{
+                    const lastValue = condition_array[condition_array.length - 1];
+                    const select_thumbnail_image_query = `select album.org_cover_image from album inner join music on music.album_id = album.album_id where music.music_id = ${lastValue}`;
+                    console.log(condition_array);
+                    conn.query(select_thumbnail_image_query, (err, row) =>{
+                        console.log(select_thumbnail_image_query);
+                        console.log(row);
+                        const insert_music_query = `insert into playlist(character_id, playlist_name, thumbnail_image, music_list) values('${character_id}', '${playlist_name}', '${row[0].org_cover_image}', "[${condition_array}]")`;
+                        conn.query(insert_music_query, (err, update_playlist_result, fields) =>{
+                            // conn.query(insert_music_query, [{userid}, {playlist_name}, row[0].org_cover_image, condition_array], (err, update_playlist_result, fields) =>{
+                            if(err){
+                                console.error(err);
+                            }
+                            else{
+                                console.log(insert_music_query);
+                                console.log(update_playlist_result);
+                                res.json(2);
+                            }
+                        })
+                    })
+                }catch(e){
+                    console.log(err);
+                }
+            }else{
+                // 노래 하나만 플레이리스트에 넣을 때
+                try{
+                    console.log(Number(req.body.music_id));
+                    const select_thumbnail_image_query = `select album.org_cover_image from album inner join music on music.album_id = album.album_id where music.music_id = ${req.body.music_id}`;
+                    conn.query(select_thumbnail_image_query, (err, row) =>{
+                        const insert_music_query = `insert into playlist(character_id, playlist_name, thumbnail_image, music_list) values('${character_id}', '${playlist_name}', '${row[0].org_cover_image}', "[${music_id}]")`;
+                        conn.query(insert_music_query, (err, row) =>{
+                            res.json(2);
+                        })
+                    })
+        
+                }catch(e){
+                    console.log(err);
+                }
             }
-        })
+        // album트랙의 정보를 가져올 때
+        }else if(music_id == null && theme_playlist == null){
+            try{
+                const select_music_query = `select music.music_id from music inner join album on album.album_id = music.album_id where album.album_id = ${req.body.album_id}`;
+                
+                conn.query(select_music_query, (err, select_music_result) =>{
+                    for(let i=0; i<select_music_result.length; i++){
+                        client_array.push(Number(select_music_result[i].music_id));
+                    }
+                    console.log(client_array);
+
+                    const lastValue = client_array[client_array.length - 1];
+                    console.log(lastValue);
+                    const select_thumbnail_image_query = `select album.org_cover_image from album inner join music on music.album_id = album.album_id where music.music_id = ${lastValue}`;
+                    conn.query(select_thumbnail_image_query, (err, row) =>{
+                        // const update_playlist_query = `update playlist set playlist = "[?]", thumbnail_image = ? where ?`;
+                        const insert_music_query = `insert into playlist(character_id, playlist_name, thumbnail_image, music_list) values('${character_id}', '${playlist_name}', '${row[0].org_cover_image}', "[${client_array}]")`;
+                        conn.query(insert_music_query, (err, row, fields) => {
+                            if(err){
+                                console.error(err)
+                            }
+                            else{
+                                res.json(2);
+                            }
+                        })
+                    })
+
+                })
+            }
+            catch(e){
+                console.log(err);
+            }
+
+        }else if(music_id == null && album_id == null){
+            try{
+                const select_music_query = `select music_list from themeplaylist where themeplaylist_id = ${req.body.theme_playlist}`;
+                
+                conn.query(select_music_query, (err, select_music_result) =>{
+                    console.log(select_music_result[0].music_list);
+
+                    const lastValue = select_music_result[0].music_list[select_music_result[0].music_list.length - 1];
+                    console.log(lastValue);
+                    const select_thumbnail_image_query = `select album.org_cover_image from album inner join music on music.album_id = album.album_id where music.music_id = ${lastValue}`;
+                    conn.query(select_thumbnail_image_query, (err, row) =>{
+                        // const update_playlist_query = `update playlist set playlist = "[?]", thumbnail_image = ? where ?`;
+                        const insert_music_query = `insert into playlist(character_id, playlist_name, thumbnail_image, music_list) values('${character_id}', '${playlist_name}', '${row[0].org_cover_image}', "[${select_music_result[0].music_list}]")`;
+                        conn.query(insert_music_query, (err, row, fields) => {
+                            if(err){
+                                console.error(err)
+                            }
+                            else{
+                                res.json(2);
+                            }
+                        })
+                    })
+
+                })
+            }
+            catch(e){
+                console.log(err);
+            }
+        }
     })
 })
 
@@ -588,11 +851,103 @@ router.post('/browse/addnewmusicandplaylist/', (req, res) =>{
 router.post(`/detailmylist/addmusicmodal`, (req, res) =>{
     console.log(`routes => playlist.js => router.post('/detail/detailmylist/detailmylistaddmusicmodal')`);
     console.log(req.body);
-    const {userid, playlist_id} = req.body;
-    const sql = `select music_list from likey where division = 'liketrack' and ?`
-    conn.query(sql, [{userid}], (err, row) =>{
-        console.log(row);
+    const {character_id, playlist_id} = req.body;
+    const sql = `select music_list from playerlist where ?`
+    conn.query(sql, [{character_id}], (err, row) =>{
+        
+        // userid 에 대한 row 가 없을때 return
+        if(row.length === 0){
+            res.json(1);
+            return ;
+        }
+        
+
+        let select_musiclistcard_result = `select album.album_title, album.org_cover_image, music.music_id, music.music_title, artist.artist_name 
+        from album inner join music on album.album_id = music.album_id inner join artist on music.artist_id = artist.artist_id where `;
+
+        for(let i=0; i< row[0].music_list.length; i++){
+            if(i == (row[0].music_list.length - 1)){
+                select_musiclistcard_result += "music.music_id = " + row[0].music_list[i];
+        }
+        else{
+            select_musiclistcard_result += "music.music_id = " + row[0].music_list[i] + " or ";
+        }
+        }
+        select_musiclistcard_result += " order by field(music.music_id";
+
+        for(i = row[0].music_list.length - 1; i >= 0; i--){
+
+            select_musiclistcard_result += ", " + row[0].music_list[i];
+        }
+
+        select_musiclistcard_result += ")"
+        console.log(select_musiclistcard_result);
+
+        
+
+        conn.query(select_musiclistcard_result, (err, row) =>{
+            console.log(row);
+            if(row === undefined){
+                res.json(1);
+            }else{
+                res.send(row);
+            }
+        })
+        return ;
     })
-})
+});
+
+router.post("/detailmylist/addmusicmodal/selectlikeylist", (req, res) =>{
+    console.log(`routes => playlist.js => router.post('/detail/detailmylist/addmusicmodal/selectlikeylist')`);
+    console.log(req.body);
+    const {character_id, playlist_id} = req.body;
+    const sql = `select music_list from likey where ? and division = 'liketrack'`;
+    conn.query(sql, [{character_id}], (err, row) =>{
+        
+        // userid 에 대한 row 가 없을때 return
+        if(row.length === 0){
+            res.json(1);
+            return;
+        }
+        // 재생목록이 비어있을 때
+        if(row[0].music_list == null){
+            res.json(1);
+            return
+        }else{
+            
+            let select_musiclistcard_result = `select distinct album.album_title, album.org_cover_image, music.music_id, music.music_title, artist.artist_name 
+            from album inner join music on album.album_id = music.album_id inner join artist on music.artist_id = artist.artist_id where `;
+
+            for(let i=0; i< row[0].music_list.length; i++){
+                if(i == (row[0].music_list.length - 1)){
+                    select_musiclistcard_result += "music.music_id = " + row[0].music_list[i];
+            }
+            else{
+                select_musiclistcard_result += "music.music_id = " + row[0].music_list[i] + " or ";
+            }
+            }
+            select_musiclistcard_result += " order by field(music.music_id";
+    
+            for(i = row[0].music_list.length - 1; i >= 0; i--){
+    
+                select_musiclistcard_result += ", " + row[0].music_list[i];
+            }
+    
+            select_musiclistcard_result += ")"
+            console.log(select_musiclistcard_result);
+
+            conn.query(select_musiclistcard_result, (err, row) =>{
+                console.log(row);
+                if(row === undefined){
+                    res.json(1);
+                }else{
+                    res.send(row);
+                }
+            })
+
+        }
+        return ;
+    })
+});
 
 module.exports = router;

@@ -17,7 +17,7 @@ const My = () => {
     const [ showExpiredVoucher, setShowExpiredVoucher ] = useState(false);
     
     const getUserVoucherInfo = async() =>{
-        const userVoucher = await axios.post('http://localhost:8080/verifiedClient/getVoucher', {token: getCookie('connect.sid'), id: getCookie('client.sid')});
+        const userVoucher = await axios.post('/verifiedClient/getVoucher', {token: getCookie('connect.sid'), id: getCookie('client.sid')});
         if(userVoucher.data.purchase){
             userVoucher.data.plan_type = voucherSwitch(userVoucher.data.plan_type);
             setUserTicket(userVoucher.data);
@@ -28,13 +28,13 @@ const My = () => {
     }
 
     const getStandbyVoucherInfo = async() => {
-        const standbyVoucherData = await axios.post('http://localhost:8080/verifiedClient/getStandbyVoucher', {token: getCookie('connect.sid'), id: getCookie('client.sid')});
+        const standbyVoucherData = await axios.post('/verifiedClient/getStandbyVoucher', {token: getCookie('connect.sid'), id: getCookie('client.sid')});
         standbyVoucherData.data.plan_type = voucherSwitch(standbyVoucherData.data.plan_type);
         setStandbyVoucher(standbyVoucherData.data);
     }
 
     const getExpiredVoucherInfo = async() => {
-        const expiredVoucherData = await axios.post('http://localhost:8080/verifiedClient/getExpiredVoucher', {token: getCookie('connect.sid'), id: getCookie('client.sid')});
+        const expiredVoucherData = await axios.post('/verifiedClient/getExpiredVoucher', {token: getCookie('connect.sid'), id: getCookie('client.sid')});
         // expiredVoucher.data.plan_type = voucherSwitch(expiredVoucher.data.plan_type);
         console.log(expiredVoucherData);
         expiredVoucherData.data.forEach((list)=>{
@@ -58,7 +58,7 @@ const My = () => {
         }
     }, []);
 
-    useEffect(()=>{
+    useEffect(()=>{ 
         console.log(expiredVoucher)
     }, [expiredVoucher])
 

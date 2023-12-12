@@ -1,33 +1,20 @@
 import React, {useState, useEffect} from 'react'
 import Axios from 'axios'
-import MusicListCard from '../card/MusicListCard';
-import styled from 'styled-components';
-import { RiPlayLine } from "react-icons/ri";
-import { StyledBrowser, StyledTableth } from '../pages/Browse';
-
-import MusicListHeader from '../card/MusicListHeader';
-import AllChecked from '../modal/AllCheckedModal';
-import LikeyBanner from '../card/LikeyBanner';
-import { Cookies } from "react-cookie";
-import PleaseLoginMessage from '../modal/PleaseLoginMessage';
+import { userid_cookies } from '../config/cookie';
 import MusicListTable from '../card/MusicListTable';
 
 function Similar({genre, music_id, handleRender}) {
     const [similarMusic, setSimilarMusic] = useState([]);
 
-    // const [allcheckVal, setAllcheckVal] = useState(false);
-    // const [likeyBannerOn, setLikeyBannerOn] = useState(0);    
-    // 로그인이 필요합니다 모달 변수
-    // const [loginRequestVal, setLoginrRequestVal] = useState(false);
-
-    const cookies = new Cookies();
-    const userid_cookies = cookies.get("client.sid");
     let array = [];
 
     useEffect(() => {
 
         if(userid_cookies !== undefined){
-            Axios.get("http://localhost:8080/ezenmusic/allpage/likeylist/"+userid_cookies)
+            Axios.post("/ezenmusic/allpage/likeylist/",{
+                character_id: userid_cookies,
+                division: "liketrack"
+            })
             .then(({data}) => {
                     array = data[0].music_list;
                 })
@@ -36,7 +23,7 @@ function Similar({genre, music_id, handleRender}) {
             })
         }
 
-        Axios.get("http://localhost:8080/ezenmusic/similar/"+genre)
+        Axios.get("/ezenmusic/similar/"+genre)
         .then(({data}) => {
             for(let i=0; i<data.length; i++){
                 // object 에 likey 라는 항목 넣고 모두 false 세팅
@@ -44,7 +31,7 @@ function Similar({genre, music_id, handleRender}) {
             }
             for(let i=0; i<array.length; i++){
                 for(let j=0; j<data.length; j++){
-                    if(array[i] === Number(data[j].id)){
+                    if(array[i] === Number(data[j].music_id)){
                         // 좋아요 해당 object 의 값 true 로 변경
                         data[j].likey = true;
                     }

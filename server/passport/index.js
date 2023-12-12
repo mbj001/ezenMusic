@@ -1,6 +1,7 @@
 const passport = require("passport");
 const local = require("./localStrategy");
 const mysql2 = require("mysql2/promise");
+const pool = require("../config/mysqlPool");
 
 module.exports = () =>{
     //? req.login(user, ...) 가 실행되면, serializeUser가 실행된다.
@@ -11,12 +12,12 @@ module.exports = () =>{
 
     passport.deserializeUser(async (req, id, done)=>{ // id : admin
         try{
-            let pool = mysql2.createPool({
-                host: process.env.MYSQL_HOST,
-                user: process.env.MYSQL_USER,
-                password: process.env.MYSQL_PASS,
-                database: process.env.MYSQL_DB
-            });
+            // let pool = mysql2.createPool({
+            //     host: process.env.MYSQL_HOST,
+            //     user: process.env.MYSQL_USER,
+            //     password: process.env.MYSQL_PASS,
+            //     database: process.env.MYSQL_DB
+            // });
             console.log("deserializeUser");
             
             if(req.body?.clientLogin){
@@ -25,7 +26,7 @@ module.exports = () =>{
                 done(null, clientInfo);
             }else{
             }
-            const selectAdminQuery = `SELECT * FROM administrator WHERE adminid = '${id}'`;
+            const selectAdminQuery = `SELECT * FROM administrator WHERE admin_id = '${id}'`;
             const [adminInfo] = await pool.query(selectAdminQuery);
             done(null, adminInfo);
         }catch(error){
