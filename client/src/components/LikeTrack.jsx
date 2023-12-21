@@ -1,15 +1,15 @@
 import React, {useState, useEffect, useContext} from 'react'
 import styled from 'styled-components'
 import Axios from 'axios';
-import { userid_cookies } from '../config/cookie';
+import { Cookies } from 'react-cookie';
 import LoginRequest from '../card/LoginRequest';
 import MusicListTable from '../card/MusicListTable';
 import { AppContext } from '../App'
 
 function LikeTrack({division, handleRender}) {
-    // LSR
-    // 로그아웃한 상태에서 쿠키에 character.sid 아무렇게나 만들어두면 userid_cookies에 이상한 값 들어가면서 
-    // LoginRequest 페이지가 풀려버려서 app.js에서 뿌려주는 context 추가했어요
+
+    const cookies = new Cookies();
+    const userid_cookies = cookies.get("character.sid");
     const isSessionValid = JSON.parse(useContext(AppContext));
 
     const [likeyList, setLikeyList] = useState([]);
@@ -25,7 +25,7 @@ function LikeTrack({division, handleRender}) {
 
 
     useEffect(() =>{
-        if(userid_cookies !== undefined){
+        if(isSessionValid){
             Axios.post(`/ezenmusic/storage/likey`, {
                 character_id: userid_cookies,
                 division: division
@@ -52,7 +52,7 @@ function LikeTrack({division, handleRender}) {
     return (
         <>
         {
-            isSessionValid && userid_cookies ? 
+            isSessionValid ? 
             <>
             {
                 hasLikeyList === false?

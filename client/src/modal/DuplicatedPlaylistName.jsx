@@ -6,7 +6,7 @@ const DuplicatedPlaylistName = ({clickToModalClose}) => {
     <StyledDuplicatedPlaylistName>
         <div className="flex-col confirm-box">
             <p>동일한 내 리스트 명이 이미 존재합니다.</p>
-            <button type='button' className='mt-[20px]' onClick={clickToModalClose}>확인</button>
+            <button type='button' className='mt-[20px]' onClick={() => clickToModalClose()}>확인</button>
         </div>
 
     </StyledDuplicatedPlaylistName>

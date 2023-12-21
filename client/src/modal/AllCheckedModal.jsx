@@ -1,24 +1,28 @@
-import React, {useState} from 'react'
+import React, {useState, useContext} from 'react'
 import styled from 'styled-components'
 import { IoCheckmark, IoPlayOutline } from "react-icons/io5";
 import { TbPlaylistAdd } from "react-icons/tb";
 import { PiFolderSimplePlus } from "react-icons/pi";
 import Axios from "axios";
-import { userid_cookies } from '../config/cookie';
+import { Cookies } from 'react-cookie';
 import { TbTrash } from "react-icons/tb";
 import MylistDeleteConfirm from './MylistDeleteConfirm';
 import PlaylistAdd from './PlaylistAdd';
 import { RiAddLine } from "react-icons/ri";
 import PleaseLoginMessage from './PleaseLoginMessage';
+import { AppContext } from '../App'
 
 function AllCheckedModal({setAllcheckVal, selectedMusicList, setSelectedMusicList, handleRender, setPlayerBannerOn, setAddplayerCount, page, handleLikeypage, 
     setDetailMylistAddMusicOpen, detailMylistAddMusicModalData, selectModalClose, setAddPlaylistBannerOn, playlist_id, handleDetailMylistPage}) {
 
+    const cookies = new Cookies();
+    const userid_cookies = cookies.get("character.sid");
+    const isSessionValid = JSON.parse(useContext(AppContext));
 
     const [deleteConfirm, setDeleteConfirm] = useState(false);
     // 로그인이 필요합니다 모달 변수
     const [loginRequestVal, setLoginrRequestVal] = useState(false);
-
+    
     function checkedPlayerAdd(changeVal){
 
         Axios.post("/playerHandle/checklistAdd", {
@@ -81,7 +85,7 @@ function AllCheckedModal({setAllcheckVal, selectedMusicList, setSelectedMusicLis
 
     const clickToDeleteMylistMusic = () =>{
         console.log(selectedMusicList);
-        Axios.post("http://localhost:8080/playlist/detail/detailmylist/deletemusic", {
+        Axios.post("/playlist/detail/detailmylist/deletemusic", {
             music_id: selectedMusicList,
             playlist_id: playlist_id,
             character_id: userid_cookies
@@ -109,9 +113,9 @@ function AllCheckedModal({setAllcheckVal, selectedMusicList, setSelectedMusicLis
             playlist_id: detailMylistAddMusicModalData[0],
             playlist_name: detailMylistAddMusicModalData[1]
         };
-        await Axios.post(`http://localhost:8080/playlist/browse/addmusictoplaylist`, userData)
+        await Axios.post(`/playlist/browse/addmusictoplaylist`, userData)
         .then(({data}) =>{
-            console.log("플레이리스트에 노래 추가됨");
+            // console.log("플레이리스트에 노래 추가됨");
             setDetailMylistAddMusicOpen(false);
         });
     };
@@ -142,7 +146,7 @@ function AllCheckedModal({setAllcheckVal, selectedMusicList, setSelectedMusicLis
             page === "detailmylistaddmusic"?
             <>
                 <div className="middle-line"></div>
-                <div className="w-[65px] text-center my-[20px] mx-[15px] cursor-pointer" onClick={userid_cookies? (e) => clickDetailMylistAddMusic(e) : setLoginrRequestVal}>
+                <div className="w-[65px] text-center my-[20px] mx-[15px] cursor-pointer" onClick={isSessionValid? (e) => clickDetailMylistAddMusic(e) : () => setLoginrRequestVal(true)}>
                     <p><RiAddLine className="modal-icon m-auto"  /></p>
                     <p className="mt-[5px]">추가</p>
                 </div>
@@ -150,17 +154,17 @@ function AllCheckedModal({setAllcheckVal, selectedMusicList, setSelectedMusicLis
             :
             <>
             <div className="middle-line"></div>
-            <div className="w-[65px] text-center my-[20px] mx-[15px] cursor-pointer" onClick={userid_cookies? (e) => checkedPlayerAdd(true) : setLoginrRequestVal}>
+            <div className="w-[65px] text-center my-[20px] mx-[15px] cursor-pointer" onClick={isSessionValid? (e) => checkedPlayerAdd(true) : () => setLoginrRequestVal(true)}>
                 <p><IoPlayOutline className="modal-icon m-auto"  /></p>
                 <p className="mt-[5px]">듣기</p>
             </div>
             <div className="middle-line"></div>
-            <div className="w-[65px] text-center my-[20px] mx-[15px] cursor-pointer" onClick={userid_cookies? (e) => checkedPlayerAdd(false) : setLoginrRequestVal}>
+            <div className="w-[65px] text-center my-[20px] mx-[15px] cursor-pointer" onClick={isSessionValid? (e) => checkedPlayerAdd(false) : () => setLoginrRequestVal(true)}>
                 <p><TbPlaylistAdd className="modal-icon m-auto"  /></p>
                 <p className="mt-[5px]">재생목록</p>
             </div>
             <div className="middle-line"></div>
-            <div className="w-[65px] text-center my-[20px] mx-[15px] cursor-pointer" onClick={userid_cookies? (e) => clickPlaylistModalOpen(e) : setLoginrRequestVal}>
+            <div className="w-[65px] text-center my-[20px] mx-[15px] cursor-pointer" onClick={isSessionValid? (e) => clickPlaylistModalOpen(e) : () => setLoginrRequestVal(true)}>
                 <p><PiFolderSimplePlus className="modal-icon m-auto" /></p>
                 <p className="mt-[5px]">내 리스트</p>
             </div>
@@ -170,7 +174,7 @@ function AllCheckedModal({setAllcheckVal, selectedMusicList, setSelectedMusicLis
             (page === "liketrack" || page === "detailmylist") &&
             <>
             <div className="middle-line"></div>
-            <div className="w-[65px] text-center my-[20px] mx-[15px] cursor-pointer" onClick={handleDeleteConfirm}>
+            <div className="w-[65px] text-center my-[20px] mx-[15px] cursor-pointer" onClick={() => handleDeleteConfirm()}>
                 <p><TbTrash className="modal-icon m-auto"  /></p>
                 <p className="mt-[5px]">삭제</p>
             </div>
@@ -185,11 +189,10 @@ function AllCheckedModal({setAllcheckVal, selectedMusicList, setSelectedMusicLis
 export const StyledAllCheckModal = styled.div`
     position: fixed;
     bottom: 150px;
-    background-color: #2563eb;
+    background-color: #576aff;
     left: 50%;
     transform: translate(-50%, 0);  
     z-index: 500; 
-
     p{
         color: white;
     }

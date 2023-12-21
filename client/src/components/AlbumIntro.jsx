@@ -4,8 +4,7 @@ import styled from 'styled-components'
 function AlbumIntro({album_title, artist_name, intro, publisher, agency}) {
     return (
         <StyledDetails>
-    
-            <div className="album_intro">
+            <div className="album-info">
                 <p><span className="text-[15px] mr-[50px]">앨범명</span> <span className="text-gray font-normal text-[14px]">{album_title}</span></p>
                 <p className="my-[10px]"><span className="text-[15px] mr-[35px]">아티스트</span> <span className="text-gray font-normal text-[14px]">{artist_name}</span></p>
                 <div className="my-[10px]">
@@ -15,24 +14,71 @@ function AlbumIntro({album_title, artist_name, intro, publisher, agency}) {
                     { agency && <p><span className="text-[15px] mr-[50px]">기획사</span> <span className="text-gray font-normal text-[14px]">{agency}</span></p> }
                 </div>
             </div>
-            <div className="album_intro mt-[50px]">
-                <p className="text-[15px] mb-[40px]">앨범소개</p>
-                {
-                    intro?
-                    <p className="lyrics text-gray font-normal text-[14px] leading-[26px]">{intro}</p>
-                    :
-                    <div className="text-center mt-[100px]">
-                        <img src="/image/notintro.svg" alt="notintroimage" className="m-auto"/>
-                        <div>
-                            <p>앗!</p>
-                            <p className="text-[14px] text-gray mt-[10px]">등록된 앨범 소개가 없어요.</p>
+            <AlbumDescription>
+                <div className="description-title mb-[40px]">
+                    <span>앨범소개</span>
+                </div>
+                <div className='album-description-section'>
+                    {
+                        intro?
+                        <p className="description">{intro}</p>
+                        :
+                        <div className="no-description">
+                            <img src="/image/notintro.svg" alt="notintroimage"/>
+                            <div className='message'>
+                                <p className='att'>앗!</p>
+                                <p>등록된 앨범 소개가 없어요.</p>
+                            </div>
                         </div>
-                    </div>
-                }
-            </div>
+                    }
+                </div>
+            </AlbumDescription>
         </StyledDetails>
-      )
+    )
 }
+
+// 승렬
+const AlbumDescription = styled.div`
+    overflow: hidden;
+    .description-title{
+        color: #333;
+        font-size: 14px;
+        font-weight: 400;
+        margin-top: 20px;
+    }
+    .album-description-section{
+        overflow: hidden;
+        .description{
+            font-size: 15px;
+            font-weight: 400px;
+            color: #333;
+            white-space: pre-wrap;
+            line-height: 27px;
+        }
+        .no-description{
+            text-align: center;
+            padding-top: 100px;
+            padding-bottom: 100px;
+            img{
+                width: 180px;
+                height: 130px;
+                margin-right: auto;
+                margin-left: auto;
+            }
+            .message{
+                p{
+                    font-size: 15px;
+                    color: #989898;
+                }
+                p.att{
+                    font-size: 17px;
+                    font-weight: 600;
+                    color: #333;
+                }
+            }
+        }
+    }
+`;
 
 
 const StyledDetails = styled.div`
@@ -47,10 +93,6 @@ width: 100%;
     .detail-title{
         font-size: 28px;
         font-weight: 700;
-    }
-
-    .lyrics{
-        white-space: pre-wrap;
     }
 
     .active{

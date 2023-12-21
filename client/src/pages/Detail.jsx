@@ -44,7 +44,7 @@ function Detail({handleRender}) {
     }
     else if(track === "recommend"){
         return (
-            <Recommend _id={music_id} handleRender={handleRender}/>
+            <Recommend _id={music_id} handleRender={handleRender}/> 
         )
     }
     

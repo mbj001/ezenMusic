@@ -16,7 +16,7 @@ const ConfirmedId = ({setModalOpen, useable}) => {
                 <p>이미 사용중인 아이디입니다.</p>
                 }
                 
-                <button type='button' onClick={closeModal}>
+                <button type='button' onClick={() => closeModal()}>
                     확인
                 </button>
             </div>

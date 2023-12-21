@@ -3,9 +3,7 @@ import MainStyledSection from '../layout/MainStyledSection'
 import styled from 'styled-components'
 import { AiOutlineMail } from "react-icons/ai";
 import { RiKakaoTalkFill } from "react-icons/ri";
-import { Link, Outlet } from 'react-router-dom';
-import KakaoSignUp from '../components/KakaoSignUp';
-import EmailSignUp from '../components/EmailSignUp';
+import { Link } from 'react-router-dom';
 
 const SignUp = () => {
     
@@ -24,9 +22,9 @@ const SignUp = () => {
                         <SignUpWithEmail to={'email'} className='sign-up-with-email mt-12 flex flex-row align-items-center justify-center'>
                             <AiOutlineMail/>이메일 아이디로 가입하기
                         </SignUpWithEmail>
-                        <SignUpWithKakao to={'kakao'}  className='sign-up-with-kakao mt-4 flex flex-row align-items-center justify-center'>
+                        {/* <SignUpWithKakao to={'kakao'}  className='sign-up-with-kakao mt-4 flex flex-row align-items-center justify-center'>
                             <RiKakaoTalkFill/>카카오 계정으로 로그인
-                        </SignUpWithKakao>
+                        </SignUpWithKakao> */}
                     </div>
                 </div>
             </div>

@@ -9,6 +9,7 @@ import { TfiClose } from "react-icons/tfi";
 import CancelEdit from '../modal/CancelEdit'
 import { Link } from 'react-router-dom'
 import DeleteFailure from '../modal/DeleteFailure'
+import CharacterNameLengthCheck from '../modal/CharacterNameLengthCheck'
 
 const Character = () => {
     const [ currentCharacter, setCurrentCharcter ] = useState({});
@@ -20,25 +21,25 @@ const Character = () => {
     const [ modalOpen, setModalOpen ] = useState(false);
     const [ deleteFailModalOpen, setDeleteFailModalOpen ] = useState(false);
 
+    // MBJ
+    // 글자수 0일때 모달 변수
+    const [ nameLengthModalOpen, setNameLengthModalOpen ] = useState(false);
     
     const getCharacter = async() => {
-        const response = await axios.post('http://localhost:8080/verifiedClient/characterControl', {token:getCookie('connect.sid'), characterId: getCookie('character.sid'), characterNum: getCookie('pfimg')});
-        console.log(response)
+        const response = await axios.post('/verifiedClient/characterControl', {token:getCookie('connect.sid'), characterId: getCookie('character.sid'), characterNum: getCookie('pfimg')});
+        // console.log(response)
         setPreferGenre(response.data.prefer_genre);
         setNewname(response.data.character_name);
         setCurrentCharcter(response.data);
     }
 
-    useEffect(()=>{
-        console.log(preferGenre)
-    }, [preferGenre])
 
     const changeCharacter = async(e) => {
         e.preventDefault();
         if(newName === ''){
 
         }else{
-            const response = await axios.post('http://localhost:8080/verifiedClient/updateCharacterName', {token: getCookie('connect.sid'), characterId: getCookie('character.sid'), newName: newName});
+            const response = await axios.post('/verifiedClient/updateCharacterName', {token: getCookie('connect.sid'), characterId: getCookie('character.sid'), newName: newName});
             if(response.data.success){
                 console.log('업데이트 성공');
                 window.location = '/character';
@@ -61,8 +62,8 @@ const Character = () => {
     }
 
     const deleteCharacter = async() => {
-        const response = await axios.post('http://localhost:8080/verifiedClient/deleteCharacter' ,{token: getCookie('connect.sid'), id: getCookie('client.sid'), characterId: getCookie('character.sid'), characterNum: getCookie('pfimg')});
-        console.log(response);
+        const response = await axios.post('/verifiedClient/deleteCharacter' ,{token: getCookie('connect.sid'), id: getCookie('client.sid'), characterId: getCookie('character.sid'), characterNum: getCookie('pfimg')});
+        // console.log(response);
         if(response?.success === false){
             setDeleteFailModalOpen(true);
         }else{
@@ -109,6 +110,8 @@ const Character = () => {
     }, [])
     
     return (
+        <>
+        {nameLengthModalOpen && <CharacterNameLengthCheck setNameLengthModalOpen={setNameLengthModalOpen} /> }
         <MainStyledSection>
             <CharacterInfoPage>
                 {deleteFailModalOpen && <DeleteFailure setModalOpen={setDeleteFailModalOpen}/>}
@@ -122,9 +125,9 @@ const Character = () => {
                         {
                             edit ? 
                             <div className='edit-mode-on'>
-                                <input type="text" className='edit-input' onChange={e=>setNewname(e.target.value)} maxLength={10} value={newName}/>
-                                <button type='button' className='remove-all' onClick={editModeCancel}><TfiClose/></button>
-                                <button type='button' className='edit' onClick={changeCharacter}>완료</button>
+                                <input type="text" className='edit-input' onChange={e => setNewname(e.target.value)} maxLength={10} value={newName}/>
+                                <button type='button' className='remove-all' onClick={() => editModeCancel()}><TfiClose/></button>
+                                <button type='button' className='edit' onClick={newName.length === 0 ? () => setNameLengthModalOpen(true)  : (e) => changeCharacter(e)}>완료</button>
                             </div>  
                             :
                             <div className='edit-mode-off'>
@@ -157,7 +160,7 @@ const Character = () => {
                         <Link to={'../discovery'} className='button submit'>
                                 취향관리
                         </Link>
-                        <button type='button' onClick={deleteCharacter} className='button cancel'>
+                        <button type='button' onClick={() => deleteCharacter()} className='button cancel'>
                             캐릭터 삭제
                         </button>
                     </div>
@@ -169,6 +172,7 @@ const Character = () => {
                 </div>
             </CharacterInfoPage>
         </MainStyledSection>
+        </>
     )
 }
 

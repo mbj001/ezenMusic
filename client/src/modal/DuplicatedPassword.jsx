@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 
 const DuplicatedPassword = ({setModalOpen}) => {
@@ -11,7 +11,7 @@ const DuplicatedPassword = ({setModalOpen}) => {
                 <p>
                     기존과 동일한 비밀번호는 사용할 수 없습니다.
                 </p>
-                <button type='button' onClick={closeModal}>
+                <button type='button' onClick={() => closeModal()}>
                     확인
                 </button>
             </div>

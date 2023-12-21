@@ -10,15 +10,8 @@ import ResisterComplete from '../modal/ResisterComplete';
 import Loading from '../components/Loading'
 
 const Resister = () => {
-    // object 하나를 state로 사용
-    // const [person, setPerson] = useState({
-    //     id: '',
-    //     pw1: '',
-    //     pw2: '',
-    //     nickname: '',
-    // });
-
     const [ loading, setLoading ] = useState(false);
+
     const [ id, setId ] = useState('');
     const [ modalOpen, setModalOpen ] = useState(false);
     const [ confirmedId, setConfirmedId ] = useState('');
@@ -50,10 +43,8 @@ const Resister = () => {
     const invalidBirthRef = useRef();
     const invalidResisterNumberRef = useRef();
     const invalidEmailRef = useRef();
-    const signUpButtonRef = useRef();
 
     const showpass = (e) =>{ 
-        e.preventDefault();
         iconRef.current.classList.toggle('hidden');
         if(passwordRef.current.type === 'password'){
             passwordRef.current.type = 'text';
@@ -62,7 +53,6 @@ const Resister = () => {
         }
     }
     const showpassCheck = (e) => { 
-        e.preventDefault();
         passwordCheckIconRef.current.classList.toggle('hidden');
         if(passwordCheckRef.current.type === 'password'){
             passwordCheckRef.current.type = 'text';
@@ -83,18 +73,15 @@ const Resister = () => {
         return /^[A-Za-z0-9][A-Za-z0-9]*$/.test(str);
     }
     const strongPassword = (str) => {
-        // 영문 대문자 / 소문자 / 숫자를 섞어 최소 8자리 이상 입력해주세요.
         return /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/.test(str);
     }
     const isMatch = (pw1, pw2) => {
         return pw1 === pw2;
     }
     const onlyKoreanName = (str) => {
-        // return /[ \{\}\[\]\/?.,;:|\)*~`!^\-_+┼<>@\#$%&\'\"\\\(\=\-]/.test(str);
         return /^[가-힣]+$/.test(str);
     }
     const validPhoneNumber = (str) => {
-        // 000-0000-0000 형식 준수
         return /^\d{3}-\d{3,4}-\d{4}$/.test(str);
     }
     const validBirth = (str) => {
@@ -107,7 +94,6 @@ const Resister = () => {
     const checkDuplicateId = async() => {
         if(id !== '' && onlyEnglishAndNumber(id)){
             const responseFromServer = await axios.post('/guest/check_duplication', {id: id});
-            // console.log(responseFromServer);
             if(responseFromServer.data.useable){
                 setModalOpen(true);
                 setConfirmedId(true);
@@ -119,7 +105,6 @@ const Resister = () => {
     }
 
     useEffect(()=>{
-        // console.log(id);
         if(onlyEnglishAndNumber(id) || id === ''){
             invalidIdRef.current.classList.add('hidden');
         }else{
@@ -178,15 +163,21 @@ const Resister = () => {
         }
     }, [name])
 
+    // 12.14
+    // 여기랑 return부분 휴대폰 번호 입력하는 input에 value 추가했음
+    // 12.15 수정
+    
     useEffect(()=>{
-        if(phone === '' || phone.length < 11){
-            invalidPhoneRef.current.classList.add('hidden');
+        if(phone.length === 10){
+            setPhone(phone.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3'));
+        }
+        if(phone.length === 13){
+            setPhone(phone.replace(/-/g, '').replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3'));
+        }
+        if(!validPhoneNumber(phone) && phone.length > 1){
+            invalidPhoneRef.current.classList.remove('hidden');
         }else{
-            if(validPhoneNumber(phone)){
-                invalidPhoneRef.current.classList.add('hidden');
-            }else{
-                invalidPhoneRef.current.classList.remove('hidden');
-            }
+            invalidPhoneRef.current.classList.add('hidden');
         }
     }, [phone])
 
@@ -263,15 +254,7 @@ const Resister = () => {
         }else{
             setResisterFailure(true);
         }
-    }
-    
-    useEffect(()=>{
-        if(resisterComplete){
-            // login success!!
-        }
-    }, [resisterComplete])
-
-    
+    }    
     
     return (
         <MainStyledSection>
@@ -293,52 +276,52 @@ const Resister = () => {
                                 <span className='duplication-check' ref={duplicateCheckRef}>
                                     <FaCheck />
                                 </span>
-                                <input type="text" id='signUpId' name='signUpId' className='input-text' placeholder='아이디' onChange={e=>setId(e.target.value)} autoComplete="off"/>
+                                <input type="text" id='signUpId' name='signUpId' className='input-text' placeholder='아이디' onChange={e => setId(e.target.value)} autoComplete="off"/>
                                 <button type='button' onClick={checkDuplicateId} className='duplication-check-button'>중복확인</button>
                                 <span className='invalid-text hidden' ref={invalidIdRef}>한글 혹은 특수문자는 사용할 수 없습니다.</span>
                             </div>
                             <div className='password-input-cover'>
-                                <span className='show' onClick={showpass} >
+                                <span className='show' onClick={() => showpass()} >
                                     <AiFillEye/>
                                 </span>
-                                <span className='hidden hide' ref={iconRef} onClick={showpass}>
+                                <span className='hidden hide' ref={iconRef} onClick={() => showpass()}>
                                     <AiFillEyeInvisible/>
                                 </span>
-                                <input type="password" id='signUpPw' name='signUpPw' className='input-text' placeholder='비밀번호' onChange={e=>setPassword(e.target.value)} ref={passwordRef} autoComplete="off"/>
+                                <input type="password" id='signUpPw' name='signUpPw' className='input-text' placeholder='비밀번호' onChange={e => setPassword(e.target.value)} ref={passwordRef} autoComplete="off"/>
                                 <span className='invalid-text' ref={invalidPasswordRef}>영문 대문자 / 소문자 / 숫자 / 특수문자를 섞어 3가지 조합으로 최소 8자리 이상 입력해주세요.</span>
                                 <span className='valid-text hidden' ref={validPasswordRef}>사용가능한 비밀번호입니다.</span>
                             </div>
                             <div className='password-check-cover'>
-                                <span className='show' onClick={showpassCheck} >
+                                <span className='show' onClick={() => showpassCheck()} >
                                     <AiFillEye/>
                                 </span>
-                                <span className='hidden hide' ref={passwordCheckIconRef} onClick={showpassCheck}>
+                                <span className='hidden hide' ref={passwordCheckIconRef} onClick={() => showpassCheck()}>
                                     <AiFillEyeInvisible/>
                                 </span>
-                                <input type="password" id='signUpPwCheck' name='signUpPwCheck' className='input-text' placeholder='비밀번호 확인' onChange={e=>setCheckPassword(e.target.value)} ref={passwordCheckRef} autoComplete="off"/>
+                                <input type="password" id='signUpPwCheck' name='signUpPwCheck' className='input-text' placeholder='비밀번호 확인' onChange={e => setCheckPassword(e.target.value)} ref={passwordCheckRef} autoComplete="off"/>
                                 <span className='invalid-text' ref={notConfirmedPasswordRef}>비밀번호가 일치하지 않습니다.</span>
                                 <span className='valid-text hidden' ref={confirmedPasswordRef}>비밀번호가 일치합니다.</span>
                             </div>
                             <div>
-                                <input type="text" id='signUpName' name='signUpName' className='input-text' placeholder='이름' onChange={e=>setName(e.target.value)} autoComplete="off"/>
+                                <input type="text" id='signUpName' name='signUpName' className='input-text' placeholder='이름' onChange={e => setName(e.target.value)} autoComplete="off"/>
                                 <span className='invalid-text hidden' ref={invalidNameRef}>올바른 이름형식이 아닙니다.</span>
                             </div>
                             <div>
-                                <input type="text" id='signUpPhone' name='signUpPhone' className='input-text' placeholder='휴대폰 번호(-포함)' onChange={e=>setPhone(e.target.value)} autoComplete="off"/>
+                                <input type="text" id='signUpPhone' name='signUpPhone' className='input-text' placeholder='휴대폰 번호(-제외)' value={phone} onChange={e => setPhone(e.target.value)} autoComplete="off"/>
                                 <span className='invalid-text hidden' ref={invalidPhoneRef}>올바르지 않은 전화번호 형식입니다.</span>
                             </div>
                             <div className='width-half-birth'>
-                                <input type="text" id='signUpBirth' name='signUpBirth' className='input-text' placeholder='생년월일(ex.231225)' maxLength={6} onChange={e=>setBirth(e.target.value)} autoComplete="off"/>
+                                <input type="text" id='signUpBirth' name='signUpBirth' className='input-text' placeholder='생년월일(ex.231225)' maxLength={6} onChange={e => setBirth(e.target.value)} autoComplete="off"/>
                                 <span className='invalid-text hidden' ref={invalidBirthRef}>올바르지 않은 생년월일입니다.</span>
                                 <span className='dash text-[23px]'>-</span>
-                                <input type="text" id="registration-number" name="registration-number" maxLength={1} className='px-3'onChange={e=>setResisterNumber(e.target.value)} autoComplete="off"/>
+                                <input type="text" id="registration-number" name="registration-number" maxLength={1} className='px-3'onChange={e => setResisterNumber(e.target.value)} autoComplete="off"/>
                                 <span className='invalid-text hidden' ref={invalidResisterNumberRef}>올바르지 않은 주민등록번호입니다.</span>
                                 <span className='bullet'>
                                     ••••••
                                 </span>
                             </div>
                             <div className='width-half-email'>
-                                <input type="text" id='signUpEmail' name='signUpEmail' className='input-text' placeholder='이메일' onChange={e=>setEmail(e.target.value)} autoComplete="off"/>
+                                <input type="text" id='signUpEmail' name='signUpEmail' className='input-text' placeholder='이메일' onChange={e => setEmail(e.target.value)} autoComplete="off"/>
                                 <span className='invalid-text' ref={invalidEmailRef}>올바르지 않은 이메일 형식입니다.</span>
                                 <span className='at'>@</span>
                                 <select id="emailURL" name='eamilURL' onChange={toggleUrlDirect} ref={emailRef}>
@@ -351,10 +334,10 @@ const Resister = () => {
                                     <option value="cyworld.com">cyworld.com</option>
                                     <option value="direct">직접입력</option>
                                 </select>
-                                <input type="text" id="emailUrlDirect" name="emailUrlDirect" className='hidden' ref={emailUrlRef} onChange={e=>setEmailUrlDirect(e.target.value)}/>
+                                <input type="text" id="emailUrlDirect" name="emailUrlDirect" className='hidden' ref={emailUrlRef} onChange={e => setEmailUrlDirect(e.target.value)}/>
                             </div>
                             
-                            <button type='submit' ref={signUpButtonRef} className={checkAllData() ? 'signup active' : 'signup'}>
+                            <button type='submit' className={checkAllData() ? 'signup active' : 'signup'}>
                                 가입 완료
                             </button>
                         </form>
@@ -432,8 +415,8 @@ const StyledForm = styled.div`
                 height: 30px;
                 font-weight: 400;
                 font-size: 15px;
-                color: var(--main-text-white);
-                background-color: #aaaaaa;
+                color: #bcbcbc;
+                border: 1px solid #bcbcbc;
                 border-radius: 8px;
                 padding: 3px 5px;
                 position: absolute;
@@ -441,6 +424,10 @@ const StyledForm = styled.div`
                 right: 40px;
                 bottom: auto;
                 left: auto;
+                &:hover{
+                    border-color: var(--main-theme-color);
+                    color: var(--main-theme-color);
+                }
             }
             .invalid-text{
                 width: 100%;

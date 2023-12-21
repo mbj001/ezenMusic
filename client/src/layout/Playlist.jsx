@@ -2,41 +2,35 @@ import React, {useState, useEffect, useRef} from 'react'
 import Axios from "axios"
 import Player from './Player';
 import styled from 'styled-components';
-import { Link, Router } from 'react-router-dom';
-import { userid_cookies } from '../config/cookie';
-// import { StyledMusicMenu } from '../card/MusicListCard';
-// import styled from 'styled-components';
+import { Link } from 'react-router-dom';
+import { Cookies } from 'react-cookie';
 import PlayerBanner from '../card/PlayerBanner';
 import LikeyBanner from '../card/LikeyBanner';
-import { MdOutlineChevronRight } from "react-icons/md";
 import MylistSelectModal from '../modal/MylistSelectModal';
+import { RiMore2Line, RiMusic2Line, RiAlbumLine, RiMicLine, RiHeart3Line, RiProhibitedLine, RiHeart3Fill } from "react-icons/ri";
 
-import { RiSearchLine, RiMore2Line, RiMusic2Line, RiAlbumLine, RiMicLine, RiHeart3Line, RiProhibitedLine, RiHeart3Fill } from "react-icons/ri";
 
 function Playlist({handleRender, render}) {
 
-    const [hasplayerlist, setHasplayerlist] = useState();
+    const cookies = new Cookies();
+    const userid_cookies = cookies.get("character.sid");
+
     // 플레이리스트의 노래 목록
     const [playerMusic, setPlayerMusic] = useState([]);
     // 하단 플레이어의 노래 항목
     const [listenMusic, setListenMusic] = useState([]);
     const [showPlaylist, setShowPlaylist] = useState(true);
     const [showMorebox, setShowMorebox] = useState([]); 
-
     // 곡 취소 베너
     const [playerBannerOn, setPlayerBannerOn] = useState(false);
     const [delCount, setDelCount] = useState(0);
-
     // 전체 선택 체크 val
     const [checkAll, setCheckall] = useState(false);
     // 선택 모달
     const [modalOpen, setModalOpen] = useState(false);
-
     // 좋아요 누를 때 베너
     const [likeyBannerOn, setLikeyBannerOn] = useState(0);
     
-    const [likeyVal, setLikeyVal] = useState(false);
-
     const moreIconRef = useRef([]);
     const moreboxRef = useRef([]);
 
@@ -44,12 +38,7 @@ function Playlist({handleRender, render}) {
     const [editMode, setEditMode] = useState(false);
 
     let array = [];
-    
     let array2 = [];
-
-    function handleLikey(){
-        setLikeyVal(likeyVal => {return !likeyVal});
-    }
 
 
     function addLikeyFunc(music_id){
@@ -62,7 +51,6 @@ function Playlist({handleRender, render}) {
         )
         .then(({data}) => {
             setLikeyBannerOn(1)
-            handleLikey();
             handleRender();
 
         })
@@ -80,7 +68,6 @@ function Playlist({handleRender, render}) {
         )
         .then(({data}) => {
             setLikeyBannerOn(-1); 
-            handleLikey();
             handleRender();
         })
         .catch((err) => {
@@ -183,9 +170,10 @@ function Playlist({handleRender, render}) {
 
 
     useEffect(() => {
-      
         if(!userid_cookies){
             // 로그인 안되어 있을 때
+            setListenMusic([]);
+            setPlayerMusic([]);
         }
         else{
             Axios.post("/ezenmusic/allpage/likeylist", {
@@ -210,7 +198,6 @@ function Playlist({handleRender, render}) {
             })
             .then(({data}) => {
                 if(data == -1){
-                    setHasplayerlist(false);
                     setListenMusic([]);
                     setPlayerMusic([]);
                 }
@@ -238,7 +225,6 @@ function Playlist({handleRender, render}) {
                     }
                     // 플레이리스트에 들어갈 노래들
                     setPlayerMusic(data);
-                    setHasplayerlist(true);
 
                     for(let i=0; i<data.length; i++){
                         array.push("false");
@@ -251,12 +237,7 @@ function Playlist({handleRender, render}) {
             })
 
         }
-    }, [render])
-
-
-    // useEffect(() => {
-    //     setPlayerBannerOn(true);
-    // }, [render])
+    }, [render, userid_cookies])
 
     function changeMusicFunc(e, item){
         e.preventDefault();
@@ -272,12 +253,10 @@ function Playlist({handleRender, render}) {
 
     function showPlaylistFunc(){
         // 이렇게 set 함수 안에 함수형태로 넣으면 비동기 식으로 넘어가지 않음.
-        
         setShowPlaylist(showPlaylist => {return !showPlaylist});
     }
     
     function handleShowMoreBox(index){
-        // e.preventDefault();
         let handleArray = [];
         for(let i=0; i<showMorebox.length; i++){
             handleArray.push(showMorebox[i]);
@@ -312,7 +291,7 @@ function Playlist({handleRender, render}) {
     return (
         <>
         { playerBannerOn && <PlayerBanner playerBannerOn={playerBannerOn} setPlayerBannerOn={setPlayerBannerOn} count={delCount} page={"playerlistDel"}/> }
-        { likeyBannerOn !== 0 && <LikeyBanner likeyBannerOn={likeyBannerOn} setLikeyBannerOn={setLikeyBannerOn} pageDivision={"album"}/> }
+        { likeyBannerOn !== 0 && <LikeyBanner likeyBannerOn={likeyBannerOn} setLikeyBannerOn={setLikeyBannerOn} pageDivision={"track"}/> }
 
         <div>
             <Player listenMusic={listenMusic} showPlaylistFunc={showPlaylistFunc} handleRender={handleRender} delLikeyFunc={delLikeyFunc} addLikeyFunc={addLikeyFunc}/>
@@ -325,17 +304,15 @@ function Playlist({handleRender, render}) {
                         listenMusic.length === 0?
                         <div className="col-7">
                             <div className="text-center">
-                                <p className="text-gray-light text-[22px] font-light-bold mb-[30px]" onClick={showPlaylistFunc}>재생목록이 비어있습니다.</p>
-                                {/* <p className="text-gray-500 text-[14px] mb-[15px]">{listenMusic.artist}</p> */}
+                                <p className="text-gray-light text-[22px] font-light-bold mb-[30px]" onClick={() => showPlaylistFunc()}>재생목록이 비어있습니다.</p>
                                 <div className="w-[350px] h-[350px] m-auto rounded-[20px] bg-gray"></div>
-                                {/* <img src={"/image/album/" + listenMusic.org_cover_image} alt="cover_image" className="w-[350px] h-[350px] m-auto rounded-[20px]"  /> */}
                             </div>
                         </div>
                         :
                         <div className="col-7">
                             <div className="text-center">
-                                <p className="text-white text-[22px] font-bold mb-[10px]" onClick={showPlaylistFunc}><Link to={"/detail/track/" + listenMusic.music_id + "/details"}>{listenMusic.music_title}</Link></p>
-                                <p className="text-gray-500 text-[14px] mb-[15px]" onClick={showPlaylistFunc}><Link to={"detail/artist/" + listenMusic.artist_id + "/artisttrack"}>{listenMusic.artist_name}</Link></p>
+                                <p className="text-white text-[22px] font-bold mb-[10px]" onClick={() => showPlaylistFunc()}><Link to={"/detail/track/" + listenMusic.music_id + "/details"}>{listenMusic.music_title}</Link></p>
+                                <p className="text-gray-500 text-[14px] mb-[15px]" onClick={() => showPlaylistFunc()}><Link to={"detail/artist/" + listenMusic.artist_id + "/artisttrack"}>{listenMusic.artist_name}</Link></p>
                                 <img src={"/image/album/" + listenMusic.org_cover_image} alt="cover_image" className="w-[350px] h-[350px] m-auto rounded-[20px]"  />
                             </div>
                         </div>
@@ -345,9 +322,7 @@ function Playlist({handleRender, render}) {
                             <div className="flex justify-between border-b-[1px] border-b-gray-500 mb-[15px]">
                                 <div className="flex">
                                     <p className="text-white border-b-[2px] border-b-blue-600 mr-[20px] cursor-pointer">음악</p>
-                                    {/* <p className="text-white border-b-[2px] border-b-blue-600 cursor-pointer">오디오</p> */}
                                 </div>
-                                {/* <p>편집</p> */}
                             </div>
                             {
                                 editMode?
@@ -388,17 +363,14 @@ function Playlist({handleRender, render}) {
                                                 <ul>
                                                     <li onClick={showPlaylistFunc}><Link to={"/detail/track/"+item.music_id+"/details"} className="flex items-center"><RiMusic2Line /><p>곡 정보</p></Link></li>
                                                     <li onClick={showPlaylistFunc}><Link to={"/detail/album/"+item.album_id+"/albumtrack"} className="flex items-center"><RiAlbumLine /><p>앨범 정보</p></Link></li>
-                                                    <li onClick={showPlaylistFunc}><Link to={"/detail/artist/"+item.music_id+"/artisttrack"} className="flex items-center"><RiMicLine /><p>아티스트 정보</p></Link></li>
-                                                    {/* <li className="flex items-center cursor-pointer"><RiHeart3Line /><p>종아요</p></li> */}
+                                                    <li onClick={showPlaylistFunc}><Link to={"/detail/artist/"+item.artist_id+"/track?sortType=POPULARITY"} className="flex items-center"><RiMicLine /><p>아티스트 정보</p></Link></li>
                                                         {
-                                                            // likeyVal === true ?
                                                             item.likey === true ?
                                                             <li className="flex items-center cursor-pointer" onClick={() => delLikeyFunc(item.music_id)}><RiHeart3Fill className="text-blue"/><p>종아요</p></li>
                                                             :
                                                             <li className="flex items-center cursor-pointer" onClick={() => addLikeyFunc(item.music_id)}><RiHeart3Line /><p>종아요</p></li>
                                                         }
                                                     <li onClick={(e) => delPlayerlistFunc(e, item.music_id)}><Link to="#" className="flex items-center"><RiProhibitedLine /><p>삭제</p></Link></li>
-                                                    {/* <li className="cursor-pointer flex"><RiProhibitedLine /><p>연습용버튼</p></li> */}
                                                 </ul>
                                             </Styledlist>
                                         }

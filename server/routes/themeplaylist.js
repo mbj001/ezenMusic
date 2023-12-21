@@ -72,7 +72,7 @@ router.get("/view/:themeplaylist_id", (req, res) => {
         else{
             // console.log(select_themeplaylist_result[0].music);
             // console.log(select_themeplaylist_result.music)
-            if(!select_themeplaylist_result[0].music_list){
+            if(!select_themeplaylist_result[0].music_list || select_themeplaylist_result[0].music_list.length === 0){
                 res.render("info_themeplaylist", {title: "수록곡", themeplaylist_id: select_themeplaylist_result[0].themeplaylist_id, themeplaylist_title: select_themeplaylist_result[0].themeplaylist_title})
             }
             else{
@@ -103,27 +103,25 @@ router.get("/delete_music/:num&:id", (req, res) => {
 
     console.log("num: " + req.params.num);
     console.log("id: " + req.params.id)
-    const select_music_query = `select music from themeplaylist where ?`;
+    const select_music_query = `select music_list as music from themeplaylist where ?`;
 
-    conn.query(select_music_query, [{num: req.params.num}], (err, select_music_result, fields) => {
+    conn.query(select_music_query, [{themeplaylist_id: req.params.num}], (err, select_music_result, fields) => {
         if(err){
             console.error(err);
         }
         else{
-            // console.log(typeof(select_music_result[0].music[3]));
-            // console.log(typeof(req.params.id));
+            console.log(select_music_result)
             let delete_array = [];
             for(let i=0; i<select_music_result[0].music.length; i++){
                 
                 if(String(select_music_result[0].music[i]) === req.params.id){
-                    // console.log("걸림 " + i);
                 }
                 else{
                     delete_array.push(select_music_result[0].music[i]);
                 }
             }
             console.log(delete_array);
-            const delete_themeplaylist_query = `update themeplaylist set music = "[?]" where num = ?`;
+            const delete_themeplaylist_query = `update themeplaylist set music_list = "[?]" where themeplaylist_id = ?`;
             conn.query(delete_themeplaylist_query, [delete_array, Number(req.params.num)], (err, delete_themeplaylist_result, fields) => {
                 if(err){
                     console.error(err)
@@ -165,5 +163,78 @@ router.post("/add_theme_music", (req, res) => {
         
         }
     })
+})
+
+router.post("/randomInsert", (req, res) => {
+    // console.log(req.body);
+    if(req.body.genre){
+        const select_music_genre_query = `select distinct music_id from music where ? order by rand() limit ?`;
+        conn.query(select_music_genre_query, [{genre: req.body.genre}, Number(req.body.number)], (err, select_music_genre_result, fields) => {
+            if(err){
+                console.err(err);
+            }
+            else{
+                let array = [];
+                for(let i=0; i<select_music_genre_result.length; i++){
+                    array.push(Number(select_music_genre_result[i].music_id));
+                }
+                const update_themeplaylist_query = `update themeplaylist set music_list = "[?]" where ?`;
+                conn.query(update_themeplaylist_query, [array, {themeplaylist_id: req.body.themeplaylist_id}], (err, update_themeplaylist_result, fields) => {
+                    if(err){
+                        console.error(err);
+                    }
+                    else{
+                        res.redirect("/themeplaylist/view/"+req.body.themeplaylist_id);
+                    }
+                })
+            }
+        })
+    }
+    else if(req.body.theme){
+        const select_music_theme_query = `select distinct music_id from music where ? order by rand() limit ?`;
+        conn.query(select_music_theme_query, [{theme: req.body.theme}, Number(req.body.number)], (err, select_music_theme_result, fields) => {
+            if(err){
+                console.err(err);
+            }
+            else{
+                let array = [];
+                for(let i=0; i<select_music_theme_result.length; i++){
+                    array.push(Number(select_music_theme_result[i].music_id));
+                }
+                const update_themeplaylist_query = `update themeplaylist set music_list = "[?]" where ?`;
+                conn.query(update_themeplaylist_query, [array, {themeplaylist_id: req.body.themeplaylist_id}], (err, update_themeplaylist_result, fields) => {
+                    if(err){
+                        console.error(err);
+                    }
+                    else{
+                        res.redirect("/themeplaylist/view/"+req.body.themeplaylist_id);
+                    }
+                })
+            }
+        })
+    }
+    else if(req.body.season){
+        const select_music_season_query = `select distinct music_id from music where ? order by rand() limit ?`;
+        conn.query(select_music_season_query, [{season: req.body.season}, Number(req.body.number)], (err, select_music_season_result, fields) => {
+            if(err){
+                console.err(err);
+            }
+            else{
+                let array = [];
+                for(let i=0; i<select_music_season_result.length; i++){
+                    array.push(Number(select_music_season_result[i].music_id));
+                }
+                const update_themeplaylist_query = `update themeplaylist set music_list = "[?]" where ?`;
+                conn.query(update_themeplaylist_query, [array, {themeplaylist_id: req.body.themeplaylist_id}], (err, update_themeplaylist_result, fields) => {
+                    if(err){
+                        console.error(err);
+                    }
+                    else{
+                        res.redirect("/themeplaylist/view/"+req.body.themeplaylist_id);
+                    }
+                })
+            }
+        })
+    }
 })
 module.exports = router;

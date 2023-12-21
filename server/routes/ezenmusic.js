@@ -158,11 +158,11 @@ router.post("/detail/album_theme/likey", (req, res) => {
     })
 })
 
-router.get("/detail/album/albumtrack/:album_title", (req, res) => {
-    console.log("routes => ezenmusic.js => router.get('/detail/album/albumtrack/:album_title')");
+router.get("/detail/album/albumtrack/:album_id", (req, res) => {
+    console.log("routes => ezenmusic.js => router.get('/detail/album/albumtrack/:album_id')");
     
-    const select_albumtrack_query = `select music.*, album.org_cover_image, artist.artist_name, album.album_title from music inner join album on music.album_id = album.album_id inner join artist on music.artist_id = artist.artist_id where album.album_title = ?`
-    conn.query(select_albumtrack_query, [req.params.album_title], (err, select_albumtrack_result, fields) => {
+    const select_albumtrack_query = `select music.*, album.org_cover_image, artist.artist_name, album.album_title from music inner join album on music.album_id = album.album_id inner join artist on music.artist_id = artist.artist_id where album.album_id = ?`
+    conn.query(select_albumtrack_query, [Number(req.params.album_id)], (err, select_albumtrack_result, fields) => {
         if(err){
             console.error(err)
         }
@@ -170,15 +170,6 @@ router.get("/detail/album/albumtrack/:album_title", (req, res) => {
             res.send(select_albumtrack_result);
         }
     })
-    return ;
-})
-
-router.post("/test", (req, res) => {
-    console.log("routes => ezenmusic.js => router.post('/test')");
-
-    console.log(req.body);
-
-    res.json(1);
     return ;
 })
 
@@ -193,7 +184,7 @@ router.post("/playerbar", (req, res) => {
         else{
             // playerlist 없을 때
             if(select_playerlist_result.length == 0){
-                console.log("playerlist 없음");
+                // console.log("playerlist 없음");
                 res.json(-1);
             }
             else{
@@ -291,7 +282,7 @@ router.get("/mainbannermusic/:themeplaylist_id", (req, res) => {
             }
             conn.query(select_music_query, (err, select_music_result, fields) => {
                 if(err){
-                    console.log(err)
+                    console.error(err)
                 }
                 else{
                     res.send(select_music_result);
@@ -306,7 +297,6 @@ router.get("/channel/:themeplaylist_id", (req, res) => {
     console.log("routes => ezenmusic.js => router.get('/channel/:themeplaylist_id')");
     const select_themeplaylist_query = "select music_list from themeplaylist where ?"
     let array = [];
-    console.log(req.params);
     conn.query(select_themeplaylist_query, [{themeplaylist_id: req.params.themeplaylist_id}], (err, select_themeplaylist_result, fields) => {
         if(err){
             console.error(err)
@@ -469,16 +459,26 @@ router.get("/search/artist/:keyward", (req, res) => {
     })
 })
 
-router.get("/search/album/:keyward", (req, res) => {
-    console.log("routes => ezenmusic.js => router.get('/search/album/:keyward')");
-
-    const select_album_query = `select *, date_format(release_date, "%Y.%m.%d") as release_date_format from album inner join artist on album.artist_id = artist.artist_id where album_title like ? or artist.artist_name like ?`;
-    conn.query(select_album_query, ["%"+req.params.keyward+"%", "%"+req.params.keyward+"%"], (err, select_album_result, fields) => {
+router.post("/search/album", (req, res) => {
+    console.log("routes => ezenmusic.js => router.post('/search/album')");
+    let select_album_query;
+    if(!req.body.sortType){
+        select_album_query = `select *, date_format(release_date, "%Y.%m.%d") as release_date_format from album inner join artist on album.artist_id = artist.artist_id where album_title like ? or artist.artist_name like ? `;
+    }
+    if(req.body.sortType === "RECENCY"){
+        select_album_query = `select *, date_format(release_date, "%Y.%m.%d") as release_date_format from album inner join artist on album.artist_id = artist.artist_id where album_title like ? or artist.artist_name like ? order by album.release_date desc`;
+    }
+    else if(req.body.sortType === "POPULAR"){
+        select_album_query = `select *, date_format(release_date, "%Y.%m.%d") as release_date_format from album inner join artist on album.artist_id = artist.artist_id where album_title like ? or artist.artist_name like ? `;
+    }
+    else if(req.body.sortType === "ALPHABET"){
+        select_album_query = `select *, date_format(release_date, "%Y.%m.%d") as release_date_format from album inner join artist on album.artist_id = artist.artist_id where album_title like ? or artist.artist_name like ? order by album.album_title asc`;
+    }
+    conn.query(select_album_query, ["%"+req.body.keyword+"%", "%"+req.body.keyword+"%"], (err, select_album_result, fields) => {
         if(err){
             console.error(err)
         }
         else{
-            // console.log(select_album_result);
             res.send(select_album_result);
         }
         return ;
@@ -525,8 +525,11 @@ router.post("/allpage/likeylist", (req, res) => {
             console.error(err)
         }
         else{
-            // likey 테이블에 정보가 없을 때
             if(select_likey_result.length == 0){
+                res.json(-1);
+            }
+            // likey 테이블에 music_list 길이가 0일 때
+            else if(select_likey_result[0].music_list == 0){
                 res.json(-1);
             }
             else{
@@ -562,7 +565,7 @@ router.post("/addlikey", (req, res) => {
     const select_likey_query = `select * from likey where ? and ?`;
     conn.query(select_likey_query, [{character_id: req.body.character_id}, {division: req.body.division}], (err, select_likey_result, fields) => {
         if(err){
-            console.log(err)
+            console.error(err)
         }
         else{
             // liketrack 정보가 없을 때
@@ -578,9 +581,7 @@ router.post("/addlikey", (req, res) => {
                 })
             }
             else{
-                // console.log(select_likey_result[0].music_list);
                 select_likey_result[0].music_list.push(Number(req.body.id));
-                // console.log(select_likey_result[0].music_list);
                 const update_likey_query = `update likey set music_list = ? where ? and ?`;
                 conn.query(update_likey_query, ["["+select_likey_result[0].music_list+"]", {character_id: req.body.character_id}, {division: req.body.division}], (err, update_likey_result, fields) => {
                     if(err){
@@ -602,7 +603,7 @@ router.post("/dellikey", (req, res) => {
     const select_likey_query = `select music_list from likey where ? and ?`;
     conn.query(select_likey_query, [{character_id: req.body.character_id}, {division: req.body.division}], (err, select_likey_result, fields) => {
         if(err){
-            console.log(err)
+            console.error(err)
         }
         else{
             for(let i=0; i<select_likey_result[0].music_list.length; i++){
@@ -629,7 +630,6 @@ router.post("/likey/delLikeAlbum", (req, res) => {
     console.log("routes => ezenmusic.js => router.post('/likey/delLikeAlbum')");
 
     let array = [];
-    console.log(req.body);
     const select_likey_query = `select music_list from likey where ? and ?`;
     conn.query(select_likey_query, [{character_id: req.body.character_id}, {division: req.body.division}], (err, select_likey_result, fields) => {
         if(err){
@@ -648,7 +648,6 @@ router.post("/likey/delLikeAlbum", (req, res) => {
                     }
                 }
             }
-            console.log(array);
 
             const update_likey_query = `update likey set music_list = "[?]" where ? and ?`;
             conn.query(update_likey_query, [array, {character_id: req.body.character_id}, {division: req.body.division}], (err, update_likey_result, fields) => {
@@ -700,7 +699,7 @@ router.post('/storage/likey', async(req, res) =>{
         
                 conn.query(select_music_query, (err, select_music_result, fields) => {
                     if(err){
-                        console.log(err)
+                        console.error(err)
                     }
                     else{
                         res.send(select_music_result);
@@ -836,9 +835,12 @@ router.post("/storage/likeartist", async(req, res) => {
                 select_music_query += ")"
         
                 conn.query(select_music_query, (err, select_music_result, fields) => {
-                    // console.log(select_music_query);
-                    // console.log(select_music_result);
-                    res.send(select_music_result);
+                    if(err){
+                        console.error(err)
+                    }
+                    else{
+                        res.send(select_music_result);
+                    }
                 })
             }
         }
@@ -865,61 +867,61 @@ router.get("/detail/artist/:artist_id", (req, res) => {
         return ;
     })
 })
-router.get("/detail/artist/artisttrack/:artist_id", (req, res) => {
-    console.log("routes => ezenmusic.js => router.get('/detail/artist/artisttrack/:artist')");
-    const select_artist_track = `select music.*, album.org_cover_image, artist.artist_name, album.album_title from music inner join album on music.album_id = album.album_id inner join artist on music.artist_id = artist.artist_id where artist.artist_id = ?`;
-    conn.query(select_artist_track, [Number(req.params.artist_id)], (err, select_artist_track_result, fields) => {
+
+
+router.post("/detail/artist/track", (req, res) => {
+    console.log("routes => ezenmusic.js => router.get('/detail/artist/track')");
+
+    let select_artist_track;
+
+    if(req.body.sortType === "RECENT"){
+        select_artist_query = `select music.*, album.org_cover_image, artist.artist_name, album.album_title from music inner join album on music.album_id = album.album_id 
+        inner join artist on music.artist_id = artist.artist_id where artist.artist_id = ? ORDER BY album.release_date DESC limit 30;`;
+    }
+    else if(req.body.sortType === "POPULARITY"){
+        select_artist_query = `select music.*, album.org_cover_image, artist.artist_name, album.album_title from music inner join album on music.album_id = album.album_id 
+        inner join artist on music.artist_id = artist.artist_id where artist.artist_id = ? ORDER BY music.hit desc limit 30;` 
+    }
+    else if(req.body.sortType === "WORD"){
+        select_artist_query = `select music.*, album.org_cover_image, artist.artist_name, album.album_title from music inner join album on music.album_id = album.album_id 
+        inner join artist on music.artist_id = artist.artist_id where artist.artist_id = ? ORDER BY music.music_title ASC limit 30;` 
+    }
+    conn.query(select_artist_query, [Number(req.body.artist_id)], (err, select_artist_result, fields) => {
         if(err){
-            console.error(err)
+            console.error(err);
         } 
         else{
-            res.send(select_artist_track_result)
+            res.send(select_artist_result);
         }
         return ;
     })
 })
 
-router.get("/detail/artist/albumtrack/:artist_id", (req, res) => {
-    console.log("routes =>ezenmusic.js => router.get('/detail/artist/albumtrack/:artist_id')");
-        //아티스트 앨범목록
-        const select_artist_album = `select album.*, artist.artist_name, DATE_FORMAT(album.release_date, '%Y.%m.%d') as release_date_format
-        FROM album inner join artist on album.artist_id = artist.artist_id where album.artist_id = ? ;`    
-    conn.query(select_artist_album, [req.params.artist_id], (err, select_artist_album_result, fields) => {
-            if (err) {
-                console.error(err)
-            } 
-            else {
-                res.send(select_artist_album_result);
-            }
-            return ;
-    })
-})
 
-router.get("/detail/artist/albumtrack/release_date/:artist_id", (req, res) => {
-    console.log("routes => ezenmusic.js => router.post('/detail/artist/albuntrack/release_date/:artist_id')");
-    const select_artist_album_date = `SELECT album.*, artist.artist_name, DATE_FORMAT(album.release_date, '%Y.%m.%d') as release_date_format
-    FROM album INNER JOIN artist ON album.artist_id = artist.artist_id WHERE album.artist_id = ? ORDER BY album.release_date DESC ;`;
-    conn.query(select_artist_album_date, [req.params.artist_id], (err, select_artist_album_date_result, fields) => {
-        if (err) {
-            console.error(err)
-        } 
-        else {
-            res.send(select_artist_album_date_result);
+router.post("/detail/artist/album", (req, res) => {
+    console.log("routes => ezenmusic.js => router.post('/detail/artist/album')");
+
+    let select_artist_query;
+    if(req.body.sortType === "RECENT"){
+        select_artist_query = `SELECT album.*, artist.artist_name, DATE_FORMAT(album.release_date, '%Y.%m.%d') as release_date_format
+        FROM album INNER JOIN artist ON album.artist_id = artist.artist_id WHERE album.artist_id = ? ORDER BY album.release_date DESC ;`;
+    }
+    else if(req.body.sortType === "POPULARITY"){
+        select_artist_query = `select album.*, artist.artist_name, DATE_FORMAT(album.release_date, '%Y.%m.%d') as release_date_format
+        FROM album inner join artist on album.artist_id = artist.artist_id where album.artist_id = ? ;` 
+    }
+    else if(req.body.sortType === "WORD"){
+        select_artist_query = `SELECT album.*, artist.artist_name, DATE_FORMAT(album.release_date, '%Y.%m.%d') as release_date_format
+        FROM album INNER JOIN artist ON album.artist_id = artist.artist_id WHERE album.artist_id = ? ORDER BY album.album_title ASC`;
+    }
+
+    conn.query(select_artist_query, [Number(req.body.artist_id)], (err, select_artist_result, fields) => {
+        if(err){
+            console.error(err);
         }
-        return ;
-    })
-})
-router.get("/detail/artist/albumtrack/asc/:artist_id", (req, res) => {
-    console.log("routes => ezenmusic.js => router.post('/detail/artist/albumtrack/asc/:artist_id')");
-    const select_artist_albumtitle_asc = `SELECT album.*, artist.artist_name, DATE_FORMAT(album.release_date, '%Y.%m.%d') as release_date_format
-    FROM album INNER JOIN artist ON album.artist_id = artist.artist_id WHERE album.artist_id = ? ORDER BY album.album_title ASC`;
-    conn.query(select_artist_albumtitle_asc, [req.params.artist_id], (err, select_artist_albumtitle_asc_result, fields) => {
-        if (err) {
-            console.error(err)
-        } else {
-            res.send(select_artist_albumtitle_asc_result);
+        else{
+            res.send(select_artist_result);
         }
-        return ;
     })
 })
 
@@ -930,14 +932,11 @@ router.get("/detail/artist/albumtrack/asc/:artist_id", (req, res) => {
 
 router.get('/detail/detailmylist/:playlist_id', async(req, res) =>{
     console.log("routes => ezenmusic.js => router.get('/detail/detailmylist/:playlist_id')");
-    console.log(req.params);
     const {playlist_id} = req.params;
     const select_playlist_sql = `select * from playlist where playlist_id = ?`;
-    // console.log(num);
     try{
         // 플레이리스트의 노래 목록을 뽑아내자
         let [select_playlist_result] = await pool.query(select_playlist_sql, [playlist_id]);
-        // console.log(rs);
         if(select_playlist_result[0].music_list == null){
             res.send(select_playlist_result);
         }else{
@@ -961,13 +960,12 @@ router.get('/detail/detailmylist/:playlist_id', async(req, res) =>{
             }
     
             select_musiclistcard_result += ")"
-            console.log(select_musiclistcard_result);
             let [select_all_result] = await pool.query(select_musiclistcard_result);
             res.send(select_all_result);
         }
         return ;
     }catch(err){
-        console.log(err);
+        console.error(err);
         return err;
     }
 })

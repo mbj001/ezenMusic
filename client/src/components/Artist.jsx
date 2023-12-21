@@ -1,20 +1,26 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import Axios from "axios"
 import styled from "styled-components"
 import { Link } from "react-router-dom";
 import ArtistAlbum from "./ArtistAlbum";
 import ArtistTrack from "./ArtistTrack";
-import { NavLink, useParams } from 'react-router-dom';
-import { userid_cookies } from '../config/cookie';
+import { NavLink, useParams, useLocation } from 'react-router-dom';
+import { Cookies } from 'react-cookie';
 import LikeyBanner from '../card/LikeyBanner';
 import PleaseLoginMessage from '../modal/PleaseLoginMessage';
-import icons from '../assets/sp_button.6d54b524.png';
 import PlayerBanner from '../card/PlayerBanner';
+import { AppContext } from '../App'
 //승렬
 import { PlayButton } from '../style/StyledIcons';
+import { ArtistLikeButton as LikeButton } from '../style/StyledIcons';
+import { ArtistFilledHeartButton as FilledHeart } from '../style/StyledIcons';
 
 
 function Artist({ music_id, handleRender }) {
+    
+    const cookies = new Cookies();
+    const userid_cookies = cookies.get("character.sid");
+    const isSessionValid = JSON.parse(useContext(AppContext));
 
     const [artistInfo, setArtistInfo] = useState([]);
     const [islikey, setIslikey] = useState(false);
@@ -26,6 +32,8 @@ function Artist({ music_id, handleRender }) {
     const [playerBannerOn, setPlayerBannerOn] = useState(false);
 
     const {details} = useParams();
+
+    let sortType = decodeURI(useLocation().search).replace("?sortType=", "");
 
     let array = [];
     let array2 = [];
@@ -83,7 +91,7 @@ function Artist({ music_id, handleRender }) {
     }
 
     useEffect(() => {
-        if(userid_cookies !== undefined){
+        if(isSessionValid){
             Axios.post("/ezenmusic/detail/album_theme/likey", {
                 character_id: userid_cookies,
                 division: "likeartist"
@@ -116,30 +124,24 @@ function Artist({ music_id, handleRender }) {
     return (
         <>
         <LikeyBanner likeyBannerOn={likeyBannerOn} setLikeyBannerOn={setLikeyBannerOn} pageDivision={"artist"}/>
-        {
-            loginRequestVal?
-            <PleaseLoginMessage setLoginrRequestVal={setLoginrRequestVal} />
-            :
-            ""
-        }
+        { loginRequestVal &&  <PleaseLoginMessage setLoginrRequestVal={setLoginrRequestVal} /> }
         {/* 재생목록 추가 베너 */}
         { playerBannerOn && <PlayerBanner playerBannerOn={playerBannerOn} setPlayerBannerOn={setPlayerBannerOn} page={"artist"}/> }
         {
             artistInfo.map((item, index) => (
-                <StyledDetail key={index} className='artist_inner'>
-                    <div className="artist_main">
-                        <div className="flex artist_main_list">
-                            <div className="Imgbox">
+                <StyledDetail key={index} className='mx-auto md:w-[1000px] xl:w-[1280px] 2xl:w-[1440px]'>
+                    <div className="mx-auto md:w-[1000px] xl:w-[1280px] 2xl:w-[1440px]">
+                        <div className="flex items-center">
+                            <div className="Imgbox ml-[50px] mt-[50px] mb-[20px]">
                                 <div className="w-[230px] h-[230px] rounded-[50%] hover:brightness-75 overflow-hidden" >
                                     <img src={"/image/artist/"+item.org_artist_image} alt="artist_image" className="w-full h-full object-cover"/>
                                 </div>
-                                {/* <button title={item.artist+" 듣기"} className="iconsstart" style={{ backgroundImage: `url(${icons})`}} onClick={userid_cookies? playerAdd : () => setLoginrRequestVal(true)}></button> */}
-                                <PlayButton title={item.artist_name+" 듣기"} className='absolute bottom-5 right-0' onClick={userid_cookies? playerAdd : () => setLoginrRequestVal(true)}></PlayButton>
+                                <PlayButton title={item.artist_name+" 듣기"} className='absolute bottom-5 right-0' onClick={isSessionValid? () => playerAdd() : () => setLoginrRequestVal(true)}></PlayButton>
                             </div>
-                            <div className="artist_info">
+                            <div className="mt-[25px] ml-[30px]">
                                 <Link to={item.artist_id}><h3 className="detail-title mb-[10px]">{item.artist_name}</h3></Link>
                                 <StyledTable>
-                                <dl className="artist_info_list ml-[-6px]">
+                                <dl className=" ml-[-6px]">
                                     {item.artist_class === "solo" && <dd className="ml-[0px]">솔로</dd>}
                                     {item.artist_class === "duo" && <dd>듀오</dd>}
                                     {item.artist_class === "group" && <dd>그룹</dd>}
@@ -149,33 +151,28 @@ function Artist({ music_id, handleRender }) {
                                     <dd className="info_list">{item.genre}</dd>
                                 </dl>
                                 </StyledTable>
-                                <div className="flex mt-[10px] ">
-                                {
-                                    userid_cookies?
-                                    <>
+                                <div className="mt-[30px] ml-[-7px]">
                                     {
                                         islikey?
-                                        <button className="redheart ml-[-5px]" style={{backgroundImage:`url(${icons})`}} onClick={delLikeArtist}></button>
+                                        <FilledHeart onClick={isSessionValid? () => delLikeArtist() : () => setLoginrRequestVal(true)}></FilledHeart>
                                         :
-                                        <button className="iconsheart ml-[-5px]" style={{backgroundImage:`url(${icons})`}} onClick={addLikeArtist}></button>
+                                        <LikeButton onClick={isSessionValid? () => addLikeArtist() : () => setLoginrRequestVal(true)}></LikeButton>
                                     }    
-                                    </>
-                                    :
-                                    <button className="iconsheart ml-[-5px]" style={{backgroundImage:`url(${icons})`}} onClick={() => setLoginrRequestVal(true)}></button>
-                                }
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div className="mb-[40px] artist_menu">
-                    <NavLink to={"/detail/artist/"+item.artist_id+"/artisttrack"} className={({ isActive }) => isActive ? "likey-nav active" : "likey-nav text-gray" }>곡</NavLink>
-                    <NavLink to={"/detail/artist/"+item.artist_id+"/albumtrack"} className={({ isActive }) => isActive ? "likey-nav active" : "likey-nav text-gray" }>앨범</NavLink>
+                    <div className="mt-[20px] mb-[40px] mx-auto pl-[10px] md:w-[1000px] xl:w-[1280px] 2xl:w-[1440px]">
+                        <NavLink to={"/detail/artist/"+item.artist_id+"/track?sortType=POPULARITY"} className={({ isActive }) => isActive ? "likey-nav active" : "likey-nav text-gray" }>곡</NavLink>
+                        <NavLink to={"/detail/artist/"+item.artist_id+"/album?sortType=RECENT"} className={({ isActive }) => isActive ? "likey-nav active" : "likey-nav text-gray" }>앨범</NavLink>
                     </div>
                     {
-                        details === "albumtrack" && <ArtistAlbum music_id={music_id} album_title={item.album_title} artist_id={item.artist_id} artist_name={item.artist_name} album_size={item.album_size} handleRender={handleRender} />
+                        details === "album" && <ArtistAlbum music_id={music_id} album_title={item.album_title} artist_id={item.artist_id} artist_name={item.artist_name} 
+                        album_size={item.album_size} handleRender={handleRender} sortType={sortType}/>
                     }
                     {
-                        details === "artisttrack" && <ArtistTrack artist_image={item.org_artist_image} artist_name={item.artist_name} artist_id={item.artist_id} music_id={music_id} handleRender={handleRender}/>
+                        details === "track" && <ArtistTrack artist_image={item.org_artist_image} artist_name={item.artist_name} artist_id={item.artist_id} music_id={music_id} 
+                        handleRender={handleRender} sortType={sortType}/>
                     } 
                 </StyledDetail>
             ))
@@ -204,27 +201,7 @@ const StyledButton = styled.button`
         border-radius: 45%;
     }
     `
-// const StyledDetail = styled.div`
-//     width: 1440px;
-//     margin: 0 auto;
 
-//     .detail-title{
-//         font-size: 28px;
-//         font-weight: 700;
-//     }
-
-//     .lyrics{
-//         white-space: pre-wrap;
-//     }
-
-//     .active{
-//        background-color: var(--main-theme-color);
-//        color: var(--main-text-white)
-//     }
-//     a>h3:hover{
-//         color: var(--main-theme-color);
-//     }
-// `
 const StyledDetail = styled.div`
     width: 100%;
     margin: 0 auto;
@@ -262,15 +239,16 @@ const StyledTable = styled.dl`
         position: relative;
         display: inline-block;
         margin: 0 10px;
-    } 
+    }  
     .info_list:after{
-    position: absolute;
-    top: 7px;
-    left: -8px;
-    display: block;
-    width: 1px;
-    height: 8px;
-    content: "";
-    background-color: #ececec;
+        position: absolute;
+        top: 9px;
+        left: -10px;
+        display: block;
+        width: 1px;
+        height: 7px;
+        content: "";
+        background-color: var(--main-text-gray-lighter);
+        opacity: 0.7;
     }
 `

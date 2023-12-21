@@ -13,7 +13,7 @@ const PurchaseSuccess = ({setModalOpen}) => {
                     이용권 구매가 완료되었습니다. <br />
                     EZEN MUSIC을 즐겨보세요!
                 </p>
-                <button type='button' onClick={closeModal}>
+                <button type='button' onClick={() => closeModal()}>
                     <Link to={'../../'}>
                         메인 페이지로 이동하기
                     </Link>

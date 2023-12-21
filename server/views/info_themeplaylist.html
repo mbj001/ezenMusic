@@ -48,6 +48,63 @@
             </tr>
         </tbody>
     </table>
+    <!-- <div class="mt-5 text-center">
+        <p >랜덤생성</p>
+        <div>
+            <a href="/themeplaylist/randomInsert/:Ballad" class="btn btn-success m-2">발라드</a>
+            <a href="/themeplaylist/randomInsert/:Dance" class="btn btn-primary m-2">댄스</a>
+            <a href="/themeplaylist/randomInsert/:R&B" class="btn btn-success m-2">알앤비</a>
+            <a href="/themeplaylist/randomInsert/:Hiphop" class="btn btn-primary m-2">힙합</a>
+            <a href="/themeplaylist/randomInsert/:Indie" class="btn btn-success m-2">인디</a>
+            <a href="/themeplaylist/randomInsert/:Pop" class="btn btn-primary m-2">팝/어쿠스틱</a>
+            <a href="/themeplaylist/randomInsert/:Folk" class="btn btn-success m-2">포크/블루스</a>
+            <a href="/themeplaylist/randomInsert/:Rock" class="btn btn-primary m-2">락/메탈</a>
+            <a href="/themeplaylist/randomInsert/:Trot" class="btn btn-success m-2">트로트</a>
+            <a href="/themeplaylist/randomInsert/:Ost" class="btn btn-primary m-2">OST</a>
+            <a href="/themeplaylist/randomInsert/:Electronic" class="btn btn-success m-2">일렉트로닉</a>
+            <a href="/themeplaylist/randomInsert/:Kids" class="btn btn-primary m-2">키즈</a>
+            <a href="/themeplaylist/randomInsert/:CCM" class="btn btn-success m-2">CCM</a>
+        </div>
+    </div> -->
+
+    <div class="mt-5 mb-5">
+        <form action="/themeplaylist/randomInsert" method="post">
+            <input type="hidden" name="themeplaylist_id" value="{{themeplaylist_id}}">
+            <div class="text-center">
+                <h3>랜덤생성</h3>
+                <label class="form-label">생성 갯수</label>
+                <input type="text" name="number" value="15">개
+            </div>
+            <div class="text-center">
+                <div>
+                    <button type="submit" name="genre" value="Ballad" class="btn btn-success m-2">발라드</button>
+                    <button type="submit" name="genre" value="Dance" class="btn btn-success m-2">댄스</button>
+                    <button type="submit" name="genre" value="R&B" class="btn btn-success m-2">알앤비</button>
+                    <button type="submit" name="genre" value="Hiphop" class="btn btn-success m-2">힙합</button>
+                    <button type="submit" name="genre" value="Indie" class="btn btn-success m-2">인디</button>
+                    <button type="submit" name="genre" value="Pop" class="btn btn-success m-2">팝/어쿠스틱</button>
+                    <button type="submit" name="genre" value="Folk" class="btn btn-success m-2">포크/블루스</button>
+                    <button type="submit" name="genre" value="Rock" class="btn btn-success m-2">락/메탈</button>
+                    <button type="submit" name="genre" value="Trot" class="btn btn-success m-2">트로트</button>
+                    <button type="submit" name="genre" value="Ost" class="btn btn-success m-2">OST</button>
+                    <button type="submit" name="genre" value="Electronic" class="btn btn-success m-2">일렉트로닉</button>
+                    <button type="submit" name="genre" value="Kids" class="btn btn-success m-2">키즈</button>
+                    <button type="submit" name="genre" value="CCM" class="btn btn-success m-2">CCM</button>
+                    <button type="submit" name="genre" value="Classic" class="btn btn-success m-2">클래식</button>
+                    <button type="submit" name="genre" value="Jazz" class="btn btn-success m-2">재즈</button>
+                </div>
+                <div>
+                    <button type="submit" name="theme" value="christmas" class="btn btn-info m-2">크리스마스</button>
+                </div>
+                <div>
+                    <button type="submit" name="season" value="Spring" class="btn btn-warning m-2">봄</button>
+                    <button type="submit" name="season" value="Summer" class="btn btn-warning m-2">여름</button>
+                    <button type="submit" name="season" value="Fall" class="btn btn-warning m-2">가을</button>
+                    <button type="submit" name="season" value="Winter" class="btn btn-warning m-2">겨울</button>
+                </div>
+            </div>
+        </form>
+    </div>
 
 </div>
 

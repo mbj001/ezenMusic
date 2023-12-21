@@ -1,23 +1,26 @@
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect, useContext} from 'react'
 import Axios from "axios"
 import { RiArrowRightSLine } from "react-icons/ri";
 import { Link } from 'react-router-dom';
 import MusicListTable from '../card/MusicListTable';
-import { userid_cookies } from '../config/cookie';
+import { Cookies } from 'react-cookie';
+import { AppContext } from '../App'
 
-function SearchTrack({keyward, page, handleRender}) {
+function SearchTrack({keyword, page, handleRender}) {
+
+    const cookies = new Cookies();
+    const userid_cookies = cookies.get("character.sid");
+    const isSessionValid = JSON.parse(useContext(AppContext));
 
     const [searchTrack, setSearchTrack] = useState([]);
     const [hasTrack, setHasTrack] = useState(false);
-    const [allcheckVal, setAllcheckVal] = useState(false);
 
     let array = [];
     let array2 = [];
 
-
     useEffect(() => {
 
-        if(userid_cookies !== undefined){
+        if(isSessionValid){
             Axios.post("/ezenmusic/allpage/likeylist/", {
                     character_id: userid_cookies,
                     division: "liketrack"
@@ -28,7 +31,7 @@ function SearchTrack({keyward, page, handleRender}) {
                     }
                     else{
                         array2 = data[0].music_list;
-                        Axios.get("/ezenmusic/search/track/" + keyward)
+                        Axios.get("/ezenmusic/search/track/" + keyword)
                             .then(({data}) =>{
                                 if(data.length == 0){
                                     setHasTrack(false);
@@ -77,7 +80,7 @@ function SearchTrack({keyward, page, handleRender}) {
         }
 
         else{
-            Axios.get("/ezenmusic/search/track/" + keyward)
+            Axios.get("/ezenmusic/search/track/" + keyword)
             .then(({data}) =>{
                 if(data.length == 0){
                     setHasTrack(false);
@@ -127,13 +130,15 @@ function SearchTrack({keyward, page, handleRender}) {
 
     return (
         <>
-        <div className="search_track mb-[60px]">
-        {
-            page === "all" && hasTrack?
-            <Link to={"/search/track?keyward=" + keyward} ><p className="flex items-center font-bold text-[22px] mb-[20px] ml-[80px]">곡<RiArrowRightSLine className="mt-[3px]" /></p></Link>
-            :
-            ""
-        }
+        <div className="mb-[60px]">
+            {
+                (page === "all" && hasTrack ) &&
+                <Link to={"/search/track?keyword=" + keyword} >
+                    <p className="flex items-center font-bold text-[22px] mb-[20px]">
+                        곡<RiArrowRightSLine className="mt-[3px]" />
+                    </p>
+                </Link>
+            }
             <MusicListTable page="searchtrack" lank={false} music_list={searchTrack} handleRender={handleRender} />
         </div>
     </>

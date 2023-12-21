@@ -1,25 +1,32 @@
-import React, {useState, useEffect, useRef, useCallback, useMemo} from 'react'
+import React, {useState, useEffect, useRef, useContext} from 'react'
 import styled from 'styled-components'
 import Axios from "axios"
 import { Link, useLocation } from 'react-router-dom'
-import { BsRepeat, BsRepeat1 } from "react-icons/bs";
+import { BsRepeat } from "react-icons/bs";
 import { IoPlaySkipForward, IoPlaySkipBack, IoPlay, IoVolumeHigh } from "react-icons/io5";
-import { LiaRandomSolid } from "react-icons/lia";
-import { FaRandom } from "react-icons/fa";
-import { PiShuffleLight, PiShuffleFill } from "react-icons/pi";
+import { PiShuffleFill } from "react-icons/pi";
 import { RiPlayList2Fill } from "react-icons/ri";
-import { IoMdPause, IoIosHeartEmpty, IoIosHeart } from "react-icons/io";
-import icons from '../assets/sp_button.6d54b524.png'
-import { userid_cookies } from '../config/cookie';
-import ReactAudioPlayer from "react-audio-player"
-// import Music from "../audio/audio01.mp3"
-// import PlayerBanner from '../card/PlayerBanner';
+import { IoMdPause } from "react-icons/io";
+import { Cookies } from 'react-cookie';
+import { AppContext } from '../App'
+import PleaseBuyVoucher from '../modal/PleaseBuyVoucher';
 
-function Player({listenMusic, showPlaylistFunc, handleRender, hasplayerlist, delLikeyFunc, addLikeyFunc}) {
+// 승렬
+import { IoMdHeartEmpty } from "react-icons/io";
+import { IoMdHeart } from "react-icons/io";
 
+function Player({listenMusic, showPlaylistFunc, handleRender, delLikeyFunc, addLikeyFunc}) {
+
+    const cookies = new Cookies();
+    const userid_cookies = cookies.get("character.sid");
+    const userid = cookies.get("client.sid");
+    const isSessionValid = JSON.parse(useContext(AppContext));
+
+    const [voucherModalOpen, setVoucherModalOpen] = useState(false);
     const [playBtn, setPlayBtn] = useState(false);
     const btnRef = useRef([]);
     const playbar = useRef(null);
+
 
     function playerNext(){
         Axios.post("/playerHandle/playerNext", {
@@ -49,6 +56,7 @@ function Player({listenMusic, showPlaylistFunc, handleRender, hasplayerlist, del
         })
     }
 
+
     useEffect(() => {
         function handleClickOutside(e){
             e.preventDefault();
@@ -67,19 +75,15 @@ function Player({listenMusic, showPlaylistFunc, handleRender, hasplayerlist, del
         document.addEventListener("mouseup", handleClickOutside);
     }, [btnRef, playbar])
 
-    //////////////////// Audio Test
 
+    //////////////////// Audio Setting
     useEffect(() => {
         setPlayBtn(false);
         pauseSound();
         setAudioTune(new Audio("/audio/"+listenMusic.music_audio));
-        // playSound();
     }, [listenMusic])
-    // console.log(listenMusic.music_audio);
 
     const [audioTune, setAudioTune] = useState(new Audio("/audio/"+listenMusic.music_audio));
-    // const [audioTune, setAudioTune] = useState(new Audio("/audio/audio02.mp3"));
-    
     const [playInLoop, setPlayInLoop] = useState(false);
 
     // load audio file on component load
@@ -91,11 +95,20 @@ function Player({listenMusic, showPlaylistFunc, handleRender, hasplayerlist, del
     useEffect(() => {
         audioTune.loop = playInLoop;
     }, [playInLoop])
-
     // play audio sound
     const playSound = () => {
-        audioTune.play();
-        // audioTune.onplaying
+        Axios.post("/playerHandle/voucherConfirm", {
+            user_id: userid
+        })
+        .then(({data}) => {
+            if(data === 1){
+                audioTune.play();
+                setPlayBtn(true); 
+            }
+            else if(data === -1){
+                setVoucherModalOpen(true);
+            }
+        })
     }
 
     // pause audio sound
@@ -110,16 +123,16 @@ function Player({listenMusic, showPlaylistFunc, handleRender, hasplayerlist, del
     }
 
     // variable to play audio in loop
-    //////////////////// ~Audio Test
+    //////////////////// ~ Audio Setting
 
     const locationNow = useLocation();
-    if (locationNow.pathname === "/discovery") return null;
-
-   
-
+    if (locationNow.pathname === "/discovery"){
+        return null;   
+    }
 
     return (
     <>
+    { voucherModalOpen === true && <PleaseBuyVoucher setVoucherModalOpen={setVoucherModalOpen} /> }
     <StyledPlayerBar className="flex justify-between items-center px-[70px]" ref={playbar}>
     {/* <ReactAudioPlayer src={"/audio/audio02.mp3"} autoPlay controls/> */}
         <div className="flex items-center justify-between w-[100%]">
@@ -133,19 +146,29 @@ function Player({listenMusic, showPlaylistFunc, handleRender, hasplayerlist, del
                     <div ref={element => btnRef.current[7] = element}></div>
                 </div>
                 :
-                <div className="col-2 flex items-center">
-                    <img src={"/image/album/" + listenMusic.org_cover_image} alt="image" className="w-[45px] h-[45px] rounded-[5px]" />
-                    <div className="ml-[10px]">
-                        <p className="text-[14px] text-white my-[2px]"><Link to={"/detail/track/" + listenMusic.music_id + "/details"}>{listenMusic.music_title}</Link></p>
-                        <p className="text-[10px] text-gray">{listenMusic.artist_name}</p>
+                <PlayerMusicInfo className="">
+                    <div className='album-image-cover'>
+                        <img src={"/image/album/" + listenMusic.org_cover_image} alt={listenMusic.org_cover_image}/>
+                    </div>
+                    <div className="album-info-cover">
+                        <p className='music-title'>
+                            <Link to={"/detail/track/" + listenMusic.music_id + "/details"}>
+                                {listenMusic.music_title}
+                            </Link>
+                        </p>
+                        <p className="artist-name">{listenMusic.artist_name}</p>
                     </div>
                     {
                         listenMusic.likey === true?
-                        <div ref={element => btnRef.current[7] = element} className="redheart cursor-pointer ml-[10px]" style={{backgroundImage:`url(${icons})`}} onClick={() => delLikeyFunc(listenMusic.music_id)}></div>
+                        <div className='like-icon filled-heart' ref={element => btnRef.current[7] = element} onClick={() => delLikeyFunc(listenMusic.music_id)}>
+                            <IoMdHeart />
+                        </div>
                         :
-                        <div ref={element => btnRef.current[7] = element} className="iconsheart cursor-pointer ml-[10px]" style={{backgroundImage:`url(${icons})`}} onClick={() => addLikeyFunc(listenMusic.music_id)}></div>
+                        <div className='like-icon empty-heart' ref={element => btnRef.current[7] = element} onClick={() => addLikeyFunc(listenMusic.music_id)}>
+                            <IoMdHeartEmpty />
+                        </div>
                     }
-                </div>
+                </PlayerMusicInfo>
             }
             {
                 listenMusic.length === 0?               
@@ -171,7 +194,7 @@ function Player({listenMusic, showPlaylistFunc, handleRender, hasplayerlist, del
                     {
                         !playBtn?
                         // <div ref={element => btnRef.current[2] = element}><IoPlay className="player-icon text-white text-[35px] mx-[15px] cursor-pointer" onClick={() => {setPlayBtn(true);}}/></div>
-                        <div ref={element => btnRef.current[2] = element}><IoPlay className="player-icon text-white text-[35px] mx-[15px] cursor-pointer" onClick={() => {setPlayBtn(true); playSound();}}/></div>
+                        <div ref={element => btnRef.current[2] = element}><IoPlay className="player-icon text-white text-[35px] mx-[15px] cursor-pointer" onClick={() => {playSound();}}/></div>
                         :
                         <div ref={element => btnRef.current[2] = element}><IoMdPause className="player-icon text-white text-[30px] mx-[15px] cursor-pointer" onClick={() => {setPlayBtn(false); pauseSound();}}/></div>
                     }
@@ -179,8 +202,8 @@ function Player({listenMusic, showPlaylistFunc, handleRender, hasplayerlist, del
                     <div ref={element => btnRef.current[4] = element}><PiShuffleFill className="player-icon text-white text-[20px] ml-[20px] cursor-pointer" /></div>
                 </div>
                 <div className="col-2 justify-end flex items-center">
-                    <div ref={element => btnRef.current[5] = element}><IoVolumeHigh className="text-gray text-[22px] mr-[10px] hover:text-white" /></div>
-                    <div ref={element => btnRef.current[6] = element} className="mt-[-10px]"><input type="range" className="input-range" /></div>
+                    <div ref={element => btnRef.current[5] = element}><IoVolumeHigh className="text-gray cursor-pointer text-[22px] mr-[10px] hover:text-white" /></div>
+                    <div ref={element => btnRef.current[6] = element} className="mt-[-10px]"><input type="range" className="input-range cursor-pointer" /></div>
                     <RiPlayList2Fill className="text-gray text-[30px] ml-[30px] cursor-pointer hover:text-white"/>
                 </div>
                 </>
@@ -190,6 +213,61 @@ function Player({listenMusic, showPlaylistFunc, handleRender, hasplayerlist, del
         </>
     )
 }
+// 승렬
+const PlayerMusicInfo = styled.div`
+    max-width: 200px;
+    min-width: 200px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    .album-image-cover{
+        width: 45px;
+        height: 45px;
+        border-radius: 6px;
+        overflow: hidden;
+        img{
+            width: 100%;
+            heigth: 100%;
+        }
+    }
+    .album-info-cover{
+        margin-left: 10px;
+        .music-title{
+            max-width: 100px;
+            min-width: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 13px;
+            color: var(--main-text-white);
+        }
+        .artist-name{
+            max-width: 100px;
+            min-width: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 12px;
+            color: #989898;
+        }
+    }
+    .like-icon{
+        width: 44px;
+        height: 44px;
+        padding: 10px;
+        cursor: pointer;
+        svg{
+            width: 100%;
+            height: 100%;   
+        }
+    }
+    .like-icon.empty-heart{
+        color: var(--main-text-gray);
+    }
+    .like-icon.filled-heart{
+        color: var(--main-theme-color);
+    }
+`;
 
 const StyledPlayerBar = styled.div`
     position: fixed;

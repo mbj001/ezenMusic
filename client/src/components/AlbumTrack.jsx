@@ -1,10 +1,15 @@
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect, useContext} from 'react'
 import Axios from 'axios'
-import { userid_cookies } from '../config/cookie';
+import { Cookies } from 'react-cookie';
 import PleaseLoginMessage from '../modal/PleaseLoginMessage';
 import MusicListTable from '../card/MusicListTable';
+import { AppContext } from '../App'
 
-function AlbumTrack({album_id, album_title, handleRender}) {
+function AlbumTrack({album_id, handleRender}) {
+
+    const cookies = new Cookies();
+    const userid_cookies = cookies.get("character.sid");
+    const isSessionValid = JSON.parse(useContext(AppContext));
 
     const [albumTrackMusic, setalbumTrackMusic] = useState([]);
     // 로그인이 필요합니다 모달 변수
@@ -14,13 +19,13 @@ function AlbumTrack({album_id, album_title, handleRender}) {
 
 
     useEffect(() => {
-        if(userid_cookies !== undefined){
+        if(isSessionValid){
             Axios.post("/ezenmusic/allpage/likeylist/", {
                 character_id: userid_cookies,
                 division: "liketrack"
             })
             .then(({data}) => {
-                if(data == -1){
+                if(data === -1){
                     // 좋아요 없을 때
                 }
                 else{
@@ -32,7 +37,7 @@ function AlbumTrack({album_id, album_title, handleRender}) {
             })
         }
 
-        Axios.get("/ezenmusic/detail/album/albumtrack/"+album_title)
+        Axios.get("/ezenmusic/detail/album/albumtrack/"+album_id)
         .then(({data}) => {
             for(let i=0; i<data.length; i++){
                 // object 에 likey 라는 항목 넣고 모두 false 세팅

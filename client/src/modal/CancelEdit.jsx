@@ -20,10 +20,10 @@ const CancelEdit = ({setModalOpen, setKeepGoing}) => {
                     변경을 취소하시겠습니까?
                 </p>
                 <div className='button-box'>
-                    <button type='button' className='submit' onClick={keepGo}>
+                    <button type='button' className='submit' onClick={() => keepGo()}>
                         계속하기
                     </button>
-                    <button type='button' className='cancel' onClick={cancel}>
+                    <button type='button' className='cancel' onClick={() => cancel()}>
                         취소하기
                     </button>
                 </div>

@@ -1,23 +1,27 @@
 import React, {useState, useEffect, useContext} from 'react'
 import Axios from "axios"
 import styled from 'styled-components'
-import { userid_cookies } from '../config/cookie';
+import { Cookies } from 'react-cookie';
 import { Link } from 'react-router-dom';
-import { RiPlayListAddFill, RiFolderAddLine, RiArrowRightSLine, RiPlayListAddLine, RiCheckFill } from "react-icons/ri";
+import { RiArrowRightSLine, RiCheckFill } from "react-icons/ri";
 import { StyledMylistDiv } from './LikeTrack';
 import LoginRequest from '../card/LoginRequest';
 import MylistSelectModal from '../modal/MylistSelectModal';
 import MylistDeleteConfirm from '../modal/MylistDeleteConfirm';
 import { AppContext } from '../App'
 import PlaylistAdd from '../modal/PlaylistAdd';
-import icons from '../assets/sp_button.6d54b524.png'
 import AddPlaylistBanner from '../card/AddPlaylistBanner';
 import PlayerBanner from '../card/PlayerBanner';
 
+//승렬
+import { MusicListCardAddMyListButton as AddMyListButton } from '../style/StyledIcons';
+import { MusicListCardAddPlaylistButton as AddPlaylistButton } from '../style/StyledIcons';
+import { TransTinyPlayButton as PlayButton } from '../style/StyledIcons';
+
 function LikeAlbum({division, handleRender}) {
-    // LSR
-    // 로그아웃한 상태에서 쿠키에 character.sid 아무렇게나 만들어두면 userid_cookies에 이상한 값 들어가면서 
-    // LoginRequest 페이지가 풀려버려서 app.js에서 뿌려주는 context 추가했어요
+    
+    const cookies = new Cookies();
+    const userid_cookies = cookies.get("character.sid");
     const isSessionValid = JSON.parse(useContext(AppContext));
 
     const [likeAlbumList, setLikeAlbumList] = useState([]);
@@ -35,8 +39,7 @@ function LikeAlbum({division, handleRender}) {
 
     // Delete and Delete Confirm Functions
     // edit mode click
-    const clickToEditMode = async(e) =>{
-        e.preventDefault();
+    const clickToEditMode = async() =>{
         if(editMode == false){
             setEditMode(true);
         }else{
@@ -152,12 +155,13 @@ function LikeAlbum({division, handleRender}) {
     // ~ Delete and Delete Confirm Functions
 
     // 2023-12-01 album 플레이어 추가
-    function playerAdd(album_id){
+    function playerAdd(album_id, change_now_play){
 
         Axios.post("/playerHandle/playerAdd", {
             character_id: userid_cookies,
             page: "albumtrack",
-            album_id: album_id
+            album_id: album_id,
+            change_now_play: change_now_play
         })
         .then(({data}) => {
             setPlayerBannerOn(true);
@@ -192,7 +196,7 @@ function LikeAlbum({division, handleRender}) {
 
 
     useEffect(() => {
-        if(userid_cookies !== undefined){
+        if(isSessionValid){
             Axios.post("/ezenmusic/storage/likealbum", {
                 character_id: userid_cookies,
                 division: division
@@ -218,12 +222,10 @@ function LikeAlbum({division, handleRender}) {
         { playlistModalOpen && <PlaylistAdd setPlaylistModalOpen={setPlaylistModalOpen} playlistModalData={playlistModalData} handleplaylistModal={handleplaylistModal} setAddPlaylistBannerOn={setAddPlaylistBannerOn} /> }
         {/* 플레이리스트 추가 베너 */}
         { addPlaylistBannerOn && <AddPlaylistBanner addPlaylistBannerOn={addPlaylistBannerOn} setAddPlaylistBannerOn={setAddPlaylistBannerOn} /> }
-        
         { playerBannerOn && <PlayerBanner playerBannerOn={playerBannerOn} setPlayerBannerOn={setPlayerBannerOn} page={"albumtrack"} /> }
 
         {
-            
-            isSessionValid && userid_cookies ?
+            isSessionValid  ?
             <>
             {
                 !hasLikeyList ?
@@ -234,50 +236,54 @@ function LikeAlbum({division, handleRender}) {
                         <p className='pt-1'>좋아요를 많이 할수록 Ezenmusic과 가까워 져요</p>
                     </div>
                 </StyledMylistDiv>
-            :
-            <StyledLikeAlbum>
-                {/* 편집 후 선택하면 나오는 베너 */}
-                { selectedIcon && <MylistSelectModal clickToSelectdelAllPlaylist={clickToSelectdelAllPlaylist} handleDeleteConfirm={handleDeleteConfirm} /> }
-                { deleteConfirm && <MylistDeleteConfirm delPlaylist={delPlaylist} handleDeleteConfirm={handleDeleteConfirm}/> }
-                {
-                    // Not EditMode
-                    !editMode?
-                    <div className='col-12 flex justify-end mb-[30px]'>
-                        <span className='edit cursor-pointer text-[13px]' onClick={clickToEditMode}>편집</span>
-                    </div>
-                    :
-                    <div className='col-12 flex justify-between mb-[30px]'>
-                        <span className='select-all flex cursor-pointer text-[13px]' onClick={ selectedAll? handleDeleteNone  : handleDeleteAll}><RiCheckFill className='mt-[3px] mr-[3px]'/> 전체선택</span>
-                        <span className='edit cursor-pointer text-[13px]' style={{color: "var(--main-theme-color)"}} onClick={clickToEditMode}>완료</span>
-                    </div>
+                :
+                <StyledLikeAlbum>
+                    {/* 편집 후 선택하면 나오는 베너 */}
+                    { selectedIcon && <MylistSelectModal clickToSelectdelAllPlaylist={clickToSelectdelAllPlaylist} handleDeleteConfirm={handleDeleteConfirm} /> }
+                    { deleteConfirm && <MylistDeleteConfirm delPlaylist={delPlaylist} handleDeleteConfirm={handleDeleteConfirm}/> }
+                    {
+                        // Not EditMode
+                        !editMode?
+                        <div className='flex justify-end mb-[30px]'>
+                            <span className='edit cursor-pointer text-[13px]' onClick={() => clickToEditMode()}>편집</span>
+                        </div>
+                        :
+                        <div className='flex justify-between mb-[30px]'>
+                            <span className='select-all flex cursor-pointer text-[13px]' onClick={selectedAll? () => handleDeleteNone() : () => handleDeleteAll()}><RiCheckFill className='mt-[3px] mr-[3px]'/> 전체선택</span>
+                            <span className='edit cursor-pointer text-[13px]' style={{color: "var(--main-theme-color)"}} onClick={() => clickToEditMode()}>완료</span>
+                        </div>
 
-                }
-                {
-
-                
-                    likeAlbumList.map((item, index) => (
-                        <div key={index} className="relative w-[440px] flex items-center mb-[40px]">
-                            {
-                                editMode &&
-                                <div className='checkbox rounded-full overflow-hidden cursor-pointer'>
-                                    <RiCheckFill className={ item.delcheckVal? 'selected w-full h-full text-[20px]' : 'checkbox-icon w-full h-full text-[20px]' } onClick={(e) => clickToSelectPlaylist(e, index)} />
+                    }
+                    <div className='grid-main'>
+                    {
+                        likeAlbumList.map((item, index) => (
+                            <div key={index} className="flex relative mb-[40px]">
+                                {
+                                    editMode &&
+                                    <div className='checkbox rounded-full overflow-hidden cursor-pointer'>
+                                        <RiCheckFill className={ item.delcheckVal? 'selected w-full h-full text-[20px]' : 'checkbox-icon w-full h-full text-[20px]' } onClick={(e) => clickToSelectPlaylist(e, index)} />
+                                    </div>
+                                }
+                                <div className='relative img-box'>
+                                    <Link to={"/detail/album/"+item.album_id+"/albumtrack"}><img src={"/image/album/"+item.org_cover_image} alt="cover_image" className={ item.delcheckVal? "w-[175px] h-[175px] min-w-[175px] rounded-[6px] brightness-75" : "w-[175px] h-[175px] min-w-[175px] rounded-[6px]"} /></Link>
+                                    {/* 좋아요 페이지는 로그인 체크 필요 x */}
+                                    <PlayButton onClick={() => playerAdd(item.album_id, true)}></PlayButton>
                                 </div>
-                            }
-                            <Link to={"/detail/album/"+item.album_id+"/albumtrack"}><img src={"/image/album/"+item.org_cover_image} alt="cover_image" className={ item.delcheckVal? "w-[175px] h-[175px] min-w-[175px] rounded-[10px] brightness-75" : "w-[175px] h-[175px] min-w-[175px] rounded-[10px]"} /></Link>
-                            <div className="ml-[20px]">
-                                <Link to={"/detail/album/"+item.album_id+"/albumtrack"}><p className="font-bold mb-[5px] hover-text-blue">{item.album_title}</p></Link>
-                                <Link to={"/detail/artist/"+item.artist_id+"/artisttrack"}><p className="text-[14px] mb-[10px] flex items-center">{item.artist_name}<RiArrowRightSLine className="text-[18px] mt-[3px]" /></p></Link>
-                                <p className="text-[13px] mb-[2px]">{item.album_size}</p>
-                                <p className="text-[12px] text-gray">{item.release_date_format}</p>
-                                <div className="flex mt-[20px]">
-                                    <button className="iconslistplus ml-[-3px] mr-[2px]" style={{backgroundImage:`url(${icons})`}} onClick={(e) => playerAdd(item.album_id)}></button>
-                                    <button className="iconsbox ml-2 mr-[2px]" style={{backgroundImage:`url(${icons})`}} onClick={(e) => clickPlaylistModalOpen(e, item.album_id, item.org_cover_image)} ></button>
+                                <div className="mt-[8px] ml-[20px]">
+                                    <Link to={"/detail/album/"+item.album_id+"/albumtrack"}><p className="font-bold mb-[5px] w-[200px] hover-text-blue whitespace-nowrap text-ellipsis overflow-hidden">{item.album_title}</p></Link>
+                                    <Link to={"/detail/artist/"+item.artist_id+"/track?sortType=POPULARITY"}><p className="text-[14px] mb-[12px] flex items-center">{item.artist_name}<RiArrowRightSLine className="text-[18px] mt-[3px]" /></p></Link>
+                                    <p className="text-[13px] mb-[2px]">{item.album_size}</p>
+                                    <p className="text-[12px] text-gray">{item.release_date_format}</p>
+                                    <div className="flex mt-[25px] ml-[-9px]">
+                                        <AddPlaylistButton onClick={(e) => playerAdd(item.album_id, false)}></AddPlaylistButton>
+                                        <AddMyListButton onClick={(e) => clickPlaylistModalOpen(e, item.album_id, item.org_cover_image)} ></AddMyListButton>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    ))
-                }
-            </StyledLikeAlbum>
+                        ))
+                    }
+                    </div>
+                </StyledLikeAlbum>
             }
             </>
             :
@@ -289,14 +295,39 @@ function LikeAlbum({division, handleRender}) {
 }
 
 export const StyledLikeAlbum = styled.div`
-    margin-bottom: 20px;
-    display: flex;
-    flex-wrap: wrap;
+    .grid-main{
+        @media (min-width: 1024px){ 
+            width: 100%;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 30px;
+            text-overflow: ellipsis;
+        }
+        @media (max-width: 1024px){
+            width: 100%;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+    // .grid-header{
+    //     grid-column: span 3;
+    //     margin-bottom: 30px;
+    // }
+    // .grid-main{
+    //     grid-colums: span 1;
+    // }
 
     img:hover{
         filter: brightness(70%)
     }
-
+    .img-box{
+        border: 1px solid #efefef;
+        border-radius: 6px;
+    }
+    .edit{
+    }
     .edit:hover{
         color: var(--main-theme-color);
     }
@@ -310,18 +341,17 @@ export const StyledLikeAlbum = styled.div`
         z-index: 99;
         width: 35px;
         height: 35px;
-        // border-radius: 20px;
-    .checkbox-icon{
-        background-color: var(--main-text-gray-lighter);
-        color: var(--main-text-white);
-        font-size: 25px;
-    }
-    
-    .selected{
-        background-color: var(--main-theme-color);
-        color: var(--main-text-white);
-        font-size: 25px;
-    }
+        .checkbox-icon{
+            background-color: var(--main-text-gray-lighter);
+            color: var(--main-text-white);
+            font-size: 25px;
+        }
+        
+        .selected{
+            background-color: var(--main-theme-color);
+            color: var(--main-text-white);
+            font-size: 25px;
+        }
     }
 `
 export default LikeAlbum

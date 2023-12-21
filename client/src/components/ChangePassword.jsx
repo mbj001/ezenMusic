@@ -128,7 +128,7 @@ const ChangePassword = () => {
                         <span onClick={()=>handlePasswordType('current')} >
                             {currentPasswordType.visible ? <AiFillEyeInvisible/> : <AiFillEye/>}
                         </span>
-                        <input type={currentPasswordType.type} id='current-password' name='signUpPw' className={confirmed ? 'input-text confirmed' : 'input-text'} disabled={confirmed ? true : false} placeholder='현재 비밀번호' onChange={e=>setPassword(e.target.value)} autoComplete="off"/>
+                        <input type={currentPasswordType.type} id='current-password' name='signUpPw' className={confirmed ? 'input-text confirmed' : 'input-text'} disabled={confirmed ? true : false} placeholder='현재 비밀번호 입력' onChange={e=>setPassword(e.target.value)} autoComplete="off"/>
                     </div>
                     <button type='submit'>확인</button>
                 </div>

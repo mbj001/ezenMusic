@@ -1,18 +1,29 @@
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect, useContext} from 'react'
 import Axios from "axios"
 import {StyledDetail} from "../components/Track"
 import { Link } from 'react-router-dom';
 import Comments from './Comments';
-import { userid_cookies } from '../config/cookie';
+import { Cookies } from 'react-cookie';
 import LikeyBanner from '../card/LikeyBanner';
 import PleaseLoginMessage from '../modal/PleaseLoginMessage';
 import MusicListTable from '../card/MusicListTable';
 import PlayerBanner from '../card/PlayerBanner';
-import icons from '../assets/sp_button.6d54b524.png'
 import PlaylistAdd from '../modal/PlaylistAdd';
 import AddPlaylistBanner from '../card/AddPlaylistBanner';
+import { AppContext } from '../App'
+
+//승렬
+import { MusicListCardAddMyListButton as AddMyListButton } from '../style/StyledIcons';
+import { MusicListCardAddPlaylistButton as AddPlaylistButton } from '../style/StyledIcons';
+import { ArtistLikeButton as LikeButton } from '../style/StyledIcons';
+import { ArtistFilledHeartButton as FilledHeart } from '../style/StyledIcons';
 
 function Channel({themeplaylist_id, details, handleRender}) {
+    
+    const cookies = new Cookies();
+    const userid_cookies = cookies.get("character.sid");
+    const isSessionValid = JSON.parse(useContext(AppContext));
+    
     // 테마리스트 정보
     const [channelInfo, setChannelInfo] = useState([]);
     // 테마리스트 안의 곡들
@@ -85,12 +96,9 @@ function Channel({themeplaylist_id, details, handleRender}) {
         })
 
         .then(({data}) => {
-
             setPlayerBannerOn(true);
             handleRender();
-
         })
-
         .catch((err) => {
             console.log(err);
         })
@@ -123,7 +131,7 @@ function Channel({themeplaylist_id, details, handleRender}) {
             setInitNum("");
         }
         
-        if(userid_cookies !== undefined){
+        if(isSessionValid){
             Axios.post("/ezenmusic/detail/album_theme/likey", {
                 character_id: userid_cookies,
                 division: "liketheme"
@@ -210,20 +218,20 @@ function Channel({themeplaylist_id, details, handleRender}) {
                 <StyledDetail key={index} className='md:w-[1000px] xl:w-[1280px] 2xl:w-[1440px]'>
                     <div className="mb-[40px]">
                         <div className="flex items-center p-[30px]">
-                            <img src={"/image/themeplaylist/"+item.org_cover_image} alt="cover_image" className="w-[230px] h-[230px] rounded-[25px]" />
+                            <img src={"/image/themeplaylist/"+item.org_cover_image} alt="cover_image" className="w-[230px] h-[230px] rounded-[6px]"/>
                             <div className="m-[30px]">
                                 <p className="detail-title mb-[10px]">{item.themeplaylist_title}</p>
                                 <p className="text-[14px] text-gray mb-[20px]">{item.description}</p>  
                                 <p>총 {totalMusicNum}곡</p>
                                 <p className="text-[14px] text-gray">{item.release_date_format}</p>
-                                <div className="flex mt-[30px] ">
-                                    <button className="artist_listplus ml-[-10px]" style={{backgroundImage:`url(${icons})`}} onClick={userid_cookies? playerAdd : setLoginrRequestVal}></button>
-                                    <button className="artist_box " style={{backgroundImage:`url(${icons})`}} onClick={userid_cookies? (e) => clickPlaylistModalOpen(e, item.themeplaylist_id) : setLoginrRequestVal}></button>
+                                <div className="flex mt-[30px] ml-[-9px]">
+                                    <AddPlaylistButton onClick={isSessionValid? () => playerAdd() : () => setLoginrRequestVal()}></AddPlaylistButton>
+                                    <AddMyListButton onClick={isSessionValid? (e) => clickPlaylistModalOpen(e, item.themeplaylist_id) : () => setLoginrRequestVal()}></AddMyListButton>
                                     {
                                         islikey?
-                                        <button className="redheart" style={{backgroundImage:`url(${icons})`}} onClick={userid_cookies? delLikeTheme : setLoginrRequestVal}></button>
+                                        <FilledHeart onClick={isSessionValid? () => delLikeTheme() : () => setLoginrRequestVal()}></FilledHeart>
                                         :
-                                        <button className="iconsheart" style={{backgroundImage:`url(${icons})`}} onClick={userid_cookies? addLikeTheme : setLoginrRequestVal}></button>
+                                        <LikeButton onClick={isSessionValid? () => addLikeTheme() : () => setLoginrRequestVal()}></LikeButton>
                                     }    
                                 </div>
                             </div>

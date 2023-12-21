@@ -92,7 +92,7 @@ const Router = () => {
                 </Route>
 
                 <Route path='/myinfo' element={ <MyInfo /> } >
-                    <Route path='password' element={ <ChangePassword/> } />
+                    <Route path='password' element={ <ChangePassword /> } />
                     <Route path='phone' element={ <ChangePhone/> } />
                 </Route>
 

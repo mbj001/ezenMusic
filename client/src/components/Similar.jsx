@@ -1,16 +1,22 @@
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect, useContext} from 'react'
 import Axios from 'axios'
-import { userid_cookies } from '../config/cookie';
+import { Cookies } from 'react-cookie';
 import MusicListTable from '../card/MusicListTable';
+import { AppContext } from '../App'
 
 function Similar({genre, music_id, handleRender}) {
+
+    const cookies = new Cookies();
+    const userid_cookies = cookies.get("character.sid");
+    const isSessionValid = JSON.parse(useContext(AppContext));
+
     const [similarMusic, setSimilarMusic] = useState([]);
 
     let array = [];
 
     useEffect(() => {
 
-        if(userid_cookies !== undefined){
+        if(isSessionValid){
             Axios.post("/ezenmusic/allpage/likeylist/",{
                 character_id: userid_cookies,
                 division: "liketrack"

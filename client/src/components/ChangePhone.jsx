@@ -30,7 +30,7 @@ const ChangePhone = () => {
     useEffect(()=>{
         axios.post(`/verifiedClient/myinfo/phone`, {token: getCookie('connect.sid'), id: getCookie('client.sid'), password: password})
         .then(({data}) =>{
-            setCurrentPhone(data[0].phone.replace(/-[0-9]{4}-/g, "-****-"))
+            setCurrentPhone(data[0].phone.replace(/-[0-9]{3,4}-/g, "-****-"))
         })
         .catch((err) => {
         {}
@@ -88,14 +88,23 @@ const ChangePhone = () => {
             }
         })
     };
-
-    useEffect(()=>{
+    
+    useEffect(() => {
+        if (newPhone.length === 10) {
+            setNewPhone(newPhone.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3'));
+        }
+        if (newPhone.length === 13) {
+            setNewPhone(newPhone.replace(/-/g, '').replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3'));
+        }
+        if (newPhone.length > 13) {
+            setNewPhone(newPhone.replace(/-/g, '').replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3'));
+        }
         if(!validPhoneNumber(newPhone)){
             setInvalid(true);
         }else{
             setInvalid(false);
         }
-    }, [newPhone])
+      }, [newPhone]);
 
     return (
         <UserInfoBox>
@@ -107,7 +116,8 @@ const ChangePhone = () => {
                         <span onClick={()=>handlePhoneType('current')} >
                             {currentPasswordType.visible ? <AiFillEyeInvisible/> : <AiFillEye/>}
                         </span>
-                        <input type={currentPasswordType.type} id='current-password' name='signUpPw' className={confirmed ? 'input-text confirmed' : 'input-text'} disabled={confirmed ? true : false} placeholder='현재 비밀번호' onChange={e=>setPassword(e.target.value)} autoComplete="off"/>
+                        <input type={currentPasswordType.type} id='current-password' name='signUpPw' className={confirmed ? 'input-text confirmed' : 'input-text'} 
+                               disabled={confirmed ? true : false} placeholder='비밀번호 입력' onChange={e=>setPassword(e.target.value)} autoComplete="off"/>
                     </div>
                     <button type='submit'>확인</button>
                 </div>
@@ -120,13 +130,9 @@ const ChangePhone = () => {
                 </div>
                 <div>
                     <div className='password-input-cover'>
-                        <input type={chekcNewPhoneType.type} id='check-new-password' className='input-text' disabled={confirmed ? false : true} placeholder='변경할 휴대폰 번호 (-포함)' onChange={e=>setNewPhone(e.target.value)} autoComplete="off"/>
-                        {
-                            newPhone === ''?
-                            <></>
-                            :
-                            invalid && <span className='invalid-text'>올바르지 않은 전화번호 형식입니다.</span>
-                        }
+                        <input type={chekcNewPhoneType.type} id='check-new-password' className='input-text' disabled={confirmed ? false : true} 
+                               placeholder='변경할 휴대폰 번호 (-포함)' value={newPhone} onChange={e=>setNewPhone(e.target.value)} autoComplete="off"/>
+                        { newPhone !== '' && invalid && <span className='invalid-text'>올바르지 않은 전화번호 형식입니다.</span> }
                     </div>
                     <button type='submit'>변경</button>
                 </div>

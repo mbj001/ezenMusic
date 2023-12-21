@@ -1,209 +1,222 @@
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect, useContext} from 'react'
 import Axios from "axios"
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
+import styled from 'styled-components';
+import { Link } from 'react-router-dom';
+import MainBannerMusic from './MainBannerMusic';
+import { getCookie } from '../config/cookie';
+import { PlayButtonTrans as PlayButton } from '../style/StyledIcons';
+import PlayerBanner from '../card/PlayerBanner';
+import PleaseLoginMessage from '../modal/PleaseLoginMessage';
+import { playerAdd } from '../procedure/playerAddButton';
+import { AppContext } from '../App'
 
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
-import styled from 'styled-components';
-import { Link } from 'react-router-dom';
-import MainBannerMusic from './MainBannerMusic';
-import { getCookie, userid_cookies } from '../config/cookie';
-import { PlayButtonTrans as PlayButton } from '../style/StyledIcons';
-import PlayerBanner from '../card/PlayerBanner';
 
 const MainBanner = ({handleRender}) => {
+    const isSessionValid = JSON.parse(useContext(AppContext));
+
     const [themeplaylist, setThemeplaylist] = useState([]);
-    const [ loading, setLoading ] = useState(false);
+    const [ loading, setLoading ] = useState(true);
+    const [ date, setDate ] = useState('');
 
     //LSR
     const [ recommend, setRecommend ] = useState(false);
     const [ bannerArtistImage, setBannerArtistImage ] = useState([]);
     const [ isPreferExist, setIsPreferExist ] = useState(false);
     const [ bannerUrl, setBannerUrl ] = useState('');
+    const [ randomBannerIndex, setRandomBannerIndex ] = useState('');
+
     // MBJ
     // 플레이어 추가 베너
     const [playerBannerOn, setPlayerBannerOn] = useState(false);
-
+    // 로그인이 필요합니다 모달 변수
+    const [loginRequestVal, setLoginrRequestVal] = useState(false);
 
     const getBannerImage = async() => {
         const response = await Axios.post('/verifiedClient/getBannerImage', {token: getCookie('connect.sid'), characterId: getCookie('character.sid')});
-        console.log("response");
-        console.log(response);
         if(response.data.length > 1){
-            // prefer playlist 존재
             setRecommend(true);
             setIsPreferExist(true);
             setBannerArtistImage(response.data);
-            setLoading(false);
-        }else{
-            // res.json(-1) 
+        }else if(response.data.recommend === false){
             setRecommend(false);   
             setIsPreferExist(false);
+            setLoading(false);
         }
+    }
+
+    /**
+     * @param {number} range 
+     * @param {Boolean} startZero ? 0 1 2 ... : 1 2 3 ...
+     * @param {Boolean} doubleDigit ? 00 01 02 ... : 0 1 2 ...
+     * @returns 1 ~ range random number
+     */
+    const generateRandomInt = (range, startZero, doubleDigit) => {
+        let random = Math.round(Math.random() * range);
+        
+        if(!startZero && random === 0){
+            random += 1
+        }
+        if(doubleDigit && random < 10){
+            random = '0' + random;
+            
+        }
+        return random
     }
 
     useEffect(() => {
         setLoading(true);
-        const url = generateRandomInt(11);
-        // console.log(url); 
-        setBannerUrl(url);
+        setDate(()=>{
+            const date = new Date();
+            return `${date.getFullYear()}.${date.getMonth()+1}.${date.getDate()}`;
+        });
+
+        setBannerUrl(()=>{
+            return generateRandomInt(11, false, true);
+        });
+        setRandomBannerIndex(()=>{
+            return generateRandomInt(4, true, false);
+        });
 
         getBannerImage();
 
         if(!recommend){
             Axios.get("/ezenmusic/mainbanner")
             .then(({data}) => {
+                console.log(data)
                 setThemeplaylist(data);
+                setLoading(false);
             })
             .catch((err) => {
                 console.log("에러");
             })
         }
-    }, [])
+    }, []);
 
-    function playerAdd(){
-        let array = [];
-
-        Axios.post("/playerHandle/playerAdd", {
-            character_id: userid_cookies,
-            page: "mainbanner_prefer_playlist",
-            change_now_play: true
-        })
-        .then(({data}) => {
-            setPlayerBannerOn(true);
-            handleRender();
-        })
-        .catch((err) => {
-            console.log(err);
-        })
+    if(loading){
+        return (
+            <div className='w-full h-full pb-[50px] rounded-[10px] overflow-hidden'>
+                    <img src="/image/loading_banner.jpg" alt="loading banner" className='w-full h-full rounded-[10px]' />
+            </div>
+        );
     }
-
-    /**
-     * 
-     * @param {number} range 
-     * @returns 1 ~ range random number
-     */
-    const generateRandomInt = (range) => {
-        let random = Math.round(Math.random() * range);
-        if(random === 0){random += 1}
-        if(random < 10){
-            random = '0' + random;
-        }else{
-
-        }
-        return random
-    }
-
-    useEffect(()=>{
-        
-    }, [])
 
     return (
         <>
         { playerBannerOn && <PlayerBanner playerBannerOn={playerBannerOn} setPlayerBannerOn={setPlayerBannerOn} page={"channel"} /> }
-        <StyledBanner className='banner-cover' $url={bannerUrl}>
-            <div className="swiper-button-next banner"></div>
-            <div className="swiper-button-prev banner"></div>
-            <Swiper
-                modules={[Navigation, Pagination]}
-                spaceBetween={0} // 슬라이드 간격
-                slidesPerView={1} // 한 스와이퍼에 몇장 보여줄지
-                slidesPerGroup={1} // 한번 넘길때 몇장 넘어갈지
-                speed={300} // 페이지 넘어가는 속도
-                touchRatio={0} // 클릭해서 드래그 막음
-                navigation={{ // 버튼
-                    nextEl: '.swiper-button-next.banner',
-                    prevEl: '.swiper-button-prev.banner'
-                }}
-                rewind={false}
-                centeredSlides={true}
-                pagination={{ clickable: true }}
-                >
-                    
-                    {
-                        isPreferExist ? 
-                        <>
+        { loginRequestVal && <PleaseLoginMessage setLoginrRequestVal={setLoginrRequestVal} /> }
+        {
+            loading ?
+            <></>
+            :
+            <StyledBanner className='banner-cover' $url={bannerUrl}>
+                <div className="swiper-button-next banner"></div>
+                <div className="swiper-button-prev banner"></div>
+                <Swiper
+                    modules={[Navigation, Pagination]}
+                    spaceBetween={0} // 슬라이드 간격
+                    slidesPerView={1} // 한 스와이퍼에 몇장 보여줄지
+                    slidesPerGroup={1} // 한번 넘길때 몇장 넘어갈지
+                    speed={300} // 페이지 넘어가는 속도
+                    touchRatio={0} // 클릭해서 드래그 막음
+                    navigation={{ // 버튼
+                        nextEl: '.swiper-button-next.banner',
+                        prevEl: '.swiper-button-prev.banner'
+                    }}
+                    rewind={false}
+                    initialSlide={randomBannerIndex} // 시작하는 페이지 인덱스 조절 (0 ~ 마지막)
+                    centeredSlides={true}
+                    pagination={{ clickable: true }}
+                    >
                         {
+                            isPreferExist ? 
                             <>
-                            <SwiperSlide className={`recommended relative`}>
-                            {/* <StyledLink to={`${playlistData.playlistId}`} className='row'> */}
-                                <StyledLink to={"/detail/recommend"} className='row'>
-                                    <div className='banner-left col-5'>
-                                        <p className='title'>좋아할만한 아티스트 MIX</p>
-                                        <h3 className='sub-title mt-[10px]'>EZEN MUSIC에서 취향에 맞는 음악을 골라봤어요.</h3>
-                                        <div className='playlist-info'>
-                                            <span className='update-date'>2023.12.04</span>
-                                            <span className='icon'></span>
+                            {
+                                <>
+                                <SwiperSlide className={`recommended relative`}>
+                                    <StyledLink to={"/detail/recommend"} className='row'>
+                                        <div className='banner-left col-5'>
+                                            <p className='title'>좋아할만한 아티스트 MIX</p>
+                                            <h3 className='sub-title mt-[10px]'>EZEN MUSIC에서 취향에 맞는 음악을 골라봤어요.</h3>
+                                            <div className='playlist-info'>
+                                                <span className='update-date'>{date}</span>
+                                                <span className='icon'></span>
+                                            </div>
+                                            
                                         </div>
-                                        
-                                    </div>
-                                    <BannerRight className='banner-right col-7'>
-                                        <div className='row h-100' style={{padding:"40px 0"}}>
-                                            <div className='thumb-box'>
-                                                <div className='thumb-main'>
-                                                    <img src={`/image/artist/${bannerArtistImage[0] || '../test.png'}`} alt="test" />
-                                                </div>
-                                                <div className='thumb-left'>
-                                                    <img src={`/image/artist/${bannerArtistImage[1] || '../test.png'}`} alt="test" />
-                                                </div>
-                                                <div className='thumb-right'>
-                                                    <img src={`/image/artist/${bannerArtistImage[2] || '../test.png'}`} alt="test" />
+                                        <BannerRight className='banner-right col-7'>
+                                            <div className='row h-100' style={{padding:"40px 0"}}>
+                                                <div className='thumb-box'>
+                                                    <div className='thumb-main'>
+                                                        <img src={`/image/artist/${bannerArtistImage[0] || '../test.png'}`} alt="test" />
+                                                    </div>
+                                                    <div className='thumb-left'>
+                                                        <img src={`/image/artist/${bannerArtistImage[1] || '../test.png'}`} alt="test" />
+                                                    </div>
+                                                    <div className='thumb-right'>
+                                                        <img src={`/image/artist/${bannerArtistImage[2] || '../test.png'}`} alt="test" />
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </BannerRight>
-                                </StyledLink>
-                            </SwiperSlide>
-                            
+                                        </BannerRight>
+                                    </StyledLink>
+                                </SwiperSlide>
+                                
+                                </>
+                            }
                             </>
-                        }
-                        </>
-                        :
-                        <>
-                        {
-                            themeplaylist.map((data, index)=>{
-                                return (
-                                    <SwiperSlide key={index} className={`slide slide${index+1}`}>
-                                        {/* <StyledLink to={`${playlistData.playlistId}`} className='row'> */}
-                                        <StyledLink to={"/detail/channel/" + data.themeplaylist_id} className='row'>
-                                            <div className='banner-left col-4'>
-                                                <h3>{data.themeplaylist_title}</h3>
-                                                <div className='playlist-info'>
-                                                    {/* <span>총 {data.playlistCount}곡</span> */}
-                                                    <span>{data.release_date_format}</span>
+                            :
+                            <>
+                            {
+                                themeplaylist.map((data, index)=>{
+                                    return (
+                                        <SwiperSlide key={index} className={`slide slide${index+1}`}>
+                                            <StyledLink to={"/detail/channel/" + data.themeplaylist_id} className='row'>
+                                                <div className='banner-left col-4'>
+                                                    <h3>{data.themeplaylist_title}</h3>
+                                                    <div className='playlist-info'>
+                                                        <span>{data.release_date_format}</span>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div className='banner-right col-8'>
-                                                <div className='row h-100' style={{padding:"40px 0"}}>
-                                                    <MainBannerMusic themeplaylist_id={data.themeplaylist_id} />
-                                                    
+                                                <div className='banner-right col-8'>
+                                                    <div className='row h-100' style={{padding:"40px 0"}}>
+                                                        <MainBannerMusic themeplaylist_id={data.themeplaylist_id} />
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </StyledLink>
-                                    </SwiperSlide>
-                                )
-                            })
+                                            </StyledLink>
+                                            <div className='absolute bottom-[48px] left-[35px] z-50'>
+                                                <span className='play-icon'>
+                                                    <PlayButton title='플레이리스트 재생하기' onClick={isSessionValid ? () => playerAdd("mainbanner_theme", data.themeplaylist_id, handleRender, setPlayerBannerOn) : () => setLoginrRequestVal(true)}></PlayButton>
+                                                </span>
+                                            </div>  
+                                        </SwiperSlide>
+                                    )
+                                })
+                            }
+                            </>
+                            
                         }
-                        </>
-                        
-                    }
-            </Swiper>
-            <>
-            {
-                isPreferExist ? 
-                <div className='absolute bottom-[75px] left-[35px] z-50'>
-                    <span className='play-icon'>
-                        <PlayButton title='플레이리스트 재생하기' onClick={playerAdd}></PlayButton>
-                    </span>
-                </div>
-                :
-                <></>
-            }
-            </>
-        </StyledBanner>
+                </Swiper>
+                <>
+                {
+                    isPreferExist ? 
+                    <div className='absolute bottom-[75px] left-[35px] z-50'>
+                        <span className='play-icon'>
+                            {/* 로그인 되어있을 때만 나오는 화면 => setLoginRequestVal 필요 x */}
+                            <PlayButton title='플레이리스트 재생하기' onClick={() => playerAdd("mainbanner_prefer_playlist", "", handleRender, setPlayerBannerOn)}></PlayButton>
+                        </span>
+                    </div>
+                    :
+                    <></>
+                }
+                </>
+            </StyledBanner>
+        }
         </>
     )
 }
@@ -413,31 +426,5 @@ export const StyledBanner = styled.div`
         border-radius: 50%; 
         background: var(--pagination-dot); 
         border: 1px solid var(--pagination-dot); 
-    }
-`;
-
-
-const PlaylistThumbs = styled.div`
-    width: 45px;
-    height: 45px;
-    background-image: url(/image/${props=>props.url});
-    background-repeat: no-repeat;
-    background-size: contain;
-    border-radius: 3px;
-    overflow: hidden;
-    margin-left: 10px;
-`;
-const PlaylistInfo = styled.div`
-    white-space: nowrap;
-    overflow: hidden;
-
-    .song-title{
-    font-size: 16px;
-    font-weight: 400;
-    }
-    .song-artist{
-        font-size: 13px;
-        font-weight: 400;
-        color: var(--main-text-gray-lighter);
     }
 `;

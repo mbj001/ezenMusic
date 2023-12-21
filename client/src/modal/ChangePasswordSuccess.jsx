@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom';
 import styled from 'styled-components'
 import { getCookie, removeCookie } from '../config/cookie';
 import axios from 'axios';
@@ -8,8 +7,10 @@ const ChangePasswordSuccess = ({setModalOpen}) => {
     const closeModal = async() =>{
         const removeOk = await axios.post('/verifiedClient/logout', {token: getCookie('connect.sid')});
         if(removeOk){
+            // console.log('removeok = true')
             removeCookie('connect.sid');
             removeCookie('client.sid');
+            // handleRender();
             window.localStorage.setItem('login', false);
             window.location='/signin';
             setModalOpen(false);

@@ -6,12 +6,12 @@ function MylistSelectModal({clickToSelectdelAllPlaylist, handleDeleteConfirm}) {
 
   return (
     <StyledAllCheckModal className="flex items-center justify-between rounded-[10px]">
-        <div className="text-center my-[20px] mx-[15px] cursor-pointer" onClick={clickToSelectdelAllPlaylist}>
+        <div className="text-center my-[20px] mx-[15px] cursor-pointer" onClick={() => clickToSelectdelAllPlaylist()}>
             <p><IoCheckmark className="modal-icon m-auto" /></p>
             <p className="mt-[5px]">선택해제</p>
         </div>
         <div className="middle-line"></div>
-        <div className="text-center my-[20px] mx-[30px] cursor-pointer" onClick={handleDeleteConfirm}>
+        <div className="text-center my-[20px] mx-[30px] cursor-pointer" onClick={() => handleDeleteConfirm()}>
             <p><TbTrash className="modal-icon m-auto"/></p>
             <p className="mt-[5px]" >삭제</p>
         </div>

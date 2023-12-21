@@ -3,11 +3,16 @@ import Axios from 'axios';
 import styled from 'styled-components';
 import { RiCloseLine } from "react-icons/ri";
 import MusicListTable from '../card/MusicListTable';
-import { userid_cookies } from '../config/cookie';
+import { Cookies } from 'react-cookie';
 
+// 승렬
+import { CloseButton } from '../style/StyledIcons';
 
 const DetailMylistAddMusic = ({setDetailMylistAddMusicOpen, clickToAddMusicModalClose, detailMylistAddMusicModalData, handleRender}) => {
     
+    const cookies = new Cookies();
+    const userid_cookies = cookies.get("character.sid");
+
     const [musicListData, setMusicListData] = useState([]);
     const [likeyListData, setLikeyListData] = useState([]);
     const [selectedBtn, setSelectedBtn] = useState(false);
@@ -30,8 +35,7 @@ const DetailMylistAddMusic = ({setDetailMylistAddMusicOpen, clickToAddMusicModal
     }, [])
 
     
-    const clickToSelectLikeyList = async(e) =>{
-        e.preventDefault();
+    const clickToSelectLikeyList = async() =>{
         const userData = {
             playlist_id: detailMylistAddMusicModalData[0],
             playlist_name: detailMylistAddMusicModalData[1],
@@ -45,8 +49,7 @@ const DetailMylistAddMusic = ({setDetailMylistAddMusicOpen, clickToAddMusicModal
 
         setSelectedBtn(true);
     }
-    const clickToSelectPlaylist = (e) =>{
-        e.preventDefault();
+    const clickToSelectPlaylist = () =>{
         setSelectedBtn(false);
     } 
 
@@ -56,15 +59,15 @@ const DetailMylistAddMusic = ({setDetailMylistAddMusicOpen, clickToAddMusicModal
         <div className='pt-[70px] md:w-[1000px] xl:w-[1280px] 2xl:w-[1440px] mx-auto'>
             <div className='flex justify-between'>
                 <span className='flex text-[26px] font-bold'>곡 추가하기</span>
-                <span className='flex text-[50px] cursor-pointer'><RiCloseLine onClick={clickToAddMusicModalClose}/></span>
+                <span className='flex text-[50px] cursor-pointer'><CloseButton onClick={clickToAddMusicModalClose}></CloseButton></span>
             </div>
-            <div className='pt-[10px] flex justify-start'>
-                <button className={ selectedBtn === false? 'select-btn-active ml-[10px] w-[100px] h-[30px]' : 'select-btn ml-[10px] w-[100px] h-[30px]'} onClick={clickToSelectPlaylist}>재생목록</button>
-                <button className={ selectedBtn === true? 'select-btn-active ml-[10px] w-[100px] h-[30px]' : 'select-btn ml-[10px] w-[100px] h-[30px]'} onClick={clickToSelectLikeyList}>좋아요 한 곡</button>
+            <div className='pt-[20px] flex justify-start'>
+                <button className={ selectedBtn === false? 'select-btn-active ml-[10px] w-[100px] h-[30px]' : 'select-btn ml-[10px] w-[100px] h-[30px]'} onClick={() => clickToSelectPlaylist()}>재생목록</button>
+                <button className={ selectedBtn === true? 'select-btn-active ml-[10px] w-[120px] h-[30px]' : 'select-btn ml-[10px] w-[120px] h-[30px]'} onClick={() => clickToSelectLikeyList()}>좋아요 한 곡</button>
             </div>
         </div>
 
-        <div className='modal-contents overflow-scroll h-[70%] mt-[30px]'>
+        <div className='modal-contents overflow-scroll h-[70%] mt-[20px]'>
             {
                 
                 selectedBtn === false?
@@ -114,13 +117,19 @@ const StyledDetailMylistAddMusic = styled.div`
     .select-btn{
         color: var(--main-text-black);
         border-radius: 20px;
-        font-size: 15px
+        font-size: 15px;
+        &:hover{
+            color: var(--main-theme-color);
+        }
     }
     .select-btn-active{
         background-color: var(--main-theme-color);
         color: var(--main-text-white);
-        border-radius: 20px;
-        font-size: 15px
+        border-radius: 16px;
+        font-size: 15px;
+        height: 32px;
+        padding: 0 10px;
+        
     }
 
 `

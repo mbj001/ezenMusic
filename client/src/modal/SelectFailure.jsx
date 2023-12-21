@@ -12,7 +12,7 @@ const SelectFailure = ({setModalOpen}) => {
                     장르는 3개까지 선택할 수 있습니다.
                 </p>
                 <div className='button-box'>
-                    <button type='button' onClick={closeModal}>
+                    <button type='button' onClick={() => closeModal()}>
                         확인
                     </button>
                 </div>

@@ -23,7 +23,6 @@ function MainBannerMusic({themeplaylist_id}) {
                 <div className="col-6 py-2" key={idx}>
                     <div className="row h-100">
                         <div className="col-3">
-
                             <PlaylistThumbs className='w-45 h-45' url={list.org_cover_image}></PlaylistThumbs>
                         </div>
                         <PlaylistInfo className="col-9">
@@ -53,8 +52,12 @@ const PlaylistInfo = styled.div`
     overflow: hidden;
 
     .song-title{
-    font-size: 16px;
-    font-weight: 400;
+        font-size: 16px;
+        font-weight: 400;
+        width: 93%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     .song-artist{
         font-size: 13px;

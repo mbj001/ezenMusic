@@ -11,7 +11,7 @@ const ConfirmFailure = ({setModalOpen}) => {
                 <p>
                     비밀번호가 일치하지 않습니다.
                 </p>
-                <button type='button' onClick={closeModal}>
+                <button type='button' onClick={() => closeModal()}>
                     확인
                 </button>
             </div>

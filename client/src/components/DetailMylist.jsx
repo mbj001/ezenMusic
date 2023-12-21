@@ -1,25 +1,27 @@
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect, useContext} from 'react'
 import Axios from 'axios';
 import styled from 'styled-components';
-import { RiPlayListAddFill, RiEdit2Fill } from "react-icons/ri";
+import { RiEdit2Fill } from "react-icons/ri";
 import { PiMusicNotesLight } from "react-icons/pi";
-import { userid_cookies } from '../config/cookie';
+import { Cookies } from 'react-cookie';
 import PlaylistAdd from '../modal/PlaylistAdd';
-import AllCheckedModal from '../modal/AllCheckedModal';
 import MusicListTable from '../card/MusicListTable';
 import DuplicatedPlaylistName from '../modal/DuplicatedPlaylistName';
 import DetailMylistAddMusic from '../modal/DetailMylistAddMusic';
 import icons from '../assets/sp_button.6d54b524.png';
 import PlayerBanner from '../card/PlayerBanner';
+import { AppContext } from '../App'
 
 function DetailMylist({playlist_id, handleRender}) {
+
+    const cookies = new Cookies();
+    const userid_cookies = cookies.get("character.sid");
+    const isSessionValid = JSON.parse(useContext(AppContext));
 
     const [playlistData, setPlaylistData] = useState([]);
     const [albumAndMusicData, setAlbumAndMusicData] = useState([]);
 
     ////////// MBJ //////////
-    // 전체선택 베너
-    const [allcheckVal, setAllcheckVal] = useState(false);
     // 플레이어 추가 베너
     const [playerBannerOn, setPlayerBannerOn] = useState(false);
     //
@@ -39,43 +41,39 @@ function DetailMylist({playlist_id, handleRender}) {
         setPlaylistModalOpen(playlistModalOpen => {return !playlistModalOpen;})
     }
 
-    const clickPlaylistModalOpen = (e, music_id, img) =>{
-        e.preventDefault();
-        setPlaylistModalData([music_id, img]);
-        setPlaylistModalOpen(true);
-    }
-
     const [openEditForm, setOpenEditForm] = useState(false);
     const [currentPlaylistName, setCurrentPlaylistName] = useState('');
     const [duplicatedModalOpen, setDuplicatedModalOpen] = useState(false);
     const [detailMylistAddMusicModalOpen, setDetailMylistAddMusicOpen] = useState(false);
     const [detailMylistAddMusicModalData, setDetailMylistAddMusicModalData] = useState([]);
 
-    const clickToOpenEditForm = (e) =>{
+    const clickToOpenEditForm = (e, playlistTitle) =>{
         e.preventDefault();
         if(openEditForm == false){
             setOpenEditForm(true);
+            setCurrentPlaylistName(playlistTitle);
         }else{
             setOpenEditForm(false);
         }
     }
 
-    const changePlaylistName = async(e) =>{
+    const changePlaylistName = async(e, before_playlist_name) =>{
         e.preventDefault();
         const userData = {
             playlist_id: playlistData[0].playlist_id,
             playlist_name: currentPlaylistName,
+            before_playlist_name: before_playlist_name,
             character_id: userid_cookies
         }
         
-        await Axios.post(`http://localhost:8080/playlist/detail/detailmylist/changeplaylistname`, userData)
+        await Axios.post(`/playlist/detail/detailmylist/changeplaylistname`, userData)
         .then(({data}) =>{
             console.log(data);
             if(data === 1){
-                console.log('플레이리스트 이름 중복됨');
+                // 플레이 리스트 이름 중복
                 setDuplicatedModalOpen(true);
             }else{
-                console.log('플레이리스트 이름 변경됨');
+                // 플레이리스트 이름 변경
                 window.location.reload();
             }
         });
@@ -125,7 +123,7 @@ function DetailMylist({playlist_id, handleRender}) {
     useEffect(() => {     
 
         // likey 목록 가져옴
-        if(userid_cookies !== undefined){
+        if(isSessionValid){
             Axios.post("/ezenmusic/allpage/likeylist/", {
                 character_id: userid_cookies,
                 division: "liketrack"
@@ -178,7 +176,6 @@ function DetailMylist({playlist_id, handleRender}) {
         { playlistModalOpen && <PlaylistAdd setPlaylistModalOpen={setPlaylistModalOpen} playlistModalData={playlistModalData} handleplaylistModal={handleplaylistModal}/> }
         {/* { allcheckVal && <AllCheckedModal setAllcheckVal={setAllcheckVal}/> } */}
         { playerBannerOn && <PlayerBanner playerBannerOn={playerBannerOn} setPlayerBannerOn={setPlayerBannerOn} page={"channel"} /> }
-
         { detailMylistAddMusicModalOpen && 
             <DetailMylistAddMusic setDetailMylistAddMusicOpen={setDetailMylistAddMusicOpen} handleRender={handleRender} clickToAddMusicModalClose={clickToAddMusicModalClose} 
             detailMylistAddMusicModalData={detailMylistAddMusicModalData}/>
@@ -203,22 +200,21 @@ function DetailMylist({playlist_id, handleRender}) {
                                         !openEditForm?
                                         <>
                                         <span className="detail-title flex justify-start mb-[10px]">{playlistData[index].playlist_name}</span>
-                                        <button type='button' onClick={clickToOpenEditForm}>
+                                        <button type='button' onClick={(e) => clickToOpenEditForm(e, playlistData[index].playlist_name)}>
                                             <RiEdit2Fill className='text-[30px] cursor-pointer'/>
                                         </button>
                                         </>
                                         :
-                                        <form onSubmit={changePlaylistName} className='w-[850px] h-[48px] mb-[20px]'>
-                                            <input type="text" name="playlist_name" className='w-[760px] h-[48px] border-b-2 mb-[20px] text-[28px]' placeholder={playlistData[index].playlist_name} value={currentPlaylistName}  onChange={(e) => setCurrentPlaylistName(e.target.value)} />
+                                        <form onSubmit={(e) => changePlaylistName(e, playlistData[index].playlist_name)} className='w-[850px] h-[48px] mb-[20px]'>
+                                            <input required type="text" name="playlist_name" className='w-[760px] h-[48px] border-b-2 mb-[20px] text-[28px]' placeholder={playlistData[index].playlist_name} value={currentPlaylistName}  onChange={(e) => setCurrentPlaylistName(e.target.value)} />
                                             <input type="hidden" name="playlist_id" value={playlistData[0].playlist_id} />
-                                            <button type='reset' className='ml-[10px]' style={{color: "var(--main-theme-color)"}} onClick={clickToOpenEditForm}>취소</button>
+                                            <button type='reset' className='ml-[10px]' style={{color: "var(--main-theme-color)"}} onClick={(e) => clickToOpenEditForm(e, playlistData[index].playlist_name)}>취소</button>
                                             <button type='submit' className='ml-[20px]' style={{color: "var(--main-theme-color)"}}>확인</button>
                                         </form>
                                     }
                                 </div>
                                 
                                 <p className="font-normal">총 0곡</p>
-                                {/* <button className="artist_listplus ml-[-10px]" style={{backgroundImage:`url(${icons})`}} onClick={(e) => playerAdd()}></button> */}
                             </div>
                         </div>
                     </div>
@@ -237,15 +233,15 @@ function DetailMylist({playlist_id, handleRender}) {
                                         !openEditForm?
                                         <>
                                         <span className="detail-title flex justify-start mb-[10px]">{playlistData[index].playlist_name}</span>
-                                        <button type='button' onClick={clickToOpenEditForm} >
+                                        <button type='button' onClick={(e) => clickToOpenEditForm(e, playlistData[index].playlist_name)}>
                                             <RiEdit2Fill className='text-[30px] cursor-pointer'/>
                                         </button>
                                         </>
                                         :
-                                        <form onSubmit={changePlaylistName} className='w-[850px] h-[48px] mb-[20px]'>
-                                            <input type="text" name="playlist_name" className='w-[760px] h-[48px] border-b-2 mb-[20px] text-[28px]' placeholder={playlistData[index].playlist_name} value={currentPlaylistName}  onChange={(e) => setCurrentPlaylistName(e.target.value)} />
+                                        <form onSubmit={(e) => changePlaylistName(e, playlistData[index].playlist_name)} className='w-[850px] h-[48px] mb-[20px]'>
+                                            <input required type="text" name="playlist_name" className='w-[760px] h-[48px] border-b-2 mb-[20px] text-[28px]' placeholder={playlistData[index].playlist_name} value={currentPlaylistName}  onChange={(e) => setCurrentPlaylistName(e.target.value)} />
                                             <input type="hidden" name="playlist_id" value={playlistData[0].playlist_id} />
-                                            <button type='reset' className='ml-[10px]' style={{color: "var(--main-theme-color)"}} onClick={clickToOpenEditForm}>취소</button>
+                                            <button type='reset' className='ml-[10px]' style={{color: "var(--main-theme-color)"}} onClick={(e) => clickToOpenEditForm(e, playlistData[index].playlist_name)}>취소</button>
                                             <button type='submit' className='ml-[20px]' style={{color: "var(--main-theme-color)"}}>확인</button>
                                         </form>
                                     }
@@ -267,8 +263,8 @@ function DetailMylist({playlist_id, handleRender}) {
                 <StyledMylistDivFalse key={index} className='md:w-[1000px] xl:w-[1280px] 2xl:w-[1440px] h-[450px] flex flex-wrap justify-center items-center mx-auto'>
                     <div className='flex flex-col text-center'>
                     <img src="/image/noplaylist.svg" alt="noplaylist" />
-                    <p className='mt-2 font-bold'>내 리스트에 곡이 없어요</p>
-                    <span className='mt-1 mb-3'>곡을 추가해주세요!</span>
+                    <p className='message-1'>내 리스트에 곡이 없어요</p>
+                    <p className='message-2'>곡을 추가해주세요!</p>
                     <button type='button' onClick={(e) => clickToAddMusicModalOpen(e, item.playlist_id, item.playlist_name)}> + 곡 추가하기 </button>
                     </div>
                 </StyledMylistDivFalse>
@@ -304,33 +300,34 @@ const StyledDetail = styled.div`
     
     .null-image{
         position: relative;
+        border: 1px solid #efefef;
         border-radius: 6px;
         background-color: var(--mylist-null-image-cover);
     }
     .null-image::before{
-        position: absolute;
-        display: block;
-        top: -4px;
-        content: "";
-        z-index: -1;
-        left: 2.5%;
         width: 95%;
         height: 95%;
-        background-color: var(--mylist-null-image-before);
-        opacity: 0.5;
-        border-radius: 10px;
+        position: absolute;
+        z-index: -2;
+        top: -4px;
+        right: 2.5%;
+        display: inline-block;
+        content: "";
+        background-color: #e3e3e3;  
+        opacity: 1;
+        border-radius: 6px;
     }
     .null-image::after{
         position: absolute;
         display: block;
         top: -8px;
         content: "";
-        z-index: -2;
+        z-index: -3;
         left: 5%;
         width: 90%;
         height: 90%;
         background-color: var(--mylist-null-image-after);
-        opacity: 0.8;
+        opacity: 1;
         border-radius: 10px;
     }
     .null-image span{
@@ -389,17 +386,39 @@ export const StyledBrowser = styled.div`
 `;
 
 const StyledMylistDivFalse = styled.div`
-  img{
+    img{
     width: 180px;
     height: 130px;
-  }
-  button{
-    margin-left: 40px;
-    margin-top: 5px;
-    border: 1px solid var(--main-text-gray-lighter);
-    padding: 5px;
-    border-radius: 20px;
-    font-size: 14px;
-    width: 100px;
-  }
+}
+    button{
+        width: 100px;
+        height: 32px;
+        margin: 0 auto; 
+        padding: 0 15px;
+        font-size: 12px;
+        line-height: 32px;
+        text-align: center;
+        vertical-align: top;
+        border: 1px solid #ebebeb;
+        border-radius: 16px;
+
+        display: inline-flex;
+        align-items: center;
+        &:hover{
+            border-color: var(--main-theme-color);
+            color: var(--main-theme-color);
+        }
+    }
+    p.message-1{
+        font-size: 17px;
+        font-weight: 600;
+        color: #333;
+        margin-top: 20px;
+    }
+    p.message-2{
+        margin-top: 10px;
+        margin-bottom: 30px;
+        font-size: 15px;
+        color: #989898;
+    }
 `

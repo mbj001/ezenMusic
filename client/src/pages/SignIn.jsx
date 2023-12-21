@@ -4,21 +4,17 @@ import styled from 'styled-components'
 import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai'
 import { Link } from 'react-router-dom'
 import axios from 'axios'
-import { AppContext, SetAppContext } from '../App'
+import { AppContext } from '../App'
 import LoginFailure from '../modal/LoginFailure'
 import { getCookie, setCookie } from '../config/cookie'
-import Loading from '../components/Loading'
 
 const SignIn = () => {
     const isSessionValid = useContext(AppContext); 
-    const setIsSessionValid = useContext(SetAppContext);
 
     const [ userInputId, setUserInputId ] = useState('');
     const [ userInputPassword, setUserInputPassword ] = useState('');
-    const [ loading, setLoading ] = useState(false);
-    const [ error, setError ] = useState(false);
-    const [ loginStatus, setLoginStatus ] = useState(isSessionValid);
-    const [ rememberId, setRememberId ] = useState(false);
+    const [ active, setActive ] = useState(false);
+    const [ remember, setRemember ] = useState(false);
 
     const [ modalOpen, setModalOpen ] = useState(false);
 
@@ -27,8 +23,7 @@ const SignIn = () => {
     const iconRef = useRef();
     const checkBoxRef = useRef();
 
-    const showpass = (e) =>{ 
-        e.preventDefault();
+    const showpass = () =>{ 
         iconRef.current.classList.toggle('d-none');
         if(passwordInput.current.type === 'password'){
             passwordInput.current.type = 'text';
@@ -39,32 +34,15 @@ const SignIn = () => {
 
     const loginSubmit = async(e) => {
         e.preventDefault();
-        setLoading(true);
-        //checkInputValue();
-        await login();
-        setLoading(false);
-    }
-
-    const checkInputValue = () =>{
-        // 정규식 이용해서 사용자가 입력한 값 검증절차
-        if(true){
-            return true;
-        }else{
-            return false;
+        if(active){
+            await login();
         }
     }
 
     const login = async() => {
-        console.log('login 실행')
-        const sendDataToServer = {
-            adminId: idInput.current.value,
-            adminPw: userInputPassword,
-            isAdmin: 'client'
-        };
-        const recievedData = await axios.post(`/login`,sendDataToServer);
-        console.log(recievedData);
+        const recievedData = await axios.post(`/login`,{adminId: idInput.current.value, adminPw: userInputPassword, isAdmin: 'client'});
         if(recievedData.data.loginSucceed){
-            console.log('로그인 성공!!!');
+
             setCookie('client.sid', recievedData.data.clientID, {
                 path: '/',
                 secure: false,
@@ -76,7 +54,7 @@ const SignIn = () => {
                 secret: process.env.COOKIE_SECRET
             });
             const character = await axios.post('/verifiedClient/issuanceCharacterCookie', {token: getCookie('connect.sid'), clientId: getCookie('client.sid')});
-            // console.log(character);
+
             setCookie('character.sid', character.data.characterId, {
                 path: '/',
                 secure: false,
@@ -100,63 +78,52 @@ const SignIn = () => {
 
             window.location='/';
         }else{
-            console.log('사용자 정보가 일치하지 않습니다');
             setModalOpen(true);
         }
     };
 
     useEffect(()=>{
-        // window.localStorage.getItem() 반환값 => String !!! NOT Boolean
+        if(userInputId !== '' && userInputPassword !== ''){
+            setActive(true);
+        }else{
+            setActive(false);
+        }
+    }, [userInputId, userInputPassword]);
+
+    useEffect(()=>{
         if(window.localStorage.getItem('remember') === 'true'){
+            setRemember(true);
             idInput.current.value = window.localStorage.getItem('ID');
-            checkBoxRef.current.checked = true;
+            setUserInputId(window.localStorage.getItem('ID'));
         }else{
-            checkBoxRef.current.checked = false;
         }
-    },[])
-
-    useEffect(()=>{
-        if(loading){
-            console.log('로딩중...');
-        }else{
-            console.log('로딩 끝');
-        }
-    }, [loading]);
-
-    useEffect(()=>{
-        if(error){
-            console.log('서버와의 연결이 원활하지 않습니다');
-        }else{
-            console.log('에러 없음');
-        }
-    }, [error]);
+    },[]);
 
     return (
         <MainStyledSection>
-            {loading && <Loading />}
             {modalOpen && <LoginFailure setModalOpen={setModalOpen}/>}
             <div className="h-[700px] flex align-items-center justify-center pt-10">
                 <LoginFormCover className='login-form border-2 w-[700px] h-[600px]'>
                     {
-                        isSessionValid === 'false'? 
+                        isSessionValid === false? 
                         <>
                             <form onSubmit={loginSubmit} className='flex flex-col align-items-center justify-center'>
                                 <input type="text" id='userId' className='input-text' placeholder='아이디' onChange={e=>setUserInputId(e.target.value)} ref={idInput} />
                                 <div className='password-input-cover'>
-                                    <span className='show' onClick={showpass} >
+                                    <span className='show' onClick={() => showpass()} >
                                         <AiFillEye/>
                                     </span>
-                                    <span className='d-none hide' ref={iconRef} onClick={showpass}>
+                                    <span className='d-none hide' ref={iconRef} onClick={() => showpass()}>
                                         <AiFillEyeInvisible/>
                                     </span>
-                                    <input type="password" id='userPw' className='input-text' placeholder='비밀번호' onChange={e=>setUserInputPassword(e.target.value)} ref={passwordInput} autoComplete="off"/>
+                                    <input type="password" id='userPw' className='input-text' placeholder='비밀번호' onChange={e => setUserInputPassword(e.target.value)} ref={passwordInput} autoComplete="off"/>
                                 </div>
                                 
                                 <div className='checkbox-cover'>
-                                    <input type="checkbox" id='rememberId' name='remember-id' className='remember-login-info' ref={checkBoxRef}/>
+                                    <input type="checkbox" id='rememberId' name='remember-id' className='remember-login-info' ref={checkBoxRef} checked={remember? true : false}/>
                                     <span className='ml-5 text-md'>아이디 저장</span>
                                 </div>
-                                <button type='submit' id='loginButton' className={ idInput.current?.value && userInputPassword !== '' ? 'submit-able active' : 'submit-able'}>
+                                <button type='submit' id='loginButton' className={active ? 'submit-able active' : 'submit-able'}>
                                     로그인
                                 </button>
                             </form>
@@ -171,9 +138,6 @@ const SignIn = () => {
                                             <Link to='/signup' >회원가입</Link>
                                         </p>
                                     </div>
-                                </div>
-                                <div className='w-full h-[40px] flex align-items-center justify-center'>
-                                    {/* 카카오톡 로그인 */}
                                 </div>
                             </div>
                         </>

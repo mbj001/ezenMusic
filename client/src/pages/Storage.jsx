@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import styled from 'styled-components'
 import { RiHeart3Line } from "react-icons/ri";
-import { useParams, Outlet, NavLink, useLocation } from 'react-router-dom';
+import { Outlet, NavLink, useLocation } from 'react-router-dom';
 
 const Storage = () => {
     const [activeTab, setActiveTab] = useState(false)

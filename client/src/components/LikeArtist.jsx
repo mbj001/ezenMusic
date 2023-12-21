@@ -1,7 +1,7 @@
 import React, {useState, useEffect, useContext} from 'react'
 import Axios from "axios"
 import styled from 'styled-components'
-import { userid_cookies } from '../config/cookie';
+import { Cookies } from 'react-cookie';
 import { Link } from 'react-router-dom';
 import { RiCheckFill } from "react-icons/ri";
 import { StyledMylistDiv } from './LikeTrack';
@@ -9,11 +9,14 @@ import LoginRequest from '../card/LoginRequest';
 import MylistSelectModal from '../modal/MylistSelectModal';
 import MylistDeleteConfirm from '../modal/MylistDeleteConfirm';
 import { AppContext } from '../App'
+import { playerAdd } from '../procedure/playerAddButton';
+import { PlayButton } from '../style/StyledIcons';
+import PlayerBanner from '../card/PlayerBanner';
 
-function LikeArtist({division}) {
-    // LSR
-    // 로그아웃한 상태에서 쿠키에 character.sid 아무렇게나 만들어두면 userid_cookies에 이상한 값 들어가면서 
-    // LoginRequest 페이지가 풀려버려서 app.js에서 뿌려주는 context 추가했어요
+function LikeArtist({division, handleRender}) {
+    
+    const cookies = new Cookies();
+    const userid_cookies = cookies.get("character.sid");
     const isSessionValid = JSON.parse(useContext(AppContext));
 
     const [likeAlbumList, setLikeAlbumList] = useState([]);
@@ -26,11 +29,12 @@ function LikeArtist({division}) {
     const [selectedAll, setSelectedAll] = useState(false);
     // ~ Detete and Delete Confirm Variables
 
-    
+    // 플레이어 추가 베너
+    const [playerBannerOn, setPlayerBannerOn] = useState(false);
+
     // Delete and Delete Confirm Functions
     // edit mode click
-    const clickToEditMode = async(e) =>{
-        e.preventDefault();
+    const clickToEditMode = async() =>{
         if(editMode == false){
             setEditMode(true);
         }else{
@@ -62,11 +66,11 @@ function LikeArtist({division}) {
 
         for(let i=0; i<delcheckArray.length; i++){
             if(delcheckArray[i].delcheckVal === true){
-            setSelectedIcon(true);
-            break;
+                setSelectedIcon(true);
+                break;
             }
             if(i === delcheckArray.length - 1){
-            setSelectedIcon(false);
+                setSelectedIcon(false);
             }
         }
     }
@@ -78,9 +82,9 @@ function LikeArtist({division}) {
         let delcheckArray = [];
 
         for(let i=0; i<likeAlbumList.length; i++){
-            delcheckArray.push(likeAlbumList[i]);
+                delcheckArray.push(likeAlbumList[i]);
             if(delcheckArray[i].delcheckVal === true){
-            delcheckArray[i].delcheckVal = false;
+                delcheckArray[i].delcheckVal = false;
             }
         }
 
@@ -143,7 +147,7 @@ function LikeArtist({division}) {
     // ~ Delete and Delete Confirm Functions
 
     useEffect(() => {
-        if(userid_cookies !== undefined){
+        if(isSessionValid){
             Axios.post("/ezenmusic/storage/likeartist", {
                 character_id: userid_cookies,
                 division: division
@@ -168,8 +172,9 @@ function LikeArtist({division}) {
 
     return (
         <>
+        { playerBannerOn && <PlayerBanner playerBannerOn={playerBannerOn} setPlayerBannerOn={setPlayerBannerOn} page={"albumtrack"} /> }
         {
-            isSessionValid && userid_cookies ?
+            isSessionValid ?
             <>
             {
                 !hasLikeyList?
@@ -188,15 +193,16 @@ function LikeArtist({division}) {
                     // Not EditMode
                     !editMode?
                     <div className='col-12 flex justify-end mb-[30px]'>
-                        <span className='edit cursor-pointer text-[13px]' onClick={clickToEditMode}>편집</span>
+                        <span className='edit cursor-pointer text-[13px]' onClick={() => clickToEditMode()}>편집</span>
                     </div>
                     :
                     <div className='col-12 flex justify-between mb-[30px]'>
-                        <span className='select-all flex cursor-pointer text-[13px]' onClick={ selectedAll? handleDeleteNone  : handleDeleteAll}><RiCheckFill className='mt-[3px] mr-[3px]'/> 전체선택</span>
-                        <span className='edit cursor-pointer text-[13px]' style={{color: "var(--main-theme-color)"}} onClick={clickToEditMode}>완료</span>
+                        <span className='select-all flex cursor-pointer text-[13px]' onClick={ selectedAll? () => handleDeleteNone()  : () => handleDeleteAll()}><RiCheckFill className='mt-[3px] mr-[3px]'/> 전체선택</span>
+                        <span className='edit cursor-pointer text-[13px]' style={{color: "var(--main-theme-color)"}} onClick={() => clickToEditMode()}>완료</span>
                     </div>
 
                 }
+                <div className='grid-main'>
                 {
                     likeAlbumList.map((item, index) => (
                         <div key={index} className="relative album-box w-[450px] flex items-center mb-[40px]">
@@ -206,13 +212,17 @@ function LikeArtist({division}) {
                                     <RiCheckFill className={ item.delcheckVal? 'selected w-full h-full text-[20px]' : 'checkbox-icon w-full h-full text-[20px]' } onClick={(e) => clickToSelectPlaylist(e, index)} />
                                 </div>
                             }
-                            <Link to={"/detail/artist/"+item.artist_id+"/artisttrack"}>
-                                <div className={ item.delcheckVal? "border-1 M-img-border w-[175px] h-[175px] rounded-[50%] brightness-75 overflow-hidden" : "border-1 M-img-border w-[175px] h-[175px] rounded-[50%] overflow-hidden"}>
-                                    <img src={"/image/artist/"+item.org_artist_image} alt="cover_image" className="w-full h-full object-cover" />
-                                </div>
-                            </Link>
+                            <div className='relative img-box'>
+                                <Link to={"/detail/artist/"+item.artist_id+"/track?sortType=POPULARITY"}>
+                                    <div className={ item.delcheckVal? "border-1 M-img-border w-[175px] h-[175px] rounded-[50%] brightness-75 overflow-hidden" : "border-1 M-img-border w-[175px] h-[175px] rounded-[50%] overflow-hidden"}>
+                                        <img src={"/image/artist/"+item.org_artist_image} alt="cover_image" className="w-full h-full object-cover" />
+                                    </div>
+                                </Link>
+                                {/* 좋아요 페이지는 로그인 체크 필요 x */}
+                                <PlayButton className='absolute bottom-[5px] right-0' onClick={()=> playerAdd("like_artist", item.artist_id, handleRender, setPlayerBannerOn)}> </PlayButton>
+                            </div>
                             <div className="ml-[20px]">
-                                <Link to={"/detail/artist/"+item.artist_id+"/artisttrack"}><p className="font-bold mb-[7px] hover-text-blue">{item.artist_name}</p></Link>
+                                <Link to={"/detail/artist/"+item.artist_id+"/track?sortType=POPULARITY"}><p className="font-bold mb-[7px] hover-text-blue">{item.artist_name}</p></Link>
                                 <p className="text-[11px] mb-[10px] flex items-center text-gray">{item.artist_class} <span className="px-[5px] text-[7px]">|</span> {item.artist_gender} <span className="px-[5px] text-[7px]">|</span> {item.genre}</p>
                                 <p className="text-[13px] mb-[2px]">{item.album_size}</p>
                                 <p className="text-[12px] text-gray">{item.release_date_format}</p>
@@ -220,6 +230,7 @@ function LikeArtist({division}) {
                         </div>
                     ))
                 }
+                </div>
             </StyledLikeAlbum>
             }
             </>
@@ -231,13 +242,32 @@ function LikeArtist({division}) {
 }
 
 export const StyledLikeAlbum = styled.div`
-    margin-bottom: 20px;
-    display: flex;
-    flex-wrap: wrap;
+    .grid-main{
+        @media (min-width: 1024px){ 
+            width: 100%;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 30px;
+        }
+        @media (max-width: 1024px){
+            width: 100%;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+    // margin-bottom: 20px;
+    // display: flex;
+    // flex-wrap: wrap;
 
     img:hover{
         filter: brightness(70%)
     }
+    // .img-box{
+    //     border: 1px solid #efefef;
+    //     border-radius: 50%;
+    // }
 
     .edit:hover{
         color: var(--main-theme-color);

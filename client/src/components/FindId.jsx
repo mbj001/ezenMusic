@@ -3,104 +3,51 @@ import styled from 'styled-components'
 import { BsCheckSquareFill } from 'react-icons/bs'
 import { Link } from 'react-router-dom'
 import axios from 'axios'
+import { voucherSwitch } from '../methods/voucherSwitch'
 
-/**
- * FindByIdResult 
- * 1. notyet: 찾기 전 
- * 2. success: 찾아보니 아이디 존재 -> 이메일 몇자리 가려서 보여주고 로그인화면으로 이동버튼
- * 3. fail: 아이디 없음 -> 회원가입페이지 이동버튼
- * 
- * ("문자열").replace(/정규표현식/, "대체문자열")
- * (정규표현식).test("문자열") -> 일치여부 확인 true / false
- * userInputEmail.test(/[\w\-\.]+\@[\w\-\.]+/g);
- * /[\w\-\.]+\@[\w\-\.]+\.[\w\-\.]+/g
- */
 const FindId = () => {
-    // 정규표현식
-    // const phoneRegExp = /\d{3}-\d{4}-\d{4}/;
-    // const nameRegExp =  /[\w\S]+/g;
-
     const [ findIdResultState, setfindIdResultState ] = useState('notyet');
-    const [ loading, setLoading ] = useState(false);
-    const [ error, setError ] = useState(false);
-    // check input data format
-    const [ availableData, setAvailableData ] = useState(true);
-    // send data to server
     const [ userInputName, setUserInputName ] = useState('');
     const [ userInputPhone, setUserInputPhone ] = useState('');
-    // recieved data from server
-    const [ userId, setUserId ] = useState('exampleId');
-    const [ userTicketType, setUserTicketType ] = useState('이용권 없음');
+    const [ userId, setUserId ] = useState([]);
+    const [ active, setActive ] = useState(false);
+    const [ userTicketType, setUserTicketType ] = useState([]);
 
     const findButtonRef = useRef();
     
     const submitFindIdData = async(e) => {
         e.preventDefault();
-        if(availableData){
-            setLoading(true);
+        if(active){
             await getDataFromServer();
-            setLoading(false);
         }else{
             console.log('availableData = false');
         }
     }
 
     const getDataFromServer = async () => {
-        try{
-            const sendDataToServer = {
-                name: userInputName,
-                phone: userInputPhone
-            };
-            const getData = await axios.post(`/client/find`,sendDataToServer);
-            const recievedData = JSON.parse(getData.request.response);
-            console.log(recievedData);
-            if(recievedData.databaseError){
-                console.log('sql 에러');
-            }else{
-                if(recievedData.emptyData){
-                    setfindIdResultState('fail');
-                }else{
-                    setfindIdResultState('success');
-                    // 서버랑 통신 성공, db에러 없고, 빈 데이터 아닌 정상적인 데이터 도착
-                    if(recievedData.ticket_type === 'guest'){
-                        setUserTicketType('이용권 없음');
-                    }else{
-                        setUserTicketType(recievedData.ticket_type);
-                    }
-                    setUserId(recievedData.userid);
-                }
-            }
-        }catch(error){
-            setError(true);
-            console.log(error);
+        const getData = await axios.post(`/guest/find`,{name: userInputName, phone: userInputPhone});
+        if(getData.data.emptyData){
+            setfindIdResultState('fail');
+        }else{
+            setfindIdResultState('success');
+
+            let voucher = getData.data.ticket_type;
+            voucher.forEach((data, index) => {
+                voucher[index] = voucherSwitch(data);
+            });
+
+            setUserTicketType(voucher);
+            setUserId(getData.data.user_id);
         }
     }
-    useEffect(()=>{
-        // if(/[\s]/g.test(userInputName) && /\d{3}-\d{4}-\d{4}/.test(userInputPhone)){
-        //     setAvailableData(false);
-        //     findButtonRef.current.classList.remove('button-active');
-        // }else{
-        //     setAvailableData(true);
-        //     findButtonRef.current.classList.add('button-active');
-        // }
-        // findButtonRef.current.classList.add('button-active');
-    }, [userInputName, userInputPhone]);
-    
-    useEffect(()=>{
-        if(loading){
-            console.log('로딩중...');
-        }else{
-            console.log('로딩 끝');
-        }
-    }, [loading]);
 
     useEffect(()=>{
-        if(error){
-            console.log('서버와의 연결이 원활하지 않습니다');
+        if(/^[가-힣]+$/.test(userInputName) && /^\d{3}-\d{3,4}-\d{4}$/.test(userInputPhone)){
+            setActive(true);
         }else{
-            console.log('에러 없음');
+            setActive(false);
         }
-    }, [error]);
+    }, [userInputName, userInputPhone]);
 
     return (
         <div className="h-[700px] flex align-items-center justify-center flex-col">
@@ -110,7 +57,7 @@ const FindId = () => {
             <div className='mb-10'>
                 
             </div>
-            <FindFormCover className='login-form border-2 w-[700px] h-[500px]'>
+            <FindFormCover className='login-form border-2 w-[700px] h-[600px]'>
                 {
                     findIdResultState === 'notyet' ?
 
@@ -118,28 +65,33 @@ const FindId = () => {
                         <p className='text-[35px] font-bold mb-5'>아이디 찾기</p>
                         <input type="text" id='userId' className='input-text' placeholder='이름' onChange={e=>setUserInputName(e.target.value)}/>
                         <input type="text" id='userPw' className='input-text' placeholder='전화번호 (-포함)' onChange={e=>setUserInputPhone(e.target.value)}/>
-                        <button type='submit' id='loginButton' className='submit-able' ref={findButtonRef}>
+                        <button type='submit' id='loginButton' className={active ?'button-active mt-[30px]' : 'mt-[30px]'} disabled={active? false : true} ref={findButtonRef}>
                             다음
-                            {/* button-active 라는 클래스 주어져야 넘어갈 수 있게 처리할 예정 */}
                         </button>
                     </form>
 
                     : findIdResultState === 'success' ?
-
+                    
                     <FindSuccessCover className='h-[400px] flex flex-col align-items-center justify-center'>
                         <p className='text-[35px] font-bold mb-5'>{userInputName} 님의 아이디</p>
-                        <div className='find-result border-t-2 border-b-2 h-[100px]'>
-                            <BsCheckSquareFill/>
-                            <div className='result-box '>
-                                <span className='user-email'>
-                                    {userId}
-                                </span>
-                                <span className='user-ticket-info'>
-                                    {userTicketType}
-                                </span>
-                            </div>
-                        </div>
-                        <button type='button' id='go-signin'>
+                        {
+                            userId.map((data, index)=>{
+                                return(
+                                    <div key={index} className='find-result border-t-1'>
+                                        <BsCheckSquareFill/>
+                                        <div className='result-box '>
+                                            <span className='user-email'>
+                                                {data}
+                                            </span>
+                                            <span className='user-ticket-info'>
+                                                {userTicketType[index]}
+                                            </span>
+                                        </div>
+                                    </div>
+                                )
+                            })
+                        }
+                        <button type='button' id='go-signin' className='mt-[30px] border-t-1'>
                             <Link to='/signin'>로그인 페이지로 이동</Link>
                             {/* button-active 라는 클래스 주어져야 넘어갈 수 있게 처리할 예정 */}
                         </button>
@@ -224,9 +176,9 @@ const FindFormCover = styled.div`
 const FindSuccessCover = styled.div`
     width: 100%;
     .find-result{
+        height: 100px;
         width: 70%;
         height: 80px;
-        margin-bottom: 50px;
         display: flex;
         flex-direction: row;
         align-items: center;

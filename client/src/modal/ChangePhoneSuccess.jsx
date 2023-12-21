@@ -12,7 +12,7 @@ const ChangePhoneSuccess = ({setModalOpen}) => {
                 <p>
                     전화번호 변경이 완료됐습니다.<br/>메인 페이지    로 이동합니다.
                 </p>
-                <button type='button' onClick={closeModal}>
+                <button type='button' onClick={() => closeModal()}>
                     확인
                 </button>
             </div>

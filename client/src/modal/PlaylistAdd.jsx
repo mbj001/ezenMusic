@@ -3,10 +3,13 @@ import styled from 'styled-components'
 import Axios from 'axios'
 import { RiCloseFill, RiAddLine } from "react-icons/ri";
 import { PiMusicNotesLight } from "react-icons/pi";
-import { userid_cookies } from '../config/cookie';
+import { Cookies } from 'react-cookie';
 
 const PlaylistAdd = ({setPlaylistModalOpen, playlistModalData, handleplaylistModal, selectModalClose, setAddPlaylistBannerOn}) => {
 
+    const cookies = new Cookies();
+    const userid_cookies = cookies.get("character.sid");
+    
     const [addPlaylist, setAddPlaylist] = useState([]);
     const [addNewPlaylist, setAddNewPlaylist] = useState(false);
     const [duplicatedPlaylistName, setDuplicatedPlaylistName] = useState(false);
@@ -44,7 +47,6 @@ const PlaylistAdd = ({setPlaylistModalOpen, playlistModalData, handleplaylistMod
             music_id: playlistModalData.music_id,
             thumbnail_image: playlistModalData.thumbnail_image,
             album_title: playlistModalData.album_title,
-            theme_playlist: playlistModalData.playlist,
             playlist_name: playlist_name,
             playlist_id: playlist_id,
             album_id: playlistModalData.album_id,
@@ -92,8 +94,7 @@ const PlaylistAdd = ({setPlaylistModalOpen, playlistModalData, handleplaylistMod
       }
 
 
-    const clickToAddNewPlaylist = async(e) =>{
-        e.preventDefault();
+    const clickToAddNewPlaylist = async() =>{
         if(addNewPlaylist == false){
             await setAddNewPlaylist(true);
         }else{
@@ -101,8 +102,7 @@ const PlaylistAdd = ({setPlaylistModalOpen, playlistModalData, handleplaylistMod
         }
     }
 
-    const clickPlaylistModalClose = async(e) =>{
-        e.preventDefault();
+    const clickPlaylistModalClose = async() =>{
         await setPlaylistModalOpen(false);
     };
 
@@ -112,7 +112,7 @@ const PlaylistAdd = ({setPlaylistModalOpen, playlistModalData, handleplaylistMod
             <div className='modal-box flex flex-col w-[530px] max-h-[768px] overflow-y-scroll overflow-x-hidden'>
                 <div className='modal-header w-[530px] h-[90px] flex justify-between'>
                     <span className='ml-[30px]'>내 리스트에 담기</span>
-                    <RiCloseFill className='mr-[30px] w-[30px] h-[30px] cursor-pointer' onClick={clickPlaylistModalClose}/>
+                    <RiCloseFill className='mr-[30px] w-[30px] h-[30px] cursor-pointer' onClick={() => clickPlaylistModalClose()}/>
                 </div>
 
                 <div className='modal-contents flex flex-col mt-[5px] w-[530px] mb-[40px]'>
@@ -120,8 +120,8 @@ const PlaylistAdd = ({setPlaylistModalOpen, playlistModalData, handleplaylistMod
                         {
                             addNewPlaylist == false?
                             <>
-                            <div className='no-playlist w-[70px] h-[70px] border rounded-md cursor-pointer' onClick={clickToAddNewPlaylist}><RiAddLine className='mt-[22px] ml-[22px] text-[25px]'/></div>
-                            <span className='ml-3 cursor-pointer' onClick={clickToAddNewPlaylist}>새로운 리스트 추가하기</span>
+                            <div className='no-playlist w-[70px] h-[70px] border rounded-md cursor-pointer' onClick={() => clickToAddNewPlaylist()}><RiAddLine className='mt-[22px] ml-[22px] text-[25px]'/></div>
+                            <span className='ml-3 cursor-pointer' onClick={() => clickToAddNewPlaylist()}>새로운 리스트 추가하기</span>
                             </>
                             :
                             <form onSubmit={(e) => clickToAddNewMusicAndPlaylist(e)} method='post' className='relative mt-[30px]' >
@@ -133,7 +133,7 @@ const PlaylistAdd = ({setPlaylistModalOpen, playlistModalData, handleplaylistMod
                                         <input type="hidden" name="thumbnail_image" value={playlistModalData[1]} />
                                     </li>
                                     <li className=''>
-                                        <button className='absolute right-10' onClick={clickToAddNewPlaylist}>취소</button>
+                                        <button className='absolute right-10' onClick={() => clickToAddNewPlaylist()}>취소</button>
                                         <button type='submit' className='absolute right-0' style={{color: "var(--main-theme-color)"}}>생성</button>
                                     </li>
                                 </ul>
@@ -146,7 +146,7 @@ const PlaylistAdd = ({setPlaylistModalOpen, playlistModalData, handleplaylistMod
                         <div className='playlist flex items-center w-[470px] h-[90px] mx-auto cursor-pointer' onClick={(e) => clickToAddNewMusicToPlaylist(e, data.playlist_name, data.playlist_id)}>
                         {
                             addPlaylist[index].thumbnail_image == null?
-                            <div className='no-playlist w-[70px] h-[70px] border rounded-md cursor-pointer' onClick={clickToAddNewPlaylist}><PiMusicNotesLight className='mt-[22px] ml-[22px] text-[25px]'/></div>
+                            <div className='no-playlist w-[70px] h-[70px] border rounded-md cursor-pointer' onClick={() => clickToAddNewPlaylist()}><PiMusicNotesLight className='mt-[22px] ml-[22px] text-[25px]'/></div>
                             :
                             <img src={"/image/album/" + addPlaylist[index].thumbnail_image} alt="cover_image" className='w-[70px] h-[70px] rounded-md' />
                         }

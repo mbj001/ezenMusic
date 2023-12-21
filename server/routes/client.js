@@ -156,33 +156,7 @@ router.post('/find', (req,res)=>{
     });
 });
 
-router.post('/validate', (req,res)=>{
-    const dataFromClient = {
-        useridData: req.body.userid,
-        emailData: req.body.email,
-        birthData: req.body.birth
-    };
-    const sendDataToClient = {
-        valid: false,
-        databaseError: false,
-        databaseErrorLog: ''
-    };
-    const validateQuery = `select username from client where userid = '${dataFromClient.useridData}' and email = '${dataFromClient.emailData}' and birth = '${dataFromClient.birthData}'`;
-    conn.query(validateQuery, (error, result, fields)=>{
-        if(error){
-            console.log(error.message);
-            sendDataToClient.databaseError = true;
-            sendDataToClient.databaseErrorLog = error?.message;
-            res.send(sendDataToClient);
-        }else{
-            console.log(result);
-            result[0]?.username ? sendDataToClient.valid = true : sendDataToClient.valid = false;
-            console.log(sendDataToClient);
-            res.send(sendDataToClient);
-            
-        }
-    });
-});
+
 router.get('/info', (req,res)=>{
     const queryString = req.query;
     console.log(queryString);

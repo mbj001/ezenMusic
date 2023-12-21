@@ -1,31 +1,34 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useRef, useState } from 'react'
 import styled from 'styled-components'
 import { TfiClose } from "react-icons/tfi";
 import axios from 'axios';
 import { getCookie, setCookie } from '../config/cookie';
-import UseOnClickOutside from '../hook/UseOnClickOutside'
-import { useNavigate } from 'react-router-dom';
 
 const CreateCharacterModal = ({setModalOpen, characterNumber}) => {
     const [ characterName, setCharacterName ] = useState('');
-
-    const navigate = useNavigate();
     const createInputRef = useRef();
 
     const removeName = () => {
         setCharacterName('');
     }
     
-    const createCharacter = async(e) => {
-        e.preventDefault();
+    const createCharacter = async() => {
         if(characterName === '' || characterName === undefined || characterName === null){
         
         }else{    
             const success = await axios.post('/verifiedClient/createCharacter', {token: getCookie('connect.sid'), id: getCookie('client.sid'), characterName: characterName, characterNumber: characterNumber});
             if(success.data.success){
                 // const response = await axios.post('/verifiedClient/createPreferPlaylist', {token: getCookie('connect.sid'), })
-                setCookie('character.sid', success.data.characterId);
-                setCookie('pfimg', success.data.characterNum);
+                setCookie('character.sid', success.data.characterId,{
+                    path: '/',
+                    secure: false,
+                    secret: process.env.COOKIE_SECRET
+                });
+                setCookie('pfimg', success.data.characterNum,{
+                    path: '/',
+                    secure: false,
+                    secret: process.env.COOKIE_SECRET
+                });
                 window.location = '/discovery';
                 // navigate('/discovery');
             }else{
@@ -42,10 +45,10 @@ const CreateCharacterModal = ({setModalOpen, characterNumber}) => {
         <CreateCharacter>
             <div className='create-modal-box'>
                 <p className='mt-2 mb-2'>캐릭터 만들기</p>
-                <form onSubmit={e=>e.preventDefault()}>
+                <form onSubmit={e => e.preventDefault()}>
                     <input type="text" ref={createInputRef} onChange={(e)=>setCharacterName(e.target.value)} value={characterName} maxLength={9} placeholder='캐릭터 이름 입력'/>
                     <div className='remove-all'>
-                        <button type='button' onClick={removeName}>
+                        <button type='button' onClick={() => removeName()}>
                             <TfiClose/>
                         </button>
                         </div>
@@ -53,10 +56,10 @@ const CreateCharacterModal = ({setModalOpen, characterNumber}) => {
                         <span className='name-length'>{characterName.length}</span>/10자
                     </span>
                     <div className='button-box'>
-                        <button type='button' className='cancel' onClick={closeModal}>
+                        <button type='button' className='cancel' onClick={() => closeModal()}>
                             취소
                         </button>
-                        <button type='button' className='submit' onClick={createCharacter}>
+                        <button type='button' className='submit' onClick={() => createCharacter()}>
                             확인
                         </button>
                     </div>

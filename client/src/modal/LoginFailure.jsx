@@ -11,7 +11,7 @@ const LoginFailure = ({setModalOpen}) => {
                 <p>
                     아이디 또는 비밀번호가<br/> 일치하지 않습니다.
                 </p>
-                <button type='button' onClick={closeModal}>
+                <button type='button' onClick={() => closeModal()}>
                     확인
                 </button>
             </div>

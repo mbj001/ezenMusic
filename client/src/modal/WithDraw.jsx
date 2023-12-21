@@ -38,10 +38,6 @@ const WithDraw = ({setModalOpen}) => {
         }
     }
 
-    // useEffect(()=>{
-    //     console.log(checked);
-    // }, [checked]);
-
     useEffect(()=>{
         if(directChecked){
             directRef.current.disabled = false;
@@ -50,46 +46,48 @@ const WithDraw = ({setModalOpen}) => {
             directRef.current.disabled = true;
         }
     }, [directChecked])
+
+
     return (
         <StyledModal>
             <div className='modal-box'>
-            <button type='button' className='close' onClick={closeModal}><IoCloseOutline /></button>
+            <button type='button' className='close' onClick={() => closeModal()}><IoCloseOutline /></button>
                 <div>
                     <p className='title'>회원탈퇴</p>
                     <p className='reason-text'>떠나시려는 이유를 알려주세요. <br/>더 나은 EZEN MUSIC이 되도록 노력할게요.</p>
                     <form>
                         <label>
-                            <input type="radio" onClick={checkRadio} id='reason1' name='reason' value={'reason1'}/>
+                            <input type="radio" onClick={(e) => checkRadio(e)} id='reason1' name='reason' value={'reason1'}/>
                             원하는 컨텐츠가 부족해요
                         </label>
                         <label>
-                            <input type="radio" onClick={checkRadio} id='reason2' name='reason' value={'reason2'}/>
+                            <input type="radio" onClick={(e) => checkRadio(e)} id='reason2' name='reason' value={'reason2'}/>
                             기능이 부족/불편해요
                         </label>
                         <label>
-                            <input type="radio" onClick={checkRadio} id='reason3' name='reason' value={'reason3'}/>
+                            <input type="radio" onClick={(e) => checkRadio(e)} id='reason3' name='reason' value={'reason3'}/>
                             오류가 잦아요
                         </label>
                         <label>
-                            <input type="radio" onClick={checkRadio} id='reason4' name='reason' value={'reason4'}/>
+                            <input type="radio" onClick={(e) => checkRadio(e)} id='reason4' name='reason' value={'reason4'}/>
                             가격/혜택이 부족해요
                         </label>
                         <label>
-                            <input type="radio" onClick={checkRadio} id='reason5' name='reason' value={'reason5'}/>
+                            <input type="radio" onClick={(e) => checkRadio(e)} id='reason5' name='reason' value={'reason5'}/>
                             서비스 정책이 마음에 안들어요
                         </label>
                         <label>
-                            <input type="radio" onClick={checkRadio} id='reason6' name='reason' value={'reason6'}/>
+                            <input type="radio" onClick={(e) => checkRadio(e)} id='reason6' name='reason' value={'reason6'}/>
                             직접 가입하지 않았어요
                         </label>
                         <label>
-                            <input type="radio" onClick={checkRadio} id='reason6' name='reason' value={'direct'}/>
+                            <input type="radio" onClick={(e) => checkRadio(e)} id='reason6' name='reason' value={'direct'}/>
                             기타
                         </label>
                         <input type="text" id='direct-reason' name='direct-reason' disabled={true} ref={directRef} placeholder='탈퇴하시려는 이유를 알려주세요.'/>
                     </form>
                 </div>
-                <button type='button' className={checked ? 'withdrawButton active' : 'withdrawButton'}  onClick={withdraw}>
+                <button type='button' className={checked ? 'withdrawButton active' : 'withdrawButton'}  onClick={() => withdraw()}>
                     다음
                 </button>
             </div>

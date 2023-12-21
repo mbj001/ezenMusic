@@ -13,25 +13,19 @@ import WithDraw from '../modal/WithDraw';
 const MyInfo = () => {
     const isSessionValid = JSON.parse(useContext(AppContext));
     const [ userData, setUserData ] = useState('');
-    const [ userTicket, setUserTicket ] = useState(true);
     const [ withdrawModalOpen, setWithdrawModalOpen ] = useState(false);
-    // console.log('isSessionValid: '+isSessionValid);
     
     const getdata = async () =>{
-        const id = getCookie('client.sid');
-        const token = getCookie('connect.sid');
-        await axios.post(`/verifiedClient/info`,{id: id, token: token}).then((res)=>{
+        await axios.post(`/verifiedClient/info`,{token: getCookie('connect.sid'), user_id: getCookie('client.sid')}).then((res)=>{
             if(res.data.valid === false){
-                // console.log('세션이 만료되어 자동 로그아웃됩니다.');
                 sessionExpiredLogoutMethod(true);
-            }else{
-                const clientDataFromServer = res.data;   
-                console.log(clientDataFromServer);             
-                clientDataFromServer.plan_type = voucherSwitch(clientDataFromServer.plan_type);
-                setUserData(clientDataFromServer);
+            }else{           
+                res.data.plan_type = voucherSwitch(res.data.plan_type);
+                setUserData(res.data);
             }
         }).catch((error)=>{console.log(error)});
     }
+
     const withdraw = () => {
         setWithdrawModalOpen(true);
     }
@@ -57,12 +51,10 @@ const MyInfo = () => {
                         </div>
                         
                         {
-                            userData.purchase === 0 ? 
+                            userData.purchase === 0 &&
                             <div className='move-purchase-link w-[100px]'>
                                 <Link to={'../purchase/voucher'}>이용권 구매</Link>
                             </div>
-                            :
-                            <></>
                         }
                     </UserInfoBox>
                     <ChangeUserInfo>
@@ -75,7 +67,7 @@ const MyInfo = () => {
                             </NavLink>
                         </div>
                         <div className='withdraw'>
-                            <button onClick={withdraw}>
+                            <button onClick={() => withdraw()}>
                                 회원탈퇴
                             </button>
                             {withdrawModalOpen && <WithDraw setModalOpen={setWithdrawModalOpen}/>}

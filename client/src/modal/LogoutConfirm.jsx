@@ -1,8 +1,9 @@
 import React from 'react'
 import styled from 'styled-components'
 
-const LogoutConfirm = ({setModalOpen}) => {
+const LogoutConfirm = ({setModalOpen, setConfirmLogout}) => {
     const closeModal = () =>{
+        setConfirmLogout(true);
         setModalOpen(false);
     }
     return (
@@ -11,12 +12,14 @@ const LogoutConfirm = ({setModalOpen}) => {
                 <p>
                     로그아웃하시겠습니까?
                 </p>
-                <button type='button' className='cancel' onClick={closeModal}>
-                    취소
-                </button>
-                <button type='button' className='logout'>
-                    확인
-                </button>
+                <div className='button-box'>
+                    <button type='button' className='cancel' onClick={()=>setModalOpen(false)}>
+                        취소
+                    </button>
+                    <button type='button' className='logout' onClick={() => closeModal()}>
+                        확인
+                    </button>
+                </div>
             </div>
         </StyledModal>
     )
@@ -25,7 +28,7 @@ const LogoutConfirm = ({setModalOpen}) => {
 export default LogoutConfirm
 
 const StyledModal = styled.div`
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     right: 0;
@@ -54,32 +57,39 @@ const StyledModal = styled.div`
             text-align: center;
             margin-bottom: 28px;
         }
-        .cancel{
-            width: 85px;
-            height: 36px;
-            padding: 0 15px;
-            font-size: 14px;
-            line-height: 36px;
-            color: var(--text-main-gray);
-            border-color: var(--text-main-gray);
-            text-align: center;
-            background-color: #ffffff;
-            border-radius: 5px;
-            &:hover{
-                color: #3f3fff;
-                border-color: #3f3fff;
+        .button-box{
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            .cancel{
+                width: 85px;
+                height: 36px;
+                padding: 0 15px;
+                font-size: 14px;
+                line-height: 36px;
+                color: var(--main-text-gray);
+                border: 1px solid var(--main-text-gray);
+                text-align: center;
+                background-color: #ffffff;
+                border-radius: 5px;
+                margin-right: 20px;
+                &:hover{
+                    color: #3f3fff;
+                    border-color: #3f3fff;
+                }
             }
-        }
-        .logout{
-            width: 85px;
-            height: 36px;
-            padding: 0 15px;
-            font-size: 14px;
-            line-height: 36px;
-            color: #fff;
-            text-align: center;
-            background-color: #3f3fff;
-            border-radius: 5px;
+            .logout{
+                width: 85px;
+                height: 36px;
+                padding: 0 15px;
+                font-size: 14px;
+                line-height: 36px;
+                color: #fff;
+                text-align: center;
+                background-color: #3f3fff;
+                border-radius: 5px;
+            }
         }
     }
 `;

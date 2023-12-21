@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 import {voucherSwitch} from '../methods/voucherSwitch'
 import {planDescription} from '../data/planTypeDescriptions' 
-import { CiBookmarkCheck } from "react-icons/ci";
 import { TbMusicCheck } from "react-icons/tb";
 import axios from 'axios';
 import { getCookie } from '../config/cookie';
@@ -25,13 +24,10 @@ const PurchaseVoucher = ({setModalOpen, plan_type}) => {
     let userchoiceplan = plan.description;
 
     const check = async()=>{
-        const check = await axios.post('/verifiedClient/checkCurrentVoucher', {token: getCookie('connect.sid'), id: getCookie('client.sid')});
-
+        const check = await axios.post('/verifiedClient/checkCurrentVoucher', {token: getCookie('connect.sid'), user_id: getCookie('client.sid')});
         if(check.data.standbyVoucher){
-            console.log('사용대기 있음');
             setStandby(true);
         }else{
-            console.log('사용대기 없음');
             setStandby(false);
         }
         if(check.data.currentVoucher){
@@ -53,21 +49,19 @@ const PurchaseVoucher = ({setModalOpen, plan_type}) => {
                     token: getCookie('connect.sid'),
                     id: getCookie('client.sid'),
                     type: plan_type,
-                    database: 'voucher',
+                    database: '',
                     currentVoucher: alreadyHave,
                     currentVoucherEndDate: currentVoucherEndDate
                 }
                 alreadyHave ? userData.database = 'standby_voucher' : userData.database = 'voucher';
                 const res = await axios.post('/verifiedClient/buy', userData);
                 if(res.data.success === false){ 
-                    // 결제 실패
+                    setSuccess(false);
                 }else{
-                    // 결제 성공
                     setSuccess(true);
                 }
             }
         }
-        
     }
 
     const handleUserConfirm = () => {
@@ -79,17 +73,13 @@ const PurchaseVoucher = ({setModalOpen, plan_type}) => {
     }
 
     useEffect(()=>{
-        console.log(userConfirm);
-    }, [userConfirm])
-
-    useEffect(()=>{
         check();
         planDescription.forEach((list, index)=>{
             if(plan_type === list.type){
                 setPlan(list);
             }
         });
-    }, [])
+    }, []);
     
     const closeModal = () =>{
         setModalOpen(false);
@@ -99,7 +89,7 @@ const PurchaseVoucher = ({setModalOpen, plan_type}) => {
         if(keepGoing !== '' && keepGoing === false){
             closeModal();
         }
-    }, [keepGoing])
+    }, [keepGoing]);
 
     return (
         <StyledModal>
@@ -149,10 +139,10 @@ const PurchaseVoucher = ({setModalOpen, plan_type}) => {
                     위 사항을 전부 확인하였으며 결제에 동의합니다.
                 </div>
                 <div className='buttons'>
-                    <button type='button' className='cancel' onClick={closeModal}>
+                    <button type='button' className='cancel' onClick={() => closeModal()}>
                         결제취소
                     </button>
-                    <button type='button' className={userConfirm ? 'buy active' : 'buy'} onClick={buy}>
+                    <button type='button' className={userConfirm ? 'buy active' : 'buy'} onClick={() => buy()}>
                         결제하기
                     </button>
                 </div>

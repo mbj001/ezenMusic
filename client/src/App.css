@@ -26,7 +26,6 @@
     /* ~ 건우 ~ */
 
     --pagination-dot: #3f3fff;
-    
     --main-theme-color: #3f3fff;
     --main-theme-color-hover: #3030C7;
     --kakao-theme-color: #FEE500;
@@ -34,7 +33,6 @@
     --disabled-button-color: #e1e3e7;
     --signup-invalid-color: #ff4d78;
     --color-deep-blue: #0000b6;
-
     --red-color: #db2359;
     /* size setting */
     --font-size: 18px;
@@ -42,12 +40,11 @@
     /* --swiper-navigation-size: 12px; */
 
 }
-/************* Default CSS *************/
+/************* Default CSS settings *************/
 *{
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    /* border: 1px solid #fff; */
 }
 html{
     scroll-behavior: smooth;
@@ -59,12 +56,16 @@ body{
     -webkit-user-select:none;
     -moz-user-select:none;
     -ms-user-select:none;
-    user-select:none
+    user-select:none;
+    /* tailwindcss 기준 'md' : 768px 이하로 줄어들지 않도록 */
+    /* 하려고 했지만 780px로 ㄱㄱ */
+    /* 하려고 했지만 tailwind 따라가는게 맞는듯 */
+    min-width: 768px;
+    
 }
 body, body>div{
     font-family: 'Noto Sans KR', sans-serif;
     font-weight: 400;
-    /* overflow-x: hidden; */
     position: relative;
 }
 h1, h2, h3, h4, h5, h6{
@@ -115,49 +116,10 @@ input[type='radio']:checked {
     border: 3px solid var(--main-background-white);
     box-shadow: 0 0 0 1px var(--main-text-gray); 
 }
-.header_main{
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 100;
-    width: 100%;
-    height: 95px;
-    background-color: #fff;
-    padding: 10px 80px 0;
-    min-width: 955px;
-    max-width: 1600px;
-}
-.session_main{
-    width: 100%;
-    min-width: 955px;
-    max-width: 1600px;
-    height: 100%;
-    margin: 0 auto;
-    padding: 0px 80px 0;
-}
-.session_menu{
-    /* width: 100%; */
-    min-width: 955px;
-    max-width: 1440px;
-    height: 100%;
-    margin: 0 auto;
-    padding: 10px 0 ;
-    /* @media screen and (min-width:1140px) {
-        width: 100%;
-        height: 95px;
-        
-    } */
-}
-.session_list{
-    white-space: nowrap;
-}
-.artist_main{
-    width: 100%;
-    min-width: 800px;
-    max-width: 1600px;
-    padding-top: 50px;
-    margin: 0 auto;
-}
+
+
+
+
 /************* Settings for Responsible *************/
 
 
@@ -207,64 +169,15 @@ input[type='radio']:checked {
 .hover-border-gray-dark:hover{ border-color: var(---main-text-gray-darker);}
 
 .M-img-border{ border-color: var(--mylist-null-image-before); }
+
+.bg-gray-morelight{ background-color: var(--mylist-null-image-before);}
+.text-red{ color: var(--red-color);}
 /* ~ 병준 ~ */
 
 
 /* 재호 */
 
-/*
 
-Artist 사진위 재생아이콘
-.char_plus / 
-
-Artist 좋아요 버튼
-.iconheart
-*/
-
-/*
-Artist Music List 아이콘
-.artist_listen 재생(듣기) 버튼
-.artist_listplus 재생목록 추가
-.artist_box 내 리스트 추가
-.see_more_btn 더보기버튼
-.redheart 좋아요 하트
-/
-/ 캐릭터쪽 아이콘
-.plus_icons
-.check_icons
-.arrow_icons
-.pensel_icons
-.camera_icons
-.cancel_icons
-Album쪽 아이콘
-
-.libutton 앨범 사진위 재생버튼
-
-.iconsbox 내 리스트 추가
-
-.iconslistplus 재생목록 추가
-
-.iconsheart2 좋아요 버튼
-
-*/
-/*Music Track에 있는 전체듣기 아이콘
-.All_listen
-
-Artist Music List 아이콘
-.artist_listen 재생(듣기) 버튼
-.artist_listplus 재생목록 추가
-.artist_box 내 리스트 추가
-
-Music 전체체크시 나오는 선택해제 듣기  재생목록 리스트 아이콘
-/
-.menu_check 선택해제
-.menu_addlisten
-.menu_addlist
-.menu_addbox
-
-/ 보관함 좋아요 하트
-.iconsheart3
-*/
 /****************************************************************************************\
 
 /*캐릭터쪽 아이콘*/
@@ -276,11 +189,11 @@ Music 전체체크시 나오는 선택해제 듣기  재생목록 리스트 아�
     z-index: 3;
 }
 .plus_icons{
-display: inline-block;
-background-position: -303px -663px;
-width: 20px;
-height: 20px;
-content: "";
+    display: inline-block;
+    background-position: -303px -663px;
+    width: 20px;
+    height: 20px;
+    content: "";
 }
 .arrow_icons{
     background-position: -362px -691px;
@@ -373,7 +286,7 @@ content: "";
 
 /******************/
 
-.artist_track_order{
+/* .artist_track_order{
     position: absolute;
     top: 0;
     right: 0;
@@ -417,7 +330,7 @@ content: "";
     top: 0;
     left: 0;
     content: "";
-}
+} */
 /*************
 Artist Music List 아이콘
 .artist_listen 재생(듣기) 버튼
@@ -664,61 +577,8 @@ Artist Music List 아이콘
     min-height: 20px;
     padding-bottom: 16px;
 }
-.artist_Album_ul{
-    margin-left: 135px;
-@media only screen and (max-width:1600px){
-    margin-left: -22px;
-}
 
-}
-.artist_Album_li{
-    display: inline-block;
-    width: 412px;
-    padding-right: 12px;
-    margin-right: -12px;
-    margin-top: 28px;
-    vertical-align: top;
-    margin-top: 28px;
-    margin-left: 102px;
-@media only screen and (max-width:1440px){
-        margin-left: 102px;
-}
 
-}
-.ellipsis-container{
-    overflow: hidden;
-}
-.ellipsis-text{
-    display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-.thumbnail{
-    position: relative;
-    width: 175px;
-    padding-top: 14px;
-    margin-bottom: 15px;
-    text-align: center;
-}
-.album_main{
-    width: 100%;
-    margin: 0 auto;
-}
-.album_inner{
-    box-sizing: border-box;
-    width: 100%;
-    padding-left: 230px;
-    table-layout: fixed;
-}
-.album_menu{
-    padding: 10px 220px 40px;
-}
-.album_intro{
-    font-weight: 700;
-    width: 100%;
-    padding: 0 220px 0;
-}
 /* ~ 재호 ~ */
 
 

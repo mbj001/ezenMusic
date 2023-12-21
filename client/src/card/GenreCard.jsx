@@ -15,7 +15,7 @@ function GenreCard({genre, active}) {
 }
 
 const StyledGenreCard = styled.div`
-    border: 1px solid #999;
+    border: 1.2px solid #aaa;
     color: var(--main-text-gray);
     border-radius: 25px;
     padding: 7px 15px;
@@ -23,12 +23,13 @@ const StyledGenreCard = styled.div`
     cursor: pointer;
 
     &:hover {
-        border: 1px solid var(--main-theme-color);
+        border: 1.2px solid var(--main-theme-color);
         color: var(--main-theme-color);
     }
 
     p{
         font-size: 14px;
+        color: var(--main-text-black);
     }
 `
 

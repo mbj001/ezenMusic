@@ -31,33 +31,33 @@ const Discovery = () => {
     // ##########################################################################
     // db에 저장된 데이터 가져오기
     const getArtistData = async() => {
-        const response = await axios.post('http://localhost:8080/verifiedClient/getArtistData',{token: getCookie('connect.sid')});
-        console.log(response)
+        const response = await axios.post('/verifiedClient/getArtistData',{token: getCookie('connect.sid')});
+        // console.log(response)
         const arr = (response.data[1]);
         setArtist(arr);
     }
 
     const getGenreData = async() => {
-        const response = await axios.post('http://localhost:8080/verifiedClient/getGenreData',{token: getCookie('connect.sid')});
+        const response = await axios.post('/verifiedClient/getGenreData',{token: getCookie('connect.sid')});
         const arr = (response.data);
         setGenre(arr);
     }
 
     const getGenreTableData = async() => {
-        const response = await axios.post('http://localhost:8080/verifiedClient/getGenreTable',{token: getCookie('connect.sid')});
+        const response = await axios.post('/verifiedClient/getGenreTable',{token: getCookie('connect.sid')});
         const arr = (response.data);
         setGenreTable(arr);
     }
     // ##########################################################################
     // characters 테이블 prefer data
     const getCharacterPrefer = async() =>{
-        const response = await axios.post('http://localhost:8080/verifiedClient/getPreferData', {token: getCookie('connect.sid'), characterId: getCookie('character.sid')});
-        console.log(response)
+        const response = await axios.post('/verifiedClient/getPreferData', {token: getCookie('connect.sid'), characterId: getCookie('character.sid')});
+        // console.log(response)
         if(response.data[0].prefer_artist !== null && response.data[0].prefer_artist !== undefined){
             setSelectedArtist(response.data[0].prefer_artist);
         }
         if(response.data[0].prefer_genre !== null && response.data[0].prefer_genre !== undefined){
-            console.log('담을게요')
+            // console.log('담을게요')
             setSelectedGenre(response.data[0].prefer_genre);
         }
     }
@@ -65,12 +65,12 @@ const Discovery = () => {
     // 클릭하면 state에 담아주는 함수
     const likeThisArtist = (e) => {
         if(selectedArtist.some(selectedData=>{return selectedData.artist_id === e.artist_id})){
-            console.log('이미 들어있어서 뺄게요');
+            // console.log('이미 들어있어서 뺄게요');
             setSelectedArtist((selected)=>{
                 return selected.filter(data=>data.artist_id!==e.artist_id);
             });
         }else{
-            console.log('안들어있어서 넣을게요')
+            // console.log('안들어있어서 넣을게요')
             setSelectedArtist((selected)=>{
                 const addArray = [e, ...selected];
                 return addArray;
@@ -81,12 +81,12 @@ const Discovery = () => {
     const likeThisGenre = (e) => {
         if(selectedGenre.length < 3){
             if(selectedGenre.some(selectedData=>{return selectedData.genre_id === e.genre_id})){
-                console.log('이미 들어있어서 뺄게요');
+                // console.log('이미 들어있어서 뺄게요');
                 setSelectedGenre((selected)=>{
                     return selected.filter(data=>data.genre_id!==e.genre_id);
                 });
             }else{
-                console.log('안들어있어서 넣을게요')
+                // console.log('안들어있어서 넣을게요')
                 setSelectedGenre((selected)=>{
                     const addArray = [e, ...selected];
                     return addArray;
@@ -94,12 +94,12 @@ const Discovery = () => {
             }
         }else{
             if(selectedGenre.some(selectedData=>{return selectedData.genre_id === e.genre_id})){
-                console.log('이미 들어있어서 뺄게요');
+                // console.log('이미 들어있어서 뺄게요');
                 setSelectedGenre((selected)=>{
                     return selected.filter(data=>data.genre_id!==e.genre_id);
                 });
             }else{
-                console.log('담으면 안돼요');
+                // console.log('담으면 안돼요');
                 setModalOpen(true);
             }
         }
@@ -108,11 +108,11 @@ const Discovery = () => {
     // 저장하기 누르면 characters prefer 에 담아줌
     const updatePrefer = async() =>{
         setLoading(true);
-        const response = await axios.post('http://localhost:8080/verifiedClient/updatePrefer', {token: getCookie('connect.sid'), characterId: getCookie('character.sid'), preferArtist: selectedArtist, preferGenre: selectedGenre});
+        const response = await axios.post('/verifiedClient/updatePrefer', {token: getCookie('connect.sid'), characterId: getCookie('character.sid'), preferArtist: selectedArtist, preferGenre: selectedGenre});
         // console.log(response);
         if(response.data.success){
             setLoading(false);
-            const response = await axios.post('http://localhost:8080/verifiedClient/createPreferPlaylist', {token: getCookie('connect.sid'), characterId: getCookie('character.sid')});
+            const response = await axios.post('/verifiedClient/createPreferPlaylist', {token: getCookie('connect.sid'), characterId: getCookie('character.sid')});
             // navigate('/character');
             window.location='/character';
             // console.log(response);
@@ -128,10 +128,10 @@ const Discovery = () => {
     // }, [genreTable]);
 
     useEffect(()=>{
-        if(selectedArtist.length >= 1){
+        if(selectedArtist.length >= 1 || selectedGenre.length >= 1){
             setEmptyData(false);
         }
-    },[selectedArtist]);
+    },[selectedArtist, selectedGenre]);
 
     useEffect(()=>{
         getCharacterPrefer();
@@ -174,17 +174,6 @@ const Discovery = () => {
         });
     }, []);
 
-
-    // const [ offset, setOffset ] = useState('');
-    // useEffect(()=>{
-    //     window.addEventListener("scroll", () => {
-    //         setOffset(window.scrollY);
-    //     });
-    // }, [])
-
-    // useEffect(()=>{
-    //     console.log(genreTable);
-    // }, [genreTable])
 
     return (  
         <MainStyledSection>
@@ -273,7 +262,7 @@ const Discovery = () => {
                                 }
                             </div>
                             <div className='submit-button'>
-                                <button type='button' onClick={updatePrefer}>
+                                <button type='button' onClick={() => updatePrefer()}>
                                     저장하기
                                 </button>
                             </div>
@@ -303,7 +292,7 @@ const Discovery = () => {
                                                         {
                                                             genre.genre === artist.genre && genre.area === artist.area ?
                                                             
-                                                            <div className='artist-grid-box' onClick={()=>likeThisArtist(artist)}>
+                                                            <div className='artist-grid-box' onClick={() => likeThisArtist(artist)}>
                                                                 <div className={selectedArtist.some(selectedData=>{return selectedData.artist_id === artist.artist_id}) ? 'artist-image checked' : 'artist-image'}>
                                                                     <img src={`/image/artist/${artist.org_artist_image}`} alt={`${artist.artist_name}`} />
                                                                 </div>
@@ -344,7 +333,7 @@ const Discovery = () => {
                             genre.map((data)=>{
                                 return (
                                     <>
-                                        <div className='genre-grid-box' onClick={()=>likeThisGenre(data)}>
+                                        <div className='genre-grid-box' onClick={() => likeThisGenre(data)}>
                                             <div className={selectedGenre.some(selectedData=>{return selectedData.genre_id === data.genre_id}) ? 'genre-image checked' : 'genre-image'}>
                                                 <img src={`/image/genre/${data.org_cover_image}`} alt={`${data.description}`} />
                                             </div>

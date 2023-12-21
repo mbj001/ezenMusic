@@ -11,7 +11,7 @@ const LoginFailure = ({setModalOpen}) => {
                 <p>
                     세션이 만료되었거나 유효하지 않은 요청입니다.
                 </p>
-                <button type='button' onClick={closeModal}>
+                <button type='button' onClick={() => closeModal()}>
                     확인
                 </button>
             </div>

@@ -1,17 +1,30 @@
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect, useContext} from 'react'
 import Axios from "axios"
 import { Swiper, SwiperSlide } from 'swiper/react';
 import styled from 'styled-components';
 import { FreeMode, Navigation, Pagination } from 'swiper/modules';
 import { StyledMoodLink } from './MoodBanner';
+import { playerAddGenre } from '../procedure/playerAddButton';
+import PlayerBanner from './PlayerBanner';
+import PleaseLoginMessage from '../modal/PleaseLoginMessage';
+import { AppContext } from '../App'
 
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
-function GenreBanner() {
+// 승렬
+import { MainTinyPlayButton as TinyPlayButton } from '../style/StyledIcons';
+
+function GenreBanner({handleRender}) {
 
     const [moodplaylist, setMoodplaylist] = useState([]);
+    // 플레이어 추가 베너
+    const [playerBannerOn, setPlayerBannerOn] = useState(false);
+    // 로그인이 필요합니다 모달 변수
+    const [loginRequestVal, setLoginrRequestVal] = useState(false);
+
+    const isSessionValid = JSON.parse(useContext(AppContext));
 
     useEffect(() => {
         // 일단 main 베너에 가져오는 테마 플리들 가져옴 나중에 다른 리스트들 가져올거면 node 쪽에 작성 후 가져와야 함.
@@ -25,6 +38,9 @@ function GenreBanner() {
     }, [])
     
     return (
+    <>
+    { playerBannerOn && <PlayerBanner playerBannerOn={playerBannerOn} setPlayerBannerOn={setPlayerBannerOn} page={"albumtrack"} /> }
+    { loginRequestVal && <PleaseLoginMessage setLoginrRequestVal={setLoginrRequestVal} /> }
     <StyledMoodBanner className='banner-cover'>
         {/* <div className="swiper-button-next banner"></div>
         <div className="swiper-button-prev banner"></div> */}
@@ -44,26 +60,30 @@ function GenreBanner() {
             }}
             rewind={false}
             // centeredSlides={true}
-            pagination={{ clickable: true }}
+            // pagination={{ clickable: true }}
             >
             {
                 moodplaylist.map((item, index) => (
                     
                     <SwiperSlide key={index} className={`slide slide${index+1}`}>
-                        <StyledMoodLink to={"/detail/chart/" + item.genre_id} className='row'>
-                            <div className="mb-[10px]">
-                                <div className="genreimg w-[100%] h-[100%] m-auto rounded-[10px] overflow-hidden border-1 M-img-border">
-                                    <img src={"/image/genre/" + item.org_cover_image} alt="" className="w-full h-full object-cover" />
+                        <div className='relative'>
+                            <StyledMoodLink to={"/detail/chart/" + item.genre_id} className='row'>
+                                <div className="mb-[10px]">
+                                    <div className="genreimg min-w-[175px] max-w-[175px] h-[175px] m-auto rounded-[6px] overflow-hidden border-1 M-img-border">
+                                        <img src={"/image/genre/" + item.org_cover_image} alt="" className="w-full h-full object-cover" />
+                                    </div>
                                 </div>
-                            </div>
-                            <h3>{item.themeplaylist_title}</h3>
-                        </StyledMoodLink>
+                                <h3>{item.themeplaylist_title}</h3>
+                            </StyledMoodLink>
+                            <TinyPlayButton onClick={isSessionValid? ()=>{playerAddGenre("mainbanner_genre", item.area, item.genre, handleRender, setPlayerBannerOn); } : () => setLoginrRequestVal(true)}></TinyPlayButton>
+                        </div>
+                        
                     </SwiperSlide>
                 ))
             }
         </Swiper>
     </StyledMoodBanner>
-
+    </>
     )
 }
 

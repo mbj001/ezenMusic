@@ -19,8 +19,8 @@ const MylistDeleteConfirm = ({delPlaylist, dataLength, handleDeleteConfirm, page
                 <p className="text-[14px]">선택한 내 리스트 {dataLength.length}개가 삭제됩니다.</p>
             }
             <div className="confirm-button">
-                <p className="mx-[10px] text-[15px] text-gray cursor-pointer border-1 border-gray-light px-[27px] py-[7px] rounded-[5px] hover-border-blue" onClick={handleDeleteConfirm}>취소</p>  
-                <p className="mx-[10px] text-[15px] text-white cursor-pointer border-1 border-blue bg-blue px-[27px] py-[7px] rounded-[5px] hover-bg-deepblue" onClick={delPlaylist}>확인</p>
+                <p className="mx-[10px] text-[15px] text-gray cursor-pointer border-1 border-gray-light px-[27px] py-[7px] rounded-[5px] hover-border-blue" onClick={() => handleDeleteConfirm()}>취소</p>  
+                <p className="mx-[10px] text-[15px] text-white cursor-pointer border-1 border-blue bg-blue px-[27px] py-[7px] rounded-[5px] hover-bg-deepblue" onClick={() => delPlaylist()}>확인</p>
             </div>
         </div>
 

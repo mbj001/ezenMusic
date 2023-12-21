@@ -11,7 +11,7 @@ const ResisterFailure = ({setResisterFailure}) => {
                 <p>
                     입력한 정보를 다시 확인해주세요.
                 </p>
-                <button type='button' onClick={closeModal}>
+                <button type='button' onClick={() => closeModal()}>
                     확인
                 </button>
             </div>

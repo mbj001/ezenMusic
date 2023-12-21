@@ -1,18 +1,28 @@
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect, useContext} from 'react'
 import { Link } from 'react-router-dom'
 import Axios from 'axios';
 import styled from 'styled-components';
 import Details from './Details';
 import Similar from './Similar';
 import LikeyBanner from '../card/LikeyBanner';
-import { userid_cookies } from '../config/cookie';
+import { Cookies } from 'react-cookie';
 import PleaseLoginMessage from '../modal/PleaseLoginMessage';
 import PlayerBanner from '../card/PlayerBanner';
-import icons from '../assets/sp_button.6d54b524.png'
 import PlaylistAdd from '../modal/PlaylistAdd';
 import AddPlaylistBanner from '../card/AddPlaylistBanner';
+import { AppContext } from '../App'
+
+// 승렬
+import { MusicListCardAddMyListButton as AddMyListButton } from '../style/StyledIcons';
+import { MusicListCardAddPlaylistButton as AddPlaylistButton } from '../style/StyledIcons';
+import { ArtistLikeButton as LikeButton } from '../style/StyledIcons';
+import { ArtistFilledHeartButton as FilledHeart } from '../style/StyledIcons';
 
 function Track({music_id, details, handleRender}) {
+
+    const cookies = new Cookies();
+    const userid_cookies = cookies.get("character.sid");
+    const isSessionValid = JSON.parse(useContext(AppContext));
 
     const [detailMusic, setDetailMusic] = useState([]);
     const [initNum, setInitNum] = useState();
@@ -109,7 +119,7 @@ function Track({music_id, details, handleRender}) {
 
     
     useEffect(() => {
-        if(userid_cookies !== undefined){
+        if(isSessionValid){
             Axios.post("/ezenmusic/likey/liketrack", {
                 character_id: userid_cookies,
                 division: "liketrack"
@@ -146,7 +156,6 @@ function Track({music_id, details, handleRender}) {
                     if(Number(data[0].music_id) === array[i]){
                         data[0].likey = true;
                         setIslikey(() => {return true});
-                        // setIslikey(!islikey);
                     }
                 }
     
@@ -158,7 +167,7 @@ function Track({music_id, details, handleRender}) {
         }
         setInitNum(details);
     
-    }, [])
+    }, [music_id])
     
     return (
         <>
@@ -173,29 +182,36 @@ function Track({music_id, details, handleRender}) {
         {
             detailMusic.map((item, index) => (
                 <StyledDetail key={index} className='md:w-[1000px] xl:w-[1280px] 2xl:w-[1440px]'>
-                    <div>
-                        <div className="flex items-center p-[30px]">
-                            <img src={"/image/album/"+item.org_cover_image} alt="cover_image" className="w-[230px] h-[230px] rounded-[10px]" />
-                            <div className="m-[30px]">
-                                <Link to={"/detail/album/" + item.album_id + "/albumtrack"}><p className="detail-title mb-[10px] hover-text-blue">{item.music_title}</p></Link>
-                                <Link to={"/detail/artist/"+item.artist_id+"/artisttrack"}><p className="font-normal hover-text-blue">{item.artist_name}</p></Link>
-                                <Link to={"/detail/album/" + item.album_id + "/albumtrack"}><p className="font-light text-gray hover-text-blue">{item.album_title}</p></Link>
-                                <div className="flex mt-[30px] ">
+                    <div className="detail-title-section flex items-center p-[30px]">
+                        <div className='album-image'>
+                            <img src={"/image/album/"+item.org_cover_image} alt="cover_image"/>
+                        </div>
+                        <div className="album-info">
+                            
+                            <Link to={"/detail/album/" + item.album_id + "/albumtrack"}>
+                                <p className="music-title">{item.music_title}</p>
+                            </Link>
+                            <Link to={"/detail/artist/"+item.artist_id+"/track?sortType=POPULARITY"}>
+                                <p className="artist-name">{item.artist_name}</p>
+                            </Link>
+                            <Link to={"/detail/album/" + item.album_id + "/albumtrack"}>
+                                <p className="album-title">{item.album_title}</p>
+                            </Link>
 
-                                    <button className="artist_listplus ml-[-10px]" style={{backgroundImage:`url(${icons})`}} onClick={userid_cookies? (e) => playerAdd() : (e) => setLoginrRequestVal(true)}></button>
-                                    <button className="artist_box " style={{backgroundImage:`url(${icons})`}} onClick={userid_cookies? (e) => clickPlaylistModalOpen(e, music_id, item.org_cover_image) : (e) => setLoginrRequestVal(true)}></button>
-                                    {
-                                        islikey?
-                                        <button className="redheart" style={{backgroundImage:`url(${icons})`}} onClick={userid_cookies? (e) => delLikeTrack() : (e) => setLoginrRequestVal(true)}></button>
-                                        :
-                                        <button className="iconsheart" style={{backgroundImage:`url(${icons})`}}  onClick={userid_cookies? (e) => addLikeTrack() : (e) => setLoginrRequestVal(true)}></button>
-                                    }    
-
-                                </div>
+                            {/* 버튼 박스 */}
+                            <div className="button-box">
+                                <AddPlaylistButton onClick={isSessionValid? (e) => playerAdd() : (e) => setLoginrRequestVal(true)}></AddPlaylistButton>
+                                <AddMyListButton onClick={isSessionValid? (e) => clickPlaylistModalOpen(e, music_id, item.org_cover_image) : (e) => setLoginrRequestVal(true)}></AddMyListButton>
+                                {
+                                    islikey?
+                                    <FilledHeart onClick={isSessionValid? (e) => delLikeTrack() : (e) => setLoginrRequestVal(true)}></FilledHeart>
+                                    :
+                                    <LikeButton onClick={isSessionValid? (e) => addLikeTrack() : (e) => setLoginrRequestVal(true)}></LikeButton>
+                                }    
                             </div>
                         </div>
-                        
                     </div>
+                    {/* 중간에 있는 navBar */}
                     <div className="mb-[40px]">
                         {
                             initNum === "details" || initNum === undefined?
@@ -227,9 +243,68 @@ function Track({music_id, details, handleRender}) {
 export default Track
 
 export const StyledDetail = styled.div`
-    // width: 1440px;
     margin: 0 auto;
 
+    .detail-title-section{
+        .album-image{
+            max-width: 230px;
+            min-width: 230px;
+            height: 230px;
+            border: 1px solid #efefef;
+            border-radius: 6px;
+            overflow: hidden;
+            img{
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                &:hover{
+                    filter: brightness(0.7);
+                }
+            }
+        }
+        .album-info{
+            margin-left: 20px;
+            a{
+                .music-title{
+                    font-size: 28px;
+                    font-weight: 700;
+                    &:hover{
+                        color: var(--main-theme-color);
+                    }
+                }
+                .artist-name{
+                    font-size: 16px;
+                    font-weight: 400;
+                    margin-top: 14px;
+                    &:hover{
+                        color: var(--main-theme-color);
+                    }
+                }
+                .album-title{
+                    font-size: 15px;
+                    font-weight: 400;
+                    color: #333;
+                    margin-top: 10px;
+                    &:hover{
+                        color: var(--main-theme-color);
+                    }
+                }
+            }
+            .button-box{
+                display: flex;
+                flex-direction: row;
+                margin-left: -10px;
+                align-items: center;
+                justify-content: start;
+                @media (min-width: 1280px){ 
+                    margin-top: 30px;
+                }
+                @media (max-width: 1280px){
+                    margin-top: 20px;
+                }
+            }
+        }
+    }
     .detail-title{
         font-size: 28px;
         font-weight: 700;

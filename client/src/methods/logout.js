@@ -7,7 +7,7 @@ export const logoutMethod = (e) => {
         removeCookie('character.sid');
         removeCookie('pfimg');
         window.localStorage.setItem('login', false);
-        alert('로그아웃되었습니다.');
+        // alert('로그아웃되었습니다.');
         window.location='/';
     }else{
         alert('로그아웃에 실패했습니다.');

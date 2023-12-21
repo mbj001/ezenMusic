@@ -1,17 +1,20 @@
-import React, {useState, useEffect} from 'react'
+import React from 'react'
 import styled from 'styled-components';
 
 function MusicListHeader({lank, selectAllFunc, page, allcheckVal}) {
 
     return (
-    <thead className="h-[50px] align-middle ">
+    <Thead className="h-[40px] align-middle ">
         <tr className="">
-            <StyledTableth scope="col" className="text-center w-[5%]"><input type="checkbox" id="all-check-box" checked={allcheckVal} onClick={selectAllFunc} readOnly/></StyledTableth>
+            { 
+                page !== "searchLyrics" &&
+                <StyledTableth scope="col" className="text-center w-[5%]"><input type="checkbox" id="all-check-box" checked={allcheckVal} onClick={selectAllFunc} readOnly/></StyledTableth>
+            }
             
             { lank && <StyledTableth scope="col" className="text-center w-[8%]"><p>순위</p></StyledTableth> }
             
             {
-                page === "search"?
+                page === "search" || page === "searchLyrics" ?
                 <>
                 <StyledTableth scope="col"><p>곡/가사</p></StyledTableth>
                 <StyledTableth scope="col"><p>아티스트</p></StyledTableth>
@@ -37,19 +40,28 @@ function MusicListHeader({lank, selectAllFunc, page, allcheckVal}) {
 
             }
         </tr>
-    </thead>
+    </Thead>
     )
 }
+export default MusicListHeader
 
+const Thead = styled.thead`
+    border-top: 1px solid #ebebeb;
+    border-bottom: 1px solid #ebebeb;
+`;
 
 export const StyledTableth = styled.th`
-    font-size: 12px;
-
+    font-size: 13px;
     p{
-        color: var(--main-text-gray);
+        color: #a0a0a0;
         font-weight: 400;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    input[type=checkbox]{
+        accent-color: var(--main-theme-color);
+        border-color: #d9d9d9;
     }
 `
 
-
-export default MusicListHeader

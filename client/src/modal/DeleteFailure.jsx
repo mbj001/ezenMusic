@@ -5,6 +5,7 @@ const DeleteFailure = ({setModalOpen}) => {
     const closeModal = () =>{
         setModalOpen(false);
     }
+
     return (
         <StyledInnerModal>
             <div className='inner-modal-box'>
@@ -12,7 +13,7 @@ const DeleteFailure = ({setModalOpen}) => {
                     하나의 캐릭터만 남아 있어 삭제할 수 없습니다.
                 </p>
                 <div className='button-box'>
-                    <button type='button' onClick={closeModal}>
+                    <button type='button' onClick={() => closeModal()}>
                         확인
                     </button>
                 </div>

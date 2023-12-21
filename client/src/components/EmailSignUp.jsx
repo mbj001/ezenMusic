@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import MainStyledSection from '../layout/MainStyledSection'
 import styled from 'styled-components'
 import { Link } from 'react-router-dom';
@@ -90,7 +90,6 @@ const EmailSignUp = () => {
                                 }
 
                                 {/* 전체동의 */}
-                                
                                 <label className='w-full flex align-items-start justify-start mt-5 pt-4 pb-10' style={{borderTop:'1px solid #d9d9d9'}}>
                                     <input type="checkbox" name='check-all-necessary' onChange={(e) => handleAllCheck(e.target.checked)} checked={checkList.length === checkedData.length ? true : false}/> 
                                     <div className='w-full flex justify-between align-items-center'>

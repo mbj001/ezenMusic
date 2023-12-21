@@ -1,7 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Link } from 'react-router-dom'
-function Details({music_id, music_title, composer, lyricist, arranger, lyrics}) {
+function Details({music_title, composer, lyricist, arranger, lyrics}) {
 
     return (
     <StyledDetails className='md:w-[1000px] xl:w-[1280px] 2xl:w-[1440px]'>

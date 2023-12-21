@@ -1,23 +1,27 @@
 import React, {useState, useEffect, useContext} from 'react'
 import Axios from "axios"
 import styled from 'styled-components'
-import { userid_cookies } from '../config/cookie';
+import { Cookies } from 'react-cookie';
 import { Link } from 'react-router-dom';
-import { RiCheckFill, RiFolderAddLine, RiArrowRightSLine, RiPlayListAddLine } from "react-icons/ri";
+import { RiCheckFill } from "react-icons/ri";
 import { StyledMylistDiv } from './LikeTrack';
 import LoginRequest from '../card/LoginRequest';
 import MylistSelectModal from '../modal/MylistSelectModal';
 import MylistDeleteConfirm from '../modal/MylistDeleteConfirm';
-import icons from '../assets/sp_button.6d54b524.png'
 import AddPlaylistBanner from '../card/AddPlaylistBanner';
 import PlayerBanner from '../card/PlayerBanner';
 import PlaylistAdd from '../modal/PlaylistAdd';
 import { AppContext } from '../App'
 
+//승렬
+import { MusicListCardAddMyListButton as AddMyListButton } from '../style/StyledIcons';
+import { MusicListCardAddPlaylistButton as AddPlaylistButton } from '../style/StyledIcons';
+import { TransTinyPlayButton as PlayButton } from '../style/StyledIcons';
+
 function LikeTheme({division, handleRender}) {
-    // LSR
-    // 로그아웃한 상태에서 쿠키에 character.sid 아무렇게나 만들어두면 userid_cookies에 이상한 값 들어가면서 
-    // LoginRequest 페이지가 풀려버려서 app.js에서 뿌려주는 context 추가했어요
+
+    const cookies = new Cookies();
+    const userid_cookies = cookies.get("character.sid");
     const isSessionValid = JSON.parse(useContext(AppContext));
 
     const [likeAlbumList, setLikeAlbumList] = useState([]);
@@ -34,8 +38,7 @@ function LikeTheme({division, handleRender}) {
 
     // Delete and Delete Confirm Functions
     // edit mode click
-    const clickToEditMode = async(e) =>{
-        e.preventDefault();
+    const clickToEditMode = async() =>{
         if(editMode == false){
             setEditMode(true);
         }else{
@@ -78,12 +81,13 @@ function LikeTheme({division, handleRender}) {
 
 
     // 2023-12-01 album 플레이어 추가
-    function playerAdd(themeplaylist_id){
+    function playerAdd(themeplaylist_id, change_now_play){
 
         Axios.post("/playerHandle/playerAdd", {
             character_id: userid_cookies,
             page: "liketheme",
-            themeplaylist_id: themeplaylist_id
+            themeplaylist_id: themeplaylist_id,
+            change_now_play: change_now_play
         })
         .then(({data}) => {
             setPlayerBannerOn(true);
@@ -191,7 +195,7 @@ function LikeTheme({division, handleRender}) {
 
 
     useEffect(() => {
-        if(userid_cookies !== undefined){
+        if(isSessionValid){
             Axios.post("/ezenmusic/storage/liketheme", {
                 character_id: userid_cookies,
                 division: division
@@ -222,7 +226,7 @@ function LikeTheme({division, handleRender}) {
     { addPlaylistBannerOn && <AddPlaylistBanner addPlaylistBannerOn={addPlaylistBannerOn} setAddPlaylistBannerOn={setAddPlaylistBannerOn} /> }
     { playerBannerOn && <PlayerBanner playerBannerOn={playerBannerOn} setPlayerBannerOn={setPlayerBannerOn} page={"albumtrack"} /> }
     {
-        isSessionValid && userid_cookies ?
+        isSessionValid ?
         <>
         {
             !hasLikeyList?
@@ -241,38 +245,43 @@ function LikeTheme({division, handleRender}) {
                     // Not EditMode
                     !editMode?
                     <div className='col-12 flex justify-end mb-[30px]'>
-                        <span className='edit cursor-pointer text-[13px]' onClick={clickToEditMode}>편집</span>
+                        <span className='edit cursor-pointer text-[13px]' onClick={() => clickToEditMode()}>편집</span>
                     </div>
                     :
                     <div className='col-12 flex justify-between mb-[30px]'>
-                        <span className='select-all flex cursor-pointer text-[13px]' onClick={ selectedAll? handleDeleteNone  : handleDeleteAll}><RiCheckFill className='mt-[3px] mr-[3px]'/> 전체선택</span>
-                        <span className='edit cursor-pointer text-[13px]' style={{color: "var(--main-theme-color)"}} onClick={clickToEditMode}>완료</span>
+                        <span className='select-all flex cursor-pointer text-[13px]' onClick={ selectedAll? () => handleDeleteNone() : () => handleDeleteAll()}><RiCheckFill className='mt-[3px] mr-[3px]'/> 전체선택</span>
+                        <span className='edit cursor-pointer text-[13px]' style={{color: "var(--main-theme-color)"}} onClick={() => clickToEditMode()}>완료</span>
                     </div>
                 }
+                <div className='grid-main'>
                 {
                     likeAlbumList.map((item, index) => (
-                        <div key={index} className="relative w-[440px] flex items-center mb-[40px] px-[10px]">
+                        <div key={index} className="flex relative mb-[40px]">
                             {
                                 editMode &&
                                 <div className='checkbox rounded-full overflow-hidden cursor-pointer'>
                                     <RiCheckFill className={ item.delcheckVal? 'selected w-full h-full text-[20px]' : 'checkbox-icon w-full h-full text-[20px]' } onClick={(e) => clickToSelectPlaylist(e, index)} />
                                 </div>
                             }
-                            <div className="min-w-[175px] min-h-[175px]">
-                                <Link to={"/detail/channel/"+item.themeplaylist_id}><img src={"/image/themeplaylist/"+item.org_cover_image} alt="cover_image" className={ item.delcheckVal? "w-[175px] h-[175px] rounded-[10px] brightness-75" : "w-[175px] h-[175px] rounded-[10px]" } /></Link>
+                            <div className="min-w-[175px] min-h-[175px] relative img-box">
+                                <Link to={"/detail/channel/"+item.themeplaylist_id}><img src={"/image/themeplaylist/"+item.org_cover_image} alt="cover_image" className={ item.delcheckVal? "w-[175px] h-[175px] rounded-[6px] brightness-75" : "w-[175px] h-[175px] rounded-[6px]" } /></Link>
+                                <PlayButton  onClick={(e) => playerAdd(item.themeplaylist_id, true)}></PlayButton>
                             </div>
-                            <div className="ml-[15px]">
-                                <Link to={"/detail/channel/"+item.themeplaylist_id}><p className="font-bold mb-[5px] hover-text-blue">{item.themeplaylist_title}</p></Link>
-                                <p className="text-[13px] mb-[2px]">총 {item.count}곡</p>
+                            <div className="mt-[15px] ml-[19px] flex flex-col">
+                                <Link to={"/detail/channel/"+item.themeplaylist_id}>
+                                    <p className="font-bold mb-[5px] w-[200px] hover-text-blue whitespace-nowrap text-ellipsis overflow-hidden">{item.themeplaylist_title}</p>
+                                </Link>
+                                <p className="text-[13px] mt-[10px] mb-[2px]">총 {item.count}곡</p>
                                 <p className="text-[12px] text-gray">{item.release_date_format}</p>
-                                <div className="flex mt-[20px]">
-                                    <button className="iconslistplus ml-[-3px] mr-[2px]" style={{backgroundImage:`url(${icons})`}} onClick={(e) => playerAdd(item.themeplaylist_id)}></button>
-                                    <button className="iconsbox ml-2 mr-[2px]" style={{backgroundImage:`url(${icons})`}} onClick={(e) => clickPlaylistModalOpen(e, item.themeplaylist_id)}></button>
+                                <div className="flex mt-[33px] ml-[-9px]">
+                                    <AddPlaylistButton onClick={(e) => playerAdd(item.themeplaylist_id, false)}></AddPlaylistButton>
+                                    <AddMyListButton onClick={(e) => clickPlaylistModalOpen(e, item.themeplaylist_id)}></AddMyListButton>
                                 </div>
                             </div>
                         </div>
                     ))
                 }
+                </div>
             </StyledLikeTheme>
         }
         </>
@@ -284,12 +293,31 @@ function LikeTheme({division, handleRender}) {
 }
 
 export const StyledLikeTheme = styled.div`
-    margin-bottom: 20px;
+    .grid-main{
+        @media (min-width: 1024px){ 
+            width: 100%;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 30px;
+        }
+        @media (max-width: 1024px){
+            width: 100%;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+    // margin-bottom: 20px;
     // display: flex;
     // flex-wrap: wrap;
 
     img:hover{
         filter: brightness(70%)
+    }
+    .img-box{
+        border: 1px solid #efefef;
+        border-radius: 6px;
     }
 
     .edit:hover{
@@ -307,17 +335,17 @@ export const StyledLikeTheme = styled.div`
         height: 35px;
         // border-radius: 20px;
         .checkbox-icon{
-          background-color: var(--main-text-gray-lighter);
-          color: var(--main-text-white);
-          font-size: 25px;
+            background-color: var(--main-text-gray-lighter);
+            color: var(--main-text-white);
+            font-size: 25px;
         }
         
         .selected{
-          background-color: var(--main-theme-color);
-          color: var(--main-text-white);
-          font-size: 25px;
+            background-color: var(--main-theme-color);
+            color: var(--main-text-white);
+            font-size: 25px;
         }
-      }
+    }
 `
 
 export default LikeTheme

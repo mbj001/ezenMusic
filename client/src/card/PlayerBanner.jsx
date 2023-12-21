@@ -18,7 +18,7 @@ function PlayerBanner({playerBannerOn, setPlayerBannerOn, count, page}) {
             playerBannerOn ?
             <StyledLikeyBanner>
                 {
-                    page === "channel" || page ==="albumtrack" || page === "artist" ?
+                    page === "channel" || page ==="albumtrack" || page === "artist" || page === "recommend" ?
                     <p>음악 재생목록에 담겼어요. 중복곡은 담지 않았어요.</p>
                     :
                     <p>{count} 곡이 음악 재생목록에 담겼어요. 중복곡은 담지 않았어요.</p> 

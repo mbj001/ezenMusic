@@ -1,22 +1,33 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import { PurchaseBox } from '../layout/PurchaseBoxLayout'
 import styled from 'styled-components'
 import { BiChevronRight } from 'react-icons/bi'
 import PurchaseVoucher from '../modal/PurchaseVoucher'
-
+import PleaseLoginMessage from '../modal/PleaseLoginMessage';
+import { AppContext } from '../App'
+import VoucherDetail from '../modal/VoucherDetail'
 
 const Voucher = () => {
+    const isSessionValid = JSON.parse(useContext(AppContext));
     const [ type, setType ] = useState('');
     const [ modalOpen, setModalOpen ] = useState(false);
+    const [loginRequestVal, setLoginrRequestVal] = useState(false);
     
+    // MBJ
+    const [detailModapOpen, setDetailModalOpen] = useState(false);
+    const [detailDivision, setDetailDivision] = useState("");
 
-    const handleBuyButton = (e) => {
-        setType(e.target.value);
+    const handleBuyButton = (value) => {
+        setType(value);
         setModalOpen(true);
     }
+
+
     return (
         <div>
-            {modalOpen && <PurchaseVoucher setModalOpen={setModalOpen} plan_type={type}/>}
+            { loginRequestVal && <PleaseLoginMessage setLoginrRequestVal={setLoginrRequestVal} /> }
+            { detailModapOpen && <VoucherDetail setDetailModalOpen={setDetailModalOpen} detailDivision={detailDivision} /> }
+            { modalOpen && <PurchaseVoucher setModalOpen={setModalOpen} plan_type={type}/> }
             <PurchaseBox>
                 <div className="container">
                     <div className='row h-100'>
@@ -26,7 +37,7 @@ const Voucher = () => {
                                 <p className='purchase-info-description'>기기제한 없음, 무제한 스트리밍</p>
                             </div>
                             <div className='more-info'>
-                                <button type='button' className='flex flex-row align-items-center'>
+                                <button type='button' className='flex flex-row align-items-center' onClick = {() => {setDetailModalOpen(true); setDetailDivision("no_limit");}}>
                                     이용권 자세히 보기<BiChevronRight/>
                                 </button>
                             </div>
@@ -45,7 +56,7 @@ const Voucher = () => {
                                             <span className='ml-3 text-[20px]' style={{color:"var(--main-theme-color)"}}>1,500</span>
                                             <span className='mr-6 text-[16px]' style={{color:"var(--main-theme-color)"}}>원</span>
                                         </div>
-                                        <BuyButton value={'oneday'} onClick={handleBuyButton}>구매</BuyButton>
+                                        <BuyButton value={'oneday'} onClick={isSessionValid? (e) => handleBuyButton(e.target.value) : () => setLoginrRequestVal(true)}>구매</BuyButton>
                                     </div>
                                 </div>
                                 <div className="col-12 h-8 mb-8 flex justify-between align-items-center">
@@ -60,7 +71,7 @@ const Voucher = () => {
                                             <span className='ml-3 text-[20px]' style={{color:"var(--main-theme-color)"}}>8,000</span>
                                             <span className='mr-6 text-[16px]' style={{color:"var(--main-theme-color)"}}>원</span>
                                         </div>
-                                        <BuyButton value={'oneweek'} onClick={handleBuyButton}>구매</BuyButton>
+                                        <BuyButton value={'oneweek'} onClick={isSessionValid? (e) => handleBuyButton(e.target.value) : () => setLoginrRequestVal(true)}>구매</BuyButton>
                                     </div>
                                 </div>
                                 <div className="col-12 h-8 mb-8 flex justify-between align-items-center">
@@ -75,7 +86,7 @@ const Voucher = () => {
                                             <span className='ml-3 text-[20px]' style={{color:"var(--main-theme-color)"}}>13,000</span>
                                             <span className='mr-6 text-[16px]' style={{color:"var(--main-theme-color)"}}>원</span>
                                         </div>
-                                        <BuyButton value={'twoweek'} onClick={handleBuyButton}>구매</BuyButton>
+                                        <BuyButton value={'twoweek'} onClick={isSessionValid? (e) => handleBuyButton(e.target.value) : () => setLoginrRequestVal(true)}>구매</BuyButton>
                                     </div>
                                 </div>
                                 <div className="col-12 h-8 mb-8 flex justify-between align-items-center">
@@ -90,7 +101,7 @@ const Voucher = () => {
                                             <span className='ml-3 text-[20px]' style={{color:"var(--main-theme-color)"}}>17,000</span>
                                             <span className='mr-6 text-[16px]' style={{color:"var(--main-theme-color)"}}>원</span>
                                         </div>
-                                        <BuyButton value={'onemonth'} onClick={handleBuyButton}>구매</BuyButton>
+                                        <BuyButton value={'onemonth'} onClick={isSessionValid? (e) => handleBuyButton(e.target.value) : () => setLoginrRequestVal(true)}>구매</BuyButton>
                                     </div>
                                 </div>
                             </div>
@@ -107,7 +118,7 @@ const Voucher = () => {
                                 <p className='purchase-info-description'>기기제한 없음, 횟수 내 무제한 스트리밍</p>
                             </div>
                             <div className='more-info'>
-                                <button type='button' className='flex flex-row align-items-center'>
+                                <button type='button' className='flex flex-row align-items-center' onClick = {() => {setDetailModalOpen(true); setDetailDivision("count_50");}}>
                                     이용권 자세히 보기<BiChevronRight/>
                                 </button>
                             </div>
@@ -126,7 +137,7 @@ const Voucher = () => {
                                             <span className='ml-3 text-[20px]' style={{color:"var(--main-theme-color)"}}>8,000</span>
                                             <span className='mr-6 text-[16px]' style={{color:"var(--main-theme-color)"}}>원</span>
                                         </div>
-                                        <BuyButton value={'onlyfifty'} onClick={handleBuyButton}>구매</BuyButton>
+                                        <BuyButton value={'onlyfifty'} onClick={isSessionValid? (e) => handleBuyButton(e.target.value) : () => setLoginrRequestVal(true)}>구매</BuyButton>
                                     </div>
                                 </div>
                                 
@@ -144,7 +155,7 @@ const Voucher = () => {
                                 <p className='purchase-info-description'>기기제한 없음, 횟수 내 무제한 스트리밍</p>
                             </div>
                             <div className='more-info'>
-                                <button type='button' className='flex flex-row align-items-center'>
+                                <button type='button' className='flex flex-row align-items-center' onClick = {() => {setDetailModalOpen(true); setDetailDivision("count_100");}}>
                                     이용권 자세히 보기<BiChevronRight/>
                                 </button>
                             </div>
@@ -163,7 +174,7 @@ const Voucher = () => {
                                             <span className='ml-3 text-[20px]' style={{color:"var(--main-theme-color)"}}>13,000</span>
                                             <span className='mr-6 text-[16px]' style={{color:"var(--main-theme-color)"}}>원</span>
                                         </div>
-                                        <BuyButton value={'onlyhundred'} onClick={handleBuyButton}>구매</BuyButton>
+                                        <BuyButton value={'onlyhundred'} onClick={isSessionValid? (e) => handleBuyButton(e.target.value) : () => setLoginrRequestVal(true)}>구매</BuyButton>
                                     </div>
                                 </div>
                                 

@@ -22,10 +22,10 @@ const AlreadyHaveVoucher = ({setModalOpen, setKeepGoing}) => {
                     계속 이어서 결제하시겠습니까?
                 </p>
                 <div className='button-box'>
-                    <button type='button' className='cancel' onClick={cancel}>
+                    <button type='button' className='cancel' onClick={() => cancel()}>
                         취소
                     </button>
-                    <button type='button' className='buy' onClick={buy}>
+                    <button type='button' className='buy' onClick={() => buy()}>
                         확인
                     </button>
                 </div>

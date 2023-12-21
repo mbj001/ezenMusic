@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react'
+import React, {useEffect, useState, useContext} from 'react'
 import MusicListHeader from './MusicListHeader'
 import MusicListCard from './MusicListCard'
 import LikeyBanner from './LikeyBanner';
@@ -10,12 +10,16 @@ import { IoPlayOutline } from "react-icons/io5";
 import PlayerBanner from './PlayerBanner';
 import Axios from "axios";
 import AddPlaylistBanner from './AddPlaylistBanner';
-import { userid_cookies } from '../config/cookie';
-
+import { Cookies } from 'react-cookie';
+import { AppContext } from '../App'
 
 function MusicListTable({page, lank, music_list, handleRender, showMore, browseCheckAll, handleLikeypage, setDetailMylistAddMusicOpen, detailMylistAddMusicModalData, 
     playlist_id, handleDetailMylistPage}) {
 
+    const cookies = new Cookies();
+    const userid_cookies = cookies.get("character.sid");
+    const isSessionValid = JSON.parse(useContext(AppContext));
+    
     // props music_list 저장할 변수 (checked 변경 용도)
     const [musiclist, setMusiclist] = useState([]);
     // 좋아요 누를 때 베너
@@ -199,18 +203,18 @@ function MusicListTable({page, lank, music_list, handleRender, showMore, browseC
                         page === "browse" &&
                         <div className="flex items-center">
                             <p className="chart-title">EzenMusic 차트</p>
-                            <p className="text-slate-400 text-[12px] ml-[10px]">24시간 집계 (16시 기준)</p>
+                            <p className="text-slate-400 text-[12px] ml-[10px]">24시간 집계</p>
                         </div>
                     }
                     {
                         page !== "detailmylistaddmusic" &&
-                        <div className="all-play-box flex cursor-pointer text-black hover-text-blue items-center" onClick={userid_cookies? listenAll: setLoginrRequestVal}>
-                            <IoPlayOutline className="all-play-icon text-black mr-[3px] mt-[1px]"/>
+                        <div className="all-play-box" onClick={isSessionValid? () => listenAll(): () => setLoginrRequestVal(true)}>
+                            <IoPlayOutline className="all-play-icon"/>
                             <p>전체듣기</p>
                         </div>
                     }
                 </div>
-                <hr className="text-gray"/>
+
                 <table className="table table-hover">
                     <MusicListHeader lank={lank} selectAllFunc={selectAllFunc} allcheckVal={allcheckVal} page={page} />
                     <tbody>
@@ -265,9 +269,7 @@ function MusicListTable({page, lank, music_list, handleRender, showMore, browseC
 }
 
 export const StyledBrowser = styled.div`
-    // width: 1440px;
     margin: 0 auto;
-    // border: 1px solid black;
 
     .chart-title{
         font-size: 20px;
@@ -275,21 +277,30 @@ export const StyledBrowser = styled.div`
     }
 
     .all-play-box{
-        font-size: 14px;
-        color: var(--main-text-gray);
-    }
-
-    .all-play-box:hover *{
-        color: var(--main-theme-color);
-    }
-
-    .all-play-icon{
-        font-size: 16px;
-        color: var(--main-text-gray);
+        display: flex;
+        align-items: center;
+        font-size: 13px;
+        line-height: 17px;
+        color: #222;
+        cursor: pointer;
+        letter-spacing: -0.5px;
+        margin-left: 24px;
+        &:hover *{
+            color: var(--main-theme-color);
+        }
+        .all-play-icon{
+            font-size: 16px;
+            color: #222;
+            margin-right: 3px;
+            margin-top: 1px;
+        }
+        p{
+            margin-left: -3px;
+        }
     }
 
     tbody>*{
-        color: var(--main-text-gray);
+        color: #f6f6f6;
     }
 `;
 export default MusicListTable

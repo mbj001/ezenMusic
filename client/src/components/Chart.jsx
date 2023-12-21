@@ -1,16 +1,26 @@
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect, useContext} from 'react'
 import Axios from "axios"
 import { StyledDetail } from './Track';
-import { userid_cookies } from '../config/cookie';
+import { Cookies } from 'react-cookie';
 import PleaseLoginMessage from '../modal/PleaseLoginMessage';
 import MusicListTable from '../card/MusicListTable';
 import PlayerBanner from '../card/PlayerBanner';
-import icons from '../assets/sp_button.6d54b524.png'
 import PlaylistAdd from '../modal/PlaylistAdd';
 import AddPlaylistBanner from '../card/AddPlaylistBanner';
+import { AppContext } from '../App'
+import { playerAddGenre } from '../procedure/playerAddButton';
+
+//승렬
+import { MusicListCardAddMyListButton as AddMyListButton } from '../style/StyledIcons';
+import { MusicListCardAddPlaylistButton as AddPlaylistButton } from '../style/StyledIcons';
+import { TinyPlayButton as PlayButton } from '../style/StyledIcons';
 
 function Chart({genre_id, handleRender}) {
 
+    const cookies = new Cookies();
+    const userid_cookies = cookies.get("character.sid");
+    const isSessionValid = JSON.parse(useContext(AppContext));
+    
     const [chartinfo, setChartinfo] = useState([]);
     const [chartlist, setChartlist] = useState([]);
     const [firstchartImg, setFirstchartImg] = useState("");
@@ -49,7 +59,7 @@ function Chart({genre_id, handleRender}) {
     
     useEffect(() => {
 
-        if(userid_cookies !== undefined){
+        if(isSessionValid){
             Axios.post("/ezenmusic/allpage/likeylist/", {
                 character_id: userid_cookies,
                 division: "liketrack"
@@ -143,13 +153,18 @@ function Chart({genre_id, handleRender}) {
                 <StyledDetail key={index} className='md:w-[1000px] xl:w-[1280px] 2xl:w-[1440px]'>
                     <div className="mb-[40px]">
                         <div className="flex items-center p-[30px]">
-                            <img src={"/image/album/"+firstchartImg} alt="cover_image" className="w-[230px] h-[230px] rounded-[25px]" />
+                            <div className='relative'>
+                                <div className='w-[230px] h-[230px] rounded-[6px] hover:brightness-75 overflow-hidden border-1 M-img-border'>
+                                    <img src={"/image/album/"+firstchartImg} alt="cover_image" className="w-[230px] h-[230px] rounded-[6px]" />
+                                </div>
+                                <PlayButton onClick={isSessionValid?  ()=>{playerAddGenre("mainbanner_genre", item.area, item.genre, handleRender, setPlayerBannerOn); } : () => setLoginrRequestVal(true)}></PlayButton>
+                            </div>
                             <div className="m-[30px]">
                                 <p className="detail-title mb-[10px]">{item.description}</p>
                                 <p className="font-normal">총 {totalNum}곡</p>
-                                <div className="flex mt-[30px] ">
-                                    <button className="artist_listplus ml-[-10px]" style={{backgroundImage:`url(${icons})`}} onClick={userid_cookies? playerAdd : setLoginrRequestVal}></button>
-                                    <button className="artist_box " style={{backgroundImage:`url(${icons})`}} onClick={userid_cookies? (e) => clickPlaylistModalOpen(e) : setLoginrRequestVal(true)}></button>
+                                <div className="flex mt-[30px] ml-[-9px]">
+                                    <AddPlaylistButton onClick={isSessionValid? () => playerAdd() : () => setLoginrRequestVal(true)}></AddPlaylistButton>
+                                    <AddMyListButton onClick={isSessionValid? (e) => clickPlaylistModalOpen(e) : () => setLoginrRequestVal(true)}></AddMyListButton>
                                 </div>
                             </div>
                         </div>

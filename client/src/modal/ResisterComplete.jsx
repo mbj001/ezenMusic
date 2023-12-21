@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 
@@ -13,7 +13,7 @@ const ResisterComplete = ({setModalOpen}) => {
                 <p className='mt-2 mb-7'>회원가입이 완료되었습니다.<br/>이용권을 구매하여 EZEN MUSIC을 즐겨보세요!</p>
                 <div>
                     <Link to='../../signin'>
-                        <button type='button' onClick={closeModal}>
+                        <button type='button' onClick={() => closeModal()}>
                             로그인페이지로 이동
                         </button>
                     </Link>

@@ -13,7 +13,7 @@ const AlreadyHaveStandbyVoucher = ({setModalOpen}) => {
                     현재 이용권이 만료된 후 구매해주세요.
                 </p>
                 <div className='button-box'>
-                    <button type='button' onClick={closeModal}>
+                    <button type='button' onClick={() => closeModal()}>
                         확인
                     </button>
                 </div>

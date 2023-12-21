@@ -23,7 +23,15 @@ router.post("/changeNowMusic", (req, res) => {
             console.error(err)
         }
         else{
-            res.json(1);
+            const update_hit_query = 'update music set hit = hit + 1 where ?';
+            conn.query(update_hit_query, [{music_id: req.body.music_id}], (err, update_hit_result, fields) => {
+                if(err){
+                    console.error(err);
+                }
+                else{
+                    res.json(1);
+                }
+            })
         }
         return ;
     })
@@ -49,7 +57,15 @@ router.post("/addplayerlist", (req, res) => {
                         console.error(err);
                     }
                     else{
-                        res.json(1);
+                        const update_hit_query = 'update music set hit = hit + 1 where ?';
+                        conn.query(update_hit_query, [{music_id: req.body.music_id}], (err, update_hit_result, fields) => {
+                            if(err){
+                                console.error(err);
+                            }
+                            else{
+                                res.json(1);
+                            }
+                        })
                     }
                 })
             }
@@ -61,7 +77,15 @@ router.post("/addplayerlist", (req, res) => {
                         console.error(err);
                     }
                     else{
-                        res.json(1);
+                        const update_hit_query = 'update music set hit = hit + 1 where ?';
+                        conn.query(update_hit_query, [{music_id: req.body.music_id}], (err, update_hit_result, fields) => {
+                            if(err){
+                                console.error(err);
+                            }
+                            else{
+                                res.json(1);
+                            }
+                        })
                     }
                 })
             }
@@ -84,7 +108,15 @@ router.post("/addplayerlist", (req, res) => {
                             console.error(err);
                         }
                         else{
-                            res.json(1);
+                            const update_hit_query = 'update music set hit = hit + 1 where ?';
+                            conn.query(update_hit_query, [{music_id: req.body.music_id}], (err, update_hit_result, fields) => {
+                                if(err){
+                                    console.error(err);
+                                }
+                                else{
+                                    res.json(1);
+                                }
+                            })
                         }
                     })                
                 }
@@ -157,7 +189,15 @@ router.post("/delplayerlist", (req, res) => {
                         console.error(err);
                     }
                     else{
-                        res.json(1);
+                        const update_hit_query = 'update music set hit = hit + 1 where ?';
+                        conn.query(update_hit_query, [{music_id: now_play_music}], (err, update_hit_result, fields) => {
+                            if(err){
+                                console.error(err);
+                            }
+                            else{
+                                res.json(1);
+                            }
+                        })
                     }
                 })                
             }
@@ -187,7 +227,15 @@ router.post("/checklistAdd", (req, res) => {
                         console.error(err);
                     }
                     else{
-                        res.json(1);
+                        const update_hit_query = 'update music set hit = hit + 1 where ?';
+                        conn.query(update_hit_query, [{music_id: String(array[0])}], (err, update_hit_result, fields) => {
+                            if(err){
+                                console.error(err);
+                            }
+                            else{
+                                res.json(1);
+                            }
+                        })
                     }
                 })
 
@@ -202,7 +250,15 @@ router.post("/checklistAdd", (req, res) => {
                         console.error(err);
                     }
                     else{
-                        res.json(1);
+                        const update_hit_query = 'update music set hit = hit + 1 where ?';
+                        conn.query(update_hit_query, [{music_id: String(array[0])}], (err, update_hit_result, fields) => {
+                            if(err){
+                                console.error(err);
+                            }
+                            else{
+                                res.json(1);
+                            }
+                        })
                         return ;
                     }
                 })
@@ -223,7 +279,6 @@ router.post("/checklistAdd", (req, res) => {
         
                             if(Number(req.body.music_list[i]) === select_musiclist_result[0].music_list[j]){
         
-                                console.log( "i : " + i + ", j : " + j + "   " + Number(req.body.music_list[i]) + " & " + select_musiclist_result[0].music_list[j]);
                                 array.splice(j, 1);
                                 array.push(Number(req.body.music_list[i]));
                                 break;
@@ -235,7 +290,6 @@ router.post("/checklistAdd", (req, res) => {
                         }
                     }
                 }
-                console.log(array);
                 if(req.body.change_now_play === true){
                     const select_playerlist_query = `update playerlist set now_play_music = ?, music_list = "[?]" where ?`;
                     conn.query(select_playerlist_query, [String(req.body.music_list[0]), array, {character_id: req.body.character_id}], (err, select_playerlist_result, fields) => {
@@ -243,7 +297,15 @@ router.post("/checklistAdd", (req, res) => {
                             console.error(err);
                         }
                         else{
-                            res.json(1);
+                            const update_hit_query = 'update music set hit = hit + 1 where ?';
+                            conn.query(update_hit_query, [{music_id: String(req.body.music_list[0])}], (err, update_hit_result, fields) => {
+                                if(err){
+                                    console.error(err);
+                                }
+                                else{
+                                    res.json(1);
+                                }
+                            })
                         }
                     })
                 }
@@ -299,8 +361,15 @@ router.post("/checklistDel", (req, res) => {
                     console.error(err)
                 }
                 else{
-                    console.log(update_playerlist_query);
-                    res.json(1);
+                    const update_hit_query = 'update music set hit = hit + 1 where ?';
+                    conn.query(update_hit_query, [{music_id: select_playerlist_result[0].now_play_music}], (err, update_hit_result, fields) => {
+                        if(err){
+                            console.error(err);
+                        }
+                        else{
+                            res.json(1);
+                        }
+                    })
                 }
             })
         }
@@ -318,7 +387,7 @@ router.post("/playerAdd", async (req, res) => {
         let array = [];
         let client_array = [];        
         // 페이지가 albumtrack 일 때 (music 리스트 전달 x) (albumtrack)
-        if(req.body.page === "albumtrack" ){
+        if(req.body.page === "albumtrack" || req.body.page === "mainbanner_album"){
             const select_music_query = `select music.music_id from music inner join album on album.album_id = music.album_id where album.album_id = ${req.body.album_id}`;
             
             let [select_music_result] = await pool.query(select_music_query);
@@ -329,7 +398,18 @@ router.post("/playerAdd", async (req, res) => {
             }
         }
 
-        if(req.body.page === "liketheme"){
+        // if(req.body.page === "mainbanner_genre"){
+        //     const select_music_query = `select music.music_id from music inner join album on album.album_id = music.album_id where album.album_id = ${req.body.album_id}`;
+            
+        //     let [select_music_result] = await pool.query(select_music_query);
+        
+        //     for(let i=0; i<select_music_result.length; i++){
+        //         // array.push(select_music_result[i].id);
+        //         client_array.push(Number(select_music_result[i].music_id));
+        //     }
+        // }
+
+        if(req.body.page === "liketheme" || req.body.page === "mainbanner_theme"){
             const select_themeplaylist_query = `select music_list from themeplaylist where ?`;
             // console.log(req.body);
             let [select_themeplaylist_result] = await pool.query(select_themeplaylist_query, [{themeplaylist_id: Number(req.body.themeplaylist_id)}]);
@@ -341,7 +421,6 @@ router.post("/playerAdd", async (req, res) => {
 
         if(req.body.page === "mainbanner_prefer_playlist"){
             const select_prefer_playlist_query = `select music_list from prefer_playlist where ?`;
-            console.log(req.body);
             let [select_prefer_playlist_result] = await pool.query(select_prefer_playlist_query, [{character_id: req.body.character_id}]);
             for(let i=0; i<select_prefer_playlist_result[0].music_list.length; i++){
                 // array.push(select_music_result[i].id);
@@ -349,8 +428,25 @@ router.post("/playerAdd", async (req, res) => {
             }
         }
 
+        if(req.body.page === "mainbanner_genre"){
+            const select_music_query = `select music_id from music where ? and ? order by hit desc limit 50`;
+            let [select_music_result] = await pool.query(select_music_query, [{area: req.body.area}, {genre: req.body.genre}]);
+            for(let i=0; i<select_music_result.length; i++){
+                client_array.push(Number(select_music_result[i].music_id));
+            }
+        }
+
         if(req.body.page === "artist"){
             const select_artist_music_query = `select music_id from music where ?`;
+            let [select_artist_music_result] = await pool.query(select_artist_music_query, [{artist_id: Number(req.body.artist_id)}]);
+            for(let i=0; i<select_artist_music_result.length; i++){
+                // array.push(select_music_result[i].id);
+                client_array.push(Number(select_artist_music_result[i].music_id));
+            }
+        }
+        // searchArtist -> 인기곡 듣기
+        if(req.body.page === "search_artist"){
+            const select_artist_music_query = `select music_id from music where ? order by hit desc limit 30`;
             let [select_artist_music_result] = await pool.query(select_artist_music_query, [{artist_id: Number(req.body.artist_id)}]);
             for(let i=0; i<select_artist_music_result.length; i++){
                 // array.push(select_music_result[i].id);
@@ -385,17 +481,36 @@ router.post("/playerAdd", async (req, res) => {
             else{
                 // userid row 없을 때
                 if(select_musiclist_result.length === 0){
-                    for(let i=0; i<client_array.length; i++){
-                        array.push(Number(req.body.music_list[i]));
+                    // 2023-12-13 수정
+                    // client 에서 music 리스트를 보내줄 때 (channel, browse)
+                    if(req.body.music_list){
+                        for(let i=0; i<client_array.length; i++){
+                            array.push(Number(req.body.music_list[i]));
+                        }
                     }
-                    
+                    // music_list 를 안보내줄 때 
+                    else{
+                        for(let i=0; i<client_array.length; i++){
+                            array.push(Number(client_array[i]));
+                        }
+                    }
+                    // ~ 2023-12-13
+
                     const insert_playerlist_query = `insert into playerlist(character_id, now_play_music, music_list) values (?, ?, "[?]")`;
                     conn.query(insert_playerlist_query, [req.body.character_id, String(array[0]), array], (err, insert_playerlist_result, fields) => {
                         if(err){
                             console.error(err);
                         }
                         else{
-                            res.json(1);
+                            const update_hit_query = 'update music set hit = hit + 1 where ?';
+                            conn.query(update_hit_query, [{music_id: String(array[0])}], (err, update_hit_result, fields) => {
+                                if(err){
+                                    console.error(err);
+                                }
+                                else{
+                                    res.json(1);
+                                }
+                            })
                         }
                     })
                 }
@@ -413,7 +528,15 @@ router.post("/playerAdd", async (req, res) => {
                                 console.error(err);
                             }
                             else{
-                                res.json(1);
+                                const update_hit_query = 'update music set hit = hit + 1 where ?';
+                                conn.query(update_hit_query, [{music_id: String(array[0])}], (err, update_hit_result, fields) => {
+                                    if(err){
+                                        console.error(err);
+                                    }
+                                    else{
+                                        res.json(1);
+                                    }
+                                })
                             }
                         })
                     }
@@ -426,7 +549,15 @@ router.post("/playerAdd", async (req, res) => {
                                 console.error(err);
                             }
                             else{
-                                res.json(1);
+                                const update_hit_query = 'update music set hit = hit + 1 where ?';
+                                conn.query(update_hit_query, [{music_id: String(client_array[0])}], (err, update_hit_result, fields) => {
+                                    if(err){
+                                        console.error(err);
+                                    }
+                                    else{
+                                        res.json(1);
+                                    }
+                                })
                             }
                         })
                     }
@@ -456,7 +587,15 @@ router.post("/playerAdd", async (req, res) => {
                                 console.error(err);
                             }
                             else{
-                                res.json(1);
+                                const update_hit_query = 'update music set hit = hit + 1 where ?';
+                                conn.query(update_hit_query, [{music_id: String(client_array[0])}], (err, update_hit_result, fields) => {
+                                    if(err){
+                                        console.error(err);
+                                    }
+                                    else{
+                                        res.json(1);
+                                    }
+                                })
                             }
                         })
                     }
@@ -480,7 +619,7 @@ router.post("/playerAdd", async (req, res) => {
         })
     }
     catch(e){
-        console.log(e);
+        console.error(e);
     }
 })
 
@@ -520,7 +659,15 @@ router.post("/playerNext", (req, res) => {
                         console.error(err);
                     }
                     else{
-                        res.json(1);
+                        const update_hit_query = 'update music set hit = hit + 1 where ?';
+                        conn.query(update_hit_query, [{music_id: change_now_music}], (err, update_hit_result, fields) => {
+                            if(err){
+                                console.error(err);
+                            }
+                            else{
+                                res.json(1);
+                            }
+                        })
                     }
                 })
             }
@@ -530,7 +677,7 @@ router.post("/playerNext", (req, res) => {
 })
 
 router.post("/playerBefore", (req, res) => {
-    console.log("routes => playerHandle.js => router.post('/playerNext')");
+    console.log("routes => playerHandle.js => router.post('/playerBefore')");
 
     const select_nowmusic_query = `select now_play_music, music_list from playerlist where ?`;
     conn.query(select_nowmusic_query, [{character_id: req.body.character_id}], (err, select_nowmusic_result, fields) => {
@@ -554,7 +701,6 @@ router.post("/playerBefore", (req, res) => {
                             change_now_music = String(select_nowmusic_result[0].music_list[i - 1]);
                             break;
                         }
-                        
                     }
                 }
 
@@ -564,12 +710,168 @@ router.post("/playerBefore", (req, res) => {
                         console.error(err);
                     }
                     else{
-                        res.json(1);
+                        const update_hit_query = 'update music set hit = hit + 1 where ?';
+                        conn.query(update_hit_query, [{music_id: change_now_music}], (err, update_hit_result, fields) => {
+                            if(err){
+                                console.error(err);
+                            }
+                            else{
+                                res.json(1);
+                            }
+                        })
                     }
                 })
             }
         }
     })
 
+})
+
+// router.post("/addHit", (req, res) => {
+//     console.log("routes => playerHandle.js => router.post('/addHit')");
+//     const select_hit_query = `select hit from music where ?`;
+//     conn.query(select_hit_query, [{music_id: req.body.music_id}], (err, select_hit_result, fields) => {
+//         if(err){
+//             console.error(err);
+//         }
+//         else{
+//             const update_hit_query = `update music set hit = ? where ?`;
+//             conn.query(update_hit_query, [Number(select_hit_result[0].hit) + 1, {music_id: req.body.music_id}], (err, update_hit_result, fields) => {
+//                 if(err){
+//                     console.error(err);
+//                 }
+//                 else{
+//                     res.json(1);
+//                 }
+//             })
+//         }
+//     })
+// })
+
+/**
+ * @param {object} date : convert to yyyy-mm-dd hh:mm:ss formatted date string
+ * @return {string}
+ */
+const getTimestamp = (date) => {
+    
+    let year = date.getFullYear();
+    let month = date.getMonth() + 1;
+    month = month >= 10 ? month : '0' + month;
+    let day = date.getDate();
+    day = day >= 10 ? day : '0' + day;
+    let hours = date.getHours();
+    hours = hours >= 10 ? hours : '0' + hours;
+    let minutes = date.getMinutes();
+    minutes =  minutes >= 10 ? minutes : '0' + minutes;
+    let seconds = date.getSeconds();
+    seconds = seconds >= 10 ? seconds : '0' + seconds;
+    let timeStamp = `${year}-${month}-${day} ${hours}:${minutes}:${seconds} `;
+    return timeStamp;
+    // return `${year}-${month}-${day} ${hours}:${minutes} `
+}
+
+
+router.post("/voucherConfirm", (req, res) => {
+    console.log("routes => playerHandle.js => router.post('/voucherConfirm')");
+    console.log(req.body);
+
+    const select_voucher_query = `select * from voucher where ?`;
+    conn.query(select_voucher_query, [{user_id: req.body.user_id}], (err, select_voucher_result, fields) => {
+        if(err){
+            console.error(err);
+        }
+        else{
+            if(select_voucher_result.length === 0){
+                // 이용권 없음
+                res.json(-1)
+                return ;
+            }
+            else{
+                // 횟수 구매
+                if(select_voucher_result[0].remaining_number !== null){
+                    // 남은 곡 수 1일 때
+                    if(select_voucher_result[0].remaining_number === 1){
+                        // 기존 voucher 삭제
+                        const delete_voucher_query = 'delete from voucher where ?';
+                        conn.query(delete_voucher_query, [{user_id: req.body.user_id}], (err, delete_voucher_result, fields) => {
+                            if(err){
+                                console.error(err);
+                            }
+                            else{
+                                // expired voucher 테이블에 정보 insert
+                                const insert_expiredVoucher_query = `insert into expired_voucher (user_id, purchase_date, renewal_date, plan_type, remaining_number) values (?, ?, ?, ?, ?);`;
+                                conn.query(insert_expiredVoucher_query, [select_voucher_result[0].user_id, select_voucher_result[0].purchase_date, 
+                                select_voucher_result[0].renewal_date, select_voucher_result[0].plan_type, select_voucher_result[0].remaining_number], (err, insert_expiredVoucher_result, fields) => {
+                                    if(err){
+                                        console.error(err)
+                                    }
+                                    else{
+                                        // standby_voucher 검색
+                                        const select_standbyVoucher_query = `select * from standby_voucher where ?`;
+                                        conn.query(select_standbyVoucher_query, [{user_id: req.body.user_id}], (err, select_standbyVoucher_result, fields) => {
+                                            if(err){
+                                                console.error(err);
+                                            }
+                                            else{
+                                                // standby_voucher 에 정보가 없을 때
+                                                if(select_standbyVoucher_result.length == 0){
+                                                    res.json(1);
+                                                    return ;
+                                                }
+                                                // standby_voucher 에 정보가 있을 때
+                                                else{
+                                                    // 기존 standby_voucher 정보 삭제
+                                                    const delete_standbyVoucher_query = `delete from standby_voucher where ?`;
+                                                    conn.query(delete_standbyVoucher_query, [{user_id: req.body.user_id}], (err, delete_standbyVoucher_result, fields) => {
+                                                        if(err){
+                                                            console.error(err);
+                                                        }
+                                                        else{
+                                                            // voucher 에 정보 입력
+                                                            let now = new Date();
+                                                            const insert_voucher_query = `insert into voucher (user_id, purchase_date, renewal_date, plan_type, remaining_number) values (?, ?, ?, ?, ?)`;
+                                                            conn.query(insert_voucher_query, [req.body.user_id, getTimestamp(now), getTimestamp(new Date(now.setMonth(now.getMonth()+1))), select_standbyVoucher_result[0].plan_type, 
+                                                            select_standbyVoucher_result[0].remaining_number], (err, insert_voucher_result, fields) => {
+                                                                if(err){
+                                                                    console.error(err);
+                                                                }
+                                                                else{
+                                                                    res.json(1);
+                                                                    return ;
+                                                                }
+                                                            })
+                                                        }
+                                                    })
+                                                }
+                                            }
+                                        })
+                                    }
+                                })
+                            }
+                        })
+                    }
+                    // 남은 곡 수 1이 아닐 때
+                    else{
+                        const update_remainingNumber_query = 'update voucher set remaining_number = remaining_number - 1 where ?';
+                        conn.query(update_remainingNumber_query, [{user_id: req.body.user_id}], (err, update_remainingNumber_result, fields) => {
+                            if(err){
+                                console.error(err);
+                            }
+                            else{
+                                res.json(1);
+                                return ;
+                            }
+                        })
+                    }
+                }
+                // 기간 구매
+                else{
+                    res.json(1);
+                    return ;
+                }
+            }
+            return ;
+        }
+    })
 })
 module.exports = router;

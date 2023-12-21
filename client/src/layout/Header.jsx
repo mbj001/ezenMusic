@@ -13,47 +13,34 @@ import { MdArrowForwardIos } from "react-icons/md";
 import { voucherSwitch } from '../methods/voucherSwitch';
 import CreateCharacterModal from '../modal/CreateCharacterModal'
 import { IoMdCheckmark } from "react-icons/io";
+import { sessionExpiredLogoutMethod } from '../methods/sessionExpired';
 
 function Header() {
     const isSessionValid = JSON.parse(useContext(AppContext));
-    const [ loginStatus, setLoginStatus ] = useState(isSessionValid);
+
     const [ modalOpen, setModalOpen ] = useState(false);
-    const [ inputVal, setInputVal ] = useState("");
+    const [ confirmLogout, setConfirmLogout ] = useState(false);
+
     const [ character, setCharacter ] = useState([]);
     const [ characterNumber, setCharacterNumber ] = useState('');
     const [ additionalData, setAdditionalData ] = useState([]);
-    const [ preferGenre, setPreferGenre ] = useState([]);
     const [ openPopup, setOpenPopup ] = useState(false);
     const [ createCharacterModalOpen, setCreateCharacterModalOpen ] = useState(false);
     const [ selectedCharacter, setSelectedCharacter ] = useState(0);
     const [ pfimg, setpfimg ] = useState('');
     const [ loading, setLoading ] = useState(false);
-    const [activePage, setActivePage] = useState(0);
+    const [ activePage, setActivePage ] = useState(0);
+
     const locationPath = useLocation().pathname;
 
     const popupRef = useRef();
     const openerRef = useRef();
 
-    function searchSubmit(e){
-        // e.preventDefault();
-    }
-
     const getCharacterData = async() => {
-        // setLoading(true);
-        const characterData = await axios.post('/verifiedClient/getCharacter', {token: getCookie('connect.sid'), id: getCookie('client.sid')});
-        // console.log(characterData);
-        // setPreferGenre(characterData.data.prefer_genre);
-        if(characterData.data === -1){ 
-            console.log('Header getCharacter Data 유효하지 않은 응답 if');
-        }else if(characterData.data.valid === false){
-            console.log('Header getCaracter Date 유효하지 않은 응답 else if');
-            console.log("Header removeCookie");
-            removeCookie('connect.sid');
-            removeCookie('client.sid');
-            removeCookie('character.sid');
-            removeCookie('pfimg');
+        const characterData = await axios.post('/verifiedClient/getCharacter', {token: getCookie('connect.sid'), user_id: getCookie('client.sid')});
+        if(characterData.data.valid === false){
+            sessionExpiredLogoutMethod(true);
         }else{
-            console.log('ok');
             let url = [];
             let arr = [];
             const chardata = characterData.data.slice(0, characterData.data.length-1);
@@ -61,27 +48,19 @@ function Header() {
                 arr.push(char?.profile_image);
             });
             if(!arr.includes('character01.png')){
-                // console.log("url push 1");
                 url.push(1);
             }
             if(!arr.includes('character02.png')){
-                // console.log("url push 2");
-
                 url.push(2);
             }
             if(!arr.includes('character03.png')){
-                // console.log("url push 3");
-
                 url.push(3);
             }
-            // console.log(chardata);
             setCharacterNumber(url[0]);
             
             setCharacter(characterData.data.filter((item, index) => index < characterData.data.length - 1));
-            // console.log(character)
             
             const additional = characterData.data.pop();
-            console.log(additional)
             additional.plan_type = voucherSwitch(additional.plan_type);
             setAdditionalData(additional);
             setLoading(false);
@@ -97,15 +76,20 @@ function Header() {
         if(getCookie('pfimg') === clickedId){
             setOpenPopup(false);
         }else{
-            const response = await axios.post('/verifiedClient/getCharacterData', {token: getCookie('connect.sid'), id: getCookie('client.sid'), characterNum: clickedId});
-            // console.log(response)
-            if(response.data){
-                console.log("Header --> setCookie");
+            const response = await axios.post('/verifiedClient/getCharacterData', {token: getCookie('connect.sid'), user_id: getCookie('client.sid'), characterNum: clickedId});
 
-                // MBJ
-                removeCookie('character.sid');
-                removeCookie('pfimg');
-    
+            if(response.data){
+                removeCookie('character.sid', {
+                    path: '/',
+                    secure: false,
+                    secret: process.env.COOKIE_SECRET
+                });
+                removeCookie('pfimg', {
+                    path: '/',
+                    secure: false,
+                    secret: process.env.COOKIE_SECRET
+                });
+
                 setCookie('character.sid', response.data.character_id, {
                     path: '/',
                     secure: false,
@@ -137,6 +121,10 @@ function Header() {
         setOpenPopup(false); 
     }
 
+    const logoutModalOpen = () => {
+        setModalOpen(true);
+    }
+
     const logout = async() =>{
         let serverResponse = await removeServerSession();
         logoutMethod(serverResponse);
@@ -159,25 +147,29 @@ function Header() {
     }
 
     useEffect(()=>{
-        setLoginStatus(isSessionValid);
-    },[isSessionValid]);
-
-    useEffect(()=>{
         // console.log("Header useEffect [character]");
         character.forEach((data, index)=>{
             if(getCookie('pfimg') === data.character_num){
                 setSelectedCharacter(index);
             }
         });
-    },[character])
+    },[character]);
 
     useEffect(()=>{
+        if(!modalOpen && confirmLogout){
+            logout();
+        }
+    }, [modalOpen, confirmLogout])
+
+    useEffect(()=>{
+        // console.log(getCookie('character.sid'));
+        // console.log(getCookie('pfimg'));
         setLoading(true);
         if(isSessionValid){
             // console.log("Header useEffect []");            
             getCharacterData();
             if(getCookie('pfimg') === undefined || getCookie('pfimg') === null){
-                console.log("Header setCookie")
+                // console.log("Header setCookie")
                 setCookie('character.sid', getCookie('client.sid')+'#ch01' ,{
                     path: '/',
                     secure: false,
@@ -210,11 +202,14 @@ function Header() {
         else if(locationPath.indexOf("/purchase") != -1){
             setActivePage(3);
         }
-    }, [])
+        else{
+            setActivePage(0);    
+        }
+    }, [useLocation().pathname])
 
 
     useEffect(() => {
-        console.log("Header useEffect [openPopup, createCharacterModalOpen]")
+        // console.log("Header useEffect [openPopup, createCharacterModalOpen]")
         function handleClickOutside(e){
             if(openPopup === true && createCharacterModalOpen === true){
                 // console.log('닫지마');
@@ -243,13 +238,22 @@ function Header() {
     const locationNow = useLocation();
     if(locationNow.pathname === "/discovery"){
         return null;  
-    } 
+    }
 
-
+    
+    
     return (
-        <StyledHeader className="header-box d-flex justify-content-between align-items-center header_main">
+        // 12.13
+        <>
+        {/* StyledHeader가 fixed로 바뀔 때 Header가 빈 공간이 되어 따로 채워줄 용도의 박스 */}
+        {/* <div className={scrollPosition < 100 ? "h-[100px]" : "h-[100px]"}></div> */}
+        <div className="h-[100px]"></div>
+        {/* y좌표로 100픽셀 내려갔을 때 StyledHeader의 Position을 sticky에서 fixed로 바꿈 (화면을 내렸을 때 검색창에 타이핑하면 화면이 올라가는 현상 때문에) */}
+        {/* <StyledHeader className={scrollPosition < 100 ? "header-box d-flex fixed justify-content-between align-items-center md:w-[1000px] xl:w-[1280px] 2xl:w-[1440px]" : "header-box d-flex fixed justify-content-between align-items-center md:w-[1000px] xl:w-[1280px] 2xl:w-[1440px]"}> */}
+        <StyledHeader className="header-box d-flex justify-content-between align-items-center md:w-[1000px] xl:w-[1280px] 2xl:w-[1440px]">
+        {/* 최 하단의 빈 </>박스도 포함 */}
             {createCharacterModalOpen && <CreateCharacterModal setModalOpen={setCreateCharacterModalOpen} characterNumber={characterNumber}/>}
-            {modalOpen && <LogoutConfirm setModalOpen={setModalOpen}/>}
+            {modalOpen && <LogoutConfirm setModalOpen={setModalOpen} setConfirmLogout={setConfirmLogout}/>}
             <div className='header-left-side flex flex-row align-items-center justify-start'>
                 <Link to="/" className="logo" onClick={() => activeFunc(0)}>
                     EzenMusic
@@ -274,8 +278,9 @@ function Header() {
 
                 <div className="search-box col-6 position-relative mt-[2px]">
                     <RiSearchLine />
-                    <form action={"/search/all"} onSubmit={searchSubmit}>
-                        <input type="text" id='search' name="keyward" className="block col-4 header-search" placeholder='검색어를 입력하세요' value={inputVal} onChange={(e) => setInputVal(e.target.value)} />
+                    {/* 12.13 검색 form 하단 주석이 원래 form*/}
+                    <form action={"/search/all"}>
+                        <input type="text" id='search' name="keyword" className=" col-4 header-search" placeholder='검색어를 입력하세요'/>
                         <button type="submit" className="d-none"></button>
                     </form>
                 </div>
@@ -290,12 +295,7 @@ function Header() {
                                 {character && character[selectedCharacter]?.character_name}
                             </span>
                             <span className='profile-image'>
-                                {
-                                    loading ? 
-                                    <img src={`/image/character/loadingCircle.png`} alt='character'/>
-                                    :
-                                    <img src={`/image/character/${character[selectedCharacter]?.profile_image}`} alt='character' />
-                                }
+                                <img src={loading? `/image/character/loadingCircle.png` : `/image/character/${character[selectedCharacter]?.profile_image}`} alt='character'/>
                             </span>
                         </button>
                         {
@@ -305,26 +305,15 @@ function Header() {
                                     {   
                                         character && character.map((data, index)=>{
                                             return (
-                                                <button className='character' id={index} onClick={()=>changeCharacter(data.character_num)} key={index}>
+                                                <button className='character' id={index} onClick={() => changeCharacter(data.character_num)} key={index}>
                                                     <div className='inner-profile-image'>
                                                         <img src={`/image/character/${character[index]?.profile_image}`} alt="chracter" />
-                                                        {
-                                                            pfimg === data.character_num ? <span className='current-character'><IoMdCheckmark/></span> : <></>
-                                                        }
+                                                        { pfimg === data.character_num && <span className='current-character'><IoMdCheckmark/></span> }
                                                     </div>
                                                     <div className={`character-info character${index}`}>
                                                         <div className='character-name'>{data.character_name}</div>
                                                         <div className='character-prefer-info'>
-                                                            {
-                                                                data.prefer_genre !== null ?
-                                                                <span className='heart-icon'>
-                                                                    {/* 하트 */}
-                                                                    {/* <img src="/image/icons/heart3.png" alt="heart-icon" /> */}
-                                                                    <BsSuitHeart />
-                                                                </span>
-                                                                :
-                                                                <></>
-                                                            }
+                                                            { data.prefer_genre !== null && <span className='heart-icon'><BsSuitHeart /></span> }
                                                             <p>
                                                                 {
                                                                     data.prefer_genre !== null ?
@@ -342,18 +331,15 @@ function Header() {
                                                         </div>
                                                     </div>
                                                     <div className='prefer-control'>
-                                                        {
-                                                            pfimg === data.character_num ? <Link to={'character'}>관리</Link> : <></>
-                                                        }
-                                                        
+                                                        { pfimg === data.character_num && <Link to={'character'}>관리</Link> }
                                                     </div>
                                                 </button>
                                             )
                                         })
                                     }
                                     {
-                                        character.length < 3 ?
-                                            <button onClick={createCharacter} className='character add-character'>
+                                        character.length < 3 &&
+                                            <button onClick={() => createCharacter()} className='character add-character'>
                                                 <div className='inner-profile-image'>
                                                     <div className='background'>
                                                         <AiOutlinePlus />
@@ -363,12 +349,10 @@ function Header() {
                                                     <p>캐릭터 추가하기  </p>
                                                 </div>
                                             </button>
-                                        :
-                                        <></>
                                     }
                                     
                                 </div>
-                                <Link to={'/myinfo/password'} onClick={close} className='control info-control'>
+                                <Link to={'/myinfo/password'} onClick={() => close()} className='control info-control'>
                                     <div className='inner-control'>
                                         <p>정보관리</p>
                                         <MdArrowForwardIos/>
@@ -377,7 +361,7 @@ function Header() {
                                         {additionalData.email}
                                     </div>
                                 </Link>
-                                <Link to={'/purchase/my'} onClick={close} className='control voucher-control'>
+                                <Link to={'/purchase/my'} onClick={() => close()} className='control voucher-control'>
                                     <div className='inner-control'>
                                         <p>이용권 관리</p>
                                         <MdArrowForwardIos/>
@@ -387,7 +371,7 @@ function Header() {
                                     </div>
                                 </Link>
                                 <div className='logout-button'>
-                                    <LogoutButton onClick={logout}>
+                                    <LogoutButton onClick={() => logoutModalOpen()}>
                                         로그아웃
                                     </LogoutButton>
                                 </div>
@@ -402,6 +386,7 @@ function Header() {
                 }
             </div>
         </StyledHeader>
+        </>
     )
 }
 
@@ -602,7 +587,7 @@ const StyledHeader = styled.div`
     min-width: 950px;
     height: 100px;
     margin: 0px auto;
-    position: sticky; 
+    position: fixed;
     top: 0;
     left: 0;
     right: 0;

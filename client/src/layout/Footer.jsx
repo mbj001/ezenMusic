@@ -1,5 +1,4 @@
 import React from 'react'
-import MainStyledSection from '../layout/MainStyledSection'
 import { AiOutlineGithub, AiOutlineInstagram, AiOutlineMail } from 'react-icons/ai'
 import { FiArrowUpRight } from 'react-icons/fi'
 import { Link, useLocation } from 'react-router-dom'
@@ -10,7 +9,7 @@ const Footer = () => {
     if (locationNow.pathname === "/discovery") return null;
     return (
         <>
-            <StyledFooter className='border-t pt-4 md:w-[1000px] xl:w-[1280px] 2xl:w-[1440px] mx-auto mt-5'>
+            <StyledFooter className='pt-4 md:w-[1000px] xl:w-[1280px] 2xl:w-[1440px] mx-auto mt-5'>
                 <div className='footer-menu-area h-[150px] mb-4 flex justify-between relative'>
                     <div className='flex flex-row justify-start w-full h-full'>
                         <ul className='footer-ul w-[190px] h-[130px]'>
@@ -111,7 +110,7 @@ const Footer = () => {
 export default Footer
 
 const StyledFooter = styled.footer`
-
+    border-top: 1px solid #e0e1e5;
     .footer-menu-area{
         div{
             .footer-ul{

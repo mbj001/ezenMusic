@@ -1,18 +1,25 @@
-import React, {useState, useEffect, useRef, useContext} from 'react'
+import React, {useState, useEffect, useContext} from 'react'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 import Axios from 'axios';
-import { userid_cookies } from '../config/cookie';
+import { Cookies } from 'react-cookie';
 import LoginRequest from '../card/LoginRequest';
 import MylistSelectModal from '../modal/MylistSelectModal';
 import MylistDeleteConfirm from '../modal/MylistDeleteConfirm';
-import { RiPlayListAddFill, RiCheckFill, RiAddLine } from "react-icons/ri";
+import { RiCheckFill } from "react-icons/ri";
 import { PiMusicNotesLight } from "react-icons/pi";
-import icons from '../assets/sp_button.6d54b524.png';
 import { AppContext } from '../App'
 import PlayerBanner from '../card/PlayerBanner';
 
+// 승렬 
+import { MusicListCardAddPlaylistButton as AddPlaylistButton } from '../style/StyledIcons';
+import { TinyPlayButton } from '../style/StyledIcons';
+
 const Mylist = ({handleRender}) => {
+
+    const cookies = new Cookies();
+    const userid_cookies = cookies.get("character.sid");
+    
     // LSR
     // 로그아웃한 상태에서 쿠키에 character.sid 아무렇게나 만들어두면 userid_cookies에 이상한 값 들어가면서 
     // LoginRequest 페이지가 풀려버려서 app.js에서 뿌려주는 context 추가했어요
@@ -45,7 +52,7 @@ const Mylist = ({handleRender}) => {
                 setListContent(data);
             })
             .catch((err) => {
-            {}
+                console.log(err);
             })
         }
     }, [renderPlaylistPage])
@@ -78,7 +85,7 @@ const Mylist = ({handleRender}) => {
     // 편집모드 클릭
     const clickToEditMode = async(e) =>{
         e.preventDefault();
-        if(editMode == false){
+        if(editMode === false){
             setEditMode(true);
         }else{
             setEditMode(false);
@@ -203,7 +210,6 @@ const Mylist = ({handleRender}) => {
     // ~ Delete and Delete Confirm Functions
 
     function playerAdd(bool, data){
-        let array = [];
 
         // for(let i=0; i<albumAndMusicData.length; i++){
         //     array.push(albumAndMusicData[i].music_id);
@@ -255,6 +261,7 @@ const Mylist = ({handleRender}) => {
                     </div>
                 </StyledMylistDivFalse>
                 :
+                // 플레이리스트가 하나라도 있을 때
                 <StyledMylistDivTrue className='flex flex-wrap align-items-center md:w-[1000px] xl:w-[1280px] 2xl:w-[1440px] mx-auto'>
                     {
                     // 편집모드 아닐때
@@ -268,11 +275,12 @@ const Mylist = ({handleRender}) => {
                         <span className='edit cursor-pointer text-[13px]' style={{color: "var(--main-theme-color)"}} onClick={clickToEditMode}>완료</span>
                     </div>
                     }
+                    <div className='grid-main'>
                     {
                         listContent.map((item, index) => (
-                            <div className='col-4 my-[20px]'>
-                                    {/* <div key={index} className={ !editMode? "flex items-start w-[410px] h-[190px]" : (item.delcheckVal? "relative flex items-start w-[410px] h-[190px] brightness-75" : "relative flex items-start w-[410px] h-[190px]") }> */}
-                                    <div key={index} className={ !editMode? "flex items-start w-[410px] h-[190px]" : "relative flex items-start w-[410px] h-[190px]" }>
+                            <div key={index} className='my-[20px]'>
+                                {/* <div key={index} className={ !editMode? "flex items-start w-[410px] h-[190px]" : (item.delcheckVal? "relative flex items-start w-[410px] h-[190px] brightness-75" : "relative flex items-start w-[410px] h-[190px]") }> */}
+                                <div className={ !editMode? "flex items-start w-[410px] h-[190px]" : "relative flex items-start w-[410px] h-[190px]" }>
                                 {
                                     // 편집모드 일때
                                     editMode && 
@@ -281,56 +289,57 @@ const Mylist = ({handleRender}) => {
                                     </div>
                                 }
                         
-                            {
-                            // 썸네일 이미지가 null일때
-                            item.thumbnail_image == null?
-                            <Link to = {"/detail/detailmylist/" + listContent[index].playlist_id}>
-                                <div className={ item.delcheckVal? 'null-image flex w-[175px] h-[175px] brightness-75' : 'null-image flex w-[175px] h-[175px] rounded-[10px]'}>
-                                    <span className='null-image-icon flex justify-around items-center w-full h-full'>
-                                        <PiMusicNotesLight className='text-[60px]' />
-                                    </span>
-                                </div>    
-                            </Link>                       
-                            :
-                            <div className='null-image relative'>
-                                <Link to = {"/detail/detailmylist/" + listContent[index].playlist_id}>
-                                    <img src={"/image/album/" + item.thumbnail_image} alt="cover_image" className={ item.delcheckVal? "rounded-[6px] hover:brightness-75 brightness-75" : "rounded-[6px] hover:brightness-75"} />
-                                </Link>      
-                                <button className='libutton absolute' style={{backgroundImage: `url(${icons})`}} onClick={(e) => playerAdd(true, item)}>Play Icon</button>
-                            </div>
-                            }
+                                {
+                                    // 썸네일 이미지가 null일때
+                                    item.thumbnail_image == null?
+                                    <Link to = {"/detail/detailmylist/" + listContent[index].playlist_id}>
+                                        <div className={ item.delcheckVal? 'null-image flex w-[175px] h-[175px] brightness-75' : 'null-image flex w-[175px] h-[175px] rounded-[6px]'}>
+                                            <span className='null-image-icon flex justify-around items-center w-full h-full'>
+                                                <PiMusicNotesLight className='text-[60px]' />
+                                            </span>
+                                        </div>    
+                                    </Link>                       
+                                    :
+                                    <div className='null-image relative'>
+                                        <Link to = {"/detail/detailmylist/" + listContent[index].playlist_id}>
+                                            <img src={"/image/album/" + item.thumbnail_image} alt="cover_image" className={ item.delcheckVal? "rounded-[6px] hover:brightness-75 brightness-75" : "rounded-[6px] hover:brightness-75"} />
+                                        </Link>      
+                                        <TinyPlayButton onClick={(e) => playerAdd(true, item)}></TinyPlayButton>
+                                    </div>
+                                }
                         
-                        <div className="flex flex-col ml-[20px]">
-                            <span className="text-[15px] mt-[35px] mb-[10px] font-bold">{listContent[index].playlist_name}</span>
-                            <span className="text-[14px]" style={{color: "var(--main-text-gray-darker)"}}>
-                                {listContent[index].music_list == null? "총 0곡" : "총"+listContent[index].music_list.length+"곡"}
-                            </span>
-                            <span className="text-[13px]" style={{color: "var(--main-text-gray)"}}>{listContent[index].create_date.replace(/-/g, '.').substr(0,10)}</span>
-                            <button className="artist_listplus ml-[-10px]" style={{backgroundImage:`url(${icons})`}} onClick={(e) => playerAdd(false, item)}></button>
-                        </div>
-                        </div>
-                    </div>
-                    ))
-                }
+                                    <div className="flex flex-col justify-between ml-[20px]">
+                                        <span className="text-[15px] mt-[15px] mb-[15px] w-[200px] font-bold text-ellipsis overflow-hidden">{listContent[index].playlist_name}</span>
+                                        <span className="text-[14px]" style={{color: "var(--main-text-gray-darker)"}}>
+                                            {listContent[index].music_list == null? "총 0곡" : "총"+listContent[index].music_list.length+"곡"}
+                                        </span>
+                                        <span className="text-[13px]" style={{color: "var(--main-text-gray)"}}>{listContent[index].create_date.replace(/-/g, '.').substr(0,10)}</span>
+                                        <AddPlaylistButton onClick={(e) => playerAdd(false, item)} className='ml-[-9px] mt-[30px]'></AddPlaylistButton>
+                                    </div>
+                                </div>
+                            </div>
+                        ))
+                    }
                 {
                     // 편집모드 아닐때
                     !editMode &&
-                    <div className='flex col-4 mb-4'>
-                    <form onSubmit={createPlaylistWhenNull} method='post' className='flex flex-row'>
-                        <button type='submit'>
-                            <div className='new-list w-[175px] h-[175px] flex justify-center items-center shadow-md'>
-                                <img src="/image/icons/add.svg" alt="addPlaylist" className='w-[50px] h-[50px]'/>
+                    <div className='flex my-[20px] mt-[3px]'>
+                        <form onSubmit={createPlaylistWhenNull} method='post' className='flex flex-row'>
+                            <button type='submit'>
+                                <div className='new-list w-[175px] h-[175px] flex justify-center items-center'>
+                                    <img src="/image/icons/add.svg" alt="addPlaylist" className='w-[50px] h-[50px]'/>
+                                </div>
+                            </button>
+                        
+                            <div className='flex ml-[20px]'>
+                                <input type="hidden" name='userid' value={userid_cookies} />
+                                <input type="hidden" name="date" value={date} />
+                                <button type='submit' className='text-[15px] justify-between items-center ' style={{color: "var(--main-theme-color)"}}><span>새로운 리스트 만들기</span></button>
                             </div>
-                        </button>
-                    
-                        <div className='flex ml-[20px]'>
-                            <input type="hidden" name='userid' value={userid_cookies} />
-                            <input type="hidden" name="date" value={date} />
-                            <button type='submit' className='text-[15px]' style={{color: "var(--main-theme-color)"}}>새로운 리스트 만들기</button>
-                        </div>
-                    </form>
+                        </form>
                     </div>
                 }
+                </div>
                 </StyledMylistDivTrue>
                 
             }
@@ -345,7 +354,7 @@ const Mylist = ({handleRender}) => {
 
 export default Mylist
 
-
+// 재생목록 하나도 없을 때
 const StyledMylistDivFalse = styled.div`
     img{
         width: 160px;
@@ -358,8 +367,24 @@ const StyledMylistDivFalse = styled.div`
         border-radius: 20px;
     }
 `
-
+// 재생목록이 하나라도 있을 때
 const StyledMylistDivTrue = styled.div`
+    .grid-main{
+        @media (min-width: 1024px){ 
+            width: 100%;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 30px;
+            text-overflow: ellipsis;
+        }
+        @media (max-width: 1024px){
+            width: 100%;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+    }
     height: 100%;
     img{
         width: 175px;
@@ -374,38 +399,38 @@ const StyledMylistDivTrue = styled.div`
     .null-image{
         position: relative;
         // 12.12 추가
-        border: 1px solid var(--mylist-null-image-before);
+        border: 1px solid #efefef;
         border-radius: 6px;
         background-color: var(--mylist-null-image-cover);
     }
     .null-image::before{
-        position: absolute;
-        display: block;
-        top: -4px;
-        content: "";
-        z-index: -1;
-        left: 2.5%;
         width: 95%;
         height: 95%;
-        background-color: var(--mylist-null-image-before);
-        opacity: 0.5;
-        border-radius: 10px;
+        position: absolute;
+        z-index: -2;
+        top: -4px;
+        right: 2.5%;
+        display: inline-block;
+        content: "";
+        background-color: #e3e3e3;
+        opacity: 1;
+        border-radius: 6px;
     }
     .null-image::after{
         position: absolute;
         display: block;
         top: -8px;
         content: "";
-        z-index: -2;
+        z-index: -3;
         left: 5%;
         width: 90%;
         height: 90%;
         background-color: var(--mylist-null-image-after);
-        opacity: 0.8;
+        opacity: 1;
         border-radius: 10px;
     }
     .null-image span{
-        border: 1px solid rgba(0, 0, 0, 0.1);
+        // border: 1px solid rgba(0, 0, 0, 0.1);
         border-radius: 10px;
     }
     .null-image span:hover{
@@ -430,24 +455,23 @@ const StyledMylistDivTrue = styled.div`
         width: 35px;
         height: 35px;
         filter: brightness(1);
-        // border-radius: 20px;
         .checkbox-icon{
-        background-color: var(--main-text-gray-lighter);
-        color: var(--main-text-white);
-        font-size: 25px;
-        filter: brightness(1);
+            background-color: var(--main-text-gray-lighter);
+            color: var(--main-text-white);
+            font-size: 25px;
+            filter: brightness(1);
         }
         
         .selected{
-        background-color: var(--main-theme-color);
-        color: var(--main-text-white);
-        font-size: 25px;
-        filter: brightness(1);
+            background-color: var(--main-theme-color);
+            color: var(--main-text-white);
+            font-size: 25px;
+            filter: brightness(1);
         }
     }
     .new-list{
         border-radius: 6px;
-        background-color: var(--mylist-null-image-cover);
+        background-color: #f6f6f6;
         img{
             width: 50px;
             height: 50px;
