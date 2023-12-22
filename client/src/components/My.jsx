@@ -35,7 +35,6 @@ const My = () => {
 
     const getExpiredVoucherInfo = async() => {
         const expiredVoucherData = await axios.post('/verifiedClient/getExpiredVoucher', {token: getCookie('connect.sid'), user_id: getCookie('client.sid')});
-        // expiredVoucher.data.plan_type = voucherSwitch(expiredVoucher.data.plan_type);
         expiredVoucherData.data.forEach((list)=>{
             list.plan_type = voucherSwitch(list.plan_type);
         })
@@ -57,9 +56,6 @@ const My = () => {
         }
     }, []);
 
-    useEffect(()=>{ 
-        console.log(expiredVoucher)
-    }, [expiredVoucher])
 
     return (
         <div>

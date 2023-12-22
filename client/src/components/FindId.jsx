@@ -20,7 +20,7 @@ const FindId = () => {
         if(active){
             await getDataFromServer();
         }else{
-            console.log('availableData = false');
+            // console.log('availableData = false');
         }
     }
 
@@ -51,8 +51,7 @@ const FindId = () => {
 
     return (
         <div className="h-[700px] flex align-items-center justify-center flex-col">
-            <Logo className='logo mb-10' >
-                EzenMusic
+            <Logo className='logo mt-[40px] mb-[30px]' >
             </Logo>
             <div className='mb-10'>
                 
@@ -93,7 +92,6 @@ const FindId = () => {
                         }
                         <button type='button' id='go-signin' className='mt-[30px] border-t-1'>
                             <Link to='/signin'>로그인 페이지로 이동</Link>
-                            {/* button-active 라는 클래스 주어져야 넘어갈 수 있게 처리할 예정 */}
                         </button>
                     </FindSuccessCover>
 
@@ -120,10 +118,11 @@ const FindId = () => {
 export default FindId
 
 const Logo = styled.div`
-    font-size: 30px;
-    color: var(--main-theme-color);
-    text-decoration: none;
-    font-weight: 900;
+    width: 180px; 
+    height: 30px;
+    background-image: url(/Logo/Logo.svg);
+    background-repeat: no-repeat;
+    background-size: cover;
 `;
 
 const FindFormCover = styled.div`

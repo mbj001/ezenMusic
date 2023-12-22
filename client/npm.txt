@@ -1,6 +1,0 @@
-npm i react-router-dom
-npm i react-icons
-npm i react-bootstrap bootstrap
-npm i styled-components
-npm i swiper
-npm i tailwindcss

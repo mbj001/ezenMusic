@@ -146,7 +146,7 @@ function Player({listenMusic, showPlaylistFunc, handleRender, delLikeyFunc, addL
                     <div ref={element => btnRef.current[7] = element}></div>
                 </div>
                 :
-                <PlayerMusicInfo className="">
+                <PlayerMusicInfo>
                     <div className='album-image-cover'>
                         <img src={"/image/album/" + listenMusic.org_cover_image} alt={listenMusic.org_cover_image}/>
                     </div>

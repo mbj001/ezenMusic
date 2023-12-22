@@ -5,8 +5,8 @@ export const planDescription = [
         originalPrice: 5000,
         discountPrice: 1500,
         description: [
-            '음악이 재생되지는 않아요',
-            '개발자가 되고싶은 취준생들의 프로젝트 결과물이에요',
+            '실제 음원이 재생되지는 않아요',
+            '개발자를 꿈꾸는 취준생들의 프로젝트 결과물이에요',
             '실제로 결제되지 않으니 걱정마세요'
         ]
     },
@@ -16,8 +16,8 @@ export const planDescription = [
         originalPrice: 15000,
         discountPrice: 8000,
         description: [
-            '음악이 재생되지는 않아요',
-            '개발자가 되고싶은 취준생들의 프로젝트 결과물이에요',
+            '실제 음원이 재생되지는 않아요',
+            '개발자를 꿈꾸는 취준생들의 프로젝트 결과물이에요',
             '실제로 결제되지 않으니 걱정마세요'
         ]
     },
@@ -27,8 +27,8 @@ export const planDescription = [
         originalPrice: 20000,
         discountPrice: 13000,
         description: [
-            '음악이 재생되지는 않아요',
-            '개발자가 되고싶은 취준생들의 프로젝트 결과물이에요',
+            '실제 음원이 재생되지는 않아요',
+            '개발자를 꿈꾸는 취준생들의 프로젝트 결과물이에요',
             '실제로 결제되지 않으니 걱정마세요'
         ]
     },
@@ -38,8 +38,8 @@ export const planDescription = [
         originalPrice: 25000,
         discountPrice: 17000,
         description: [
-            '음악이 재생되지는 않아요',
-            '개발자가 되고싶은 취준생들의 프로젝트 결과물이에요',
+            '실제 음원이 재생되지는 않아요',
+            '개발자를 꿈꾸는 취준생들의 프로젝트 결과물이에요',
             '실제로 결제되지 않으니 걱정마세요'
         ]
     },
@@ -49,8 +49,8 @@ export const planDescription = [
         originalPrice: 10000,
         discountPrice: 8000,
         description: [
-            '음악이 재생되지는 않아요',
-            '개발자가 되고싶은 취준생들의 프로젝트 결과물이에요',
+            '실제 음원이 재생되지는 않아요',
+            '개발자를 꿈꾸는 취준생들의 프로젝트 결과물이에요',
             '실제로 결제되지 않으니 걱정마세요'
         ]
     },
@@ -60,8 +60,8 @@ export const planDescription = [
         originalPrice: 15000,
         discountPrice: 13000,
         description: [
-            '음악이 재생되지는 않아요',
-            '개발자가 되고싶은 취준생들의 프로젝트 결과물이에요',
+            '실제 음원이 재생되지는 않아요',
+            '개발자를 꿈꾸는 취준생들의 프로젝트 결과물이에요',
             '실제로 결제되지 않으니 걱정마세요'
         ]
     }

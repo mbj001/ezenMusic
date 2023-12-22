@@ -147,7 +147,6 @@ function Header() {
     }
 
     useEffect(()=>{
-        // console.log("Header useEffect [character]");
         character.forEach((data, index)=>{
             if(getCookie('pfimg') === data.character_num){
                 setSelectedCharacter(index);
@@ -162,14 +161,10 @@ function Header() {
     }, [modalOpen, confirmLogout])
 
     useEffect(()=>{
-        // console.log(getCookie('character.sid'));
-        // console.log(getCookie('pfimg'));
         setLoading(true);
         if(isSessionValid){
-            // console.log("Header useEffect []");            
             getCharacterData();
             if(getCookie('pfimg') === undefined || getCookie('pfimg') === null){
-                // console.log("Header setCookie")
                 setCookie('character.sid', getCookie('client.sid')+'#ch01' ,{
                     path: '/',
                     secure: false,
@@ -182,7 +177,6 @@ function Header() {
                 });
                 setpfimg(1);
             }else{
-                // console.log(getCookie('pfimg'))
                 setpfimg(getCookie('pfimg'));
             }
         }
@@ -209,18 +203,14 @@ function Header() {
 
 
     useEffect(() => {
-        // console.log("Header useEffect [openPopup, createCharacterModalOpen]")
         function handleClickOutside(e){
             if(openPopup === true && createCharacterModalOpen === true){
-                // console.log('닫지마');
                 return;
             }else{
                 if(popupRef.current && !popupRef.current.contains(e.target)) {
                     if(openerRef.current.contains(e.target)){
-                        // console.log('닫지마');
                         return;
                     }else{
-                        // console.log("닫아");
                         setOpenPopup(false);
                     }
                 }
@@ -231,7 +221,6 @@ function Header() {
         }else{
             document.addEventListener("mousedown", handleClickOutside);
         }
-        // console.log(popupRef);
     }, [openPopup, createCharacterModalOpen]);
 
 
@@ -255,8 +244,8 @@ function Header() {
             {createCharacterModalOpen && <CreateCharacterModal setModalOpen={setCreateCharacterModalOpen} characterNumber={characterNumber}/>}
             {modalOpen && <LogoutConfirm setModalOpen={setModalOpen} setConfirmLogout={setConfirmLogout}/>}
             <div className='header-left-side flex flex-row align-items-center justify-start'>
-                <Link to="/" className="logo" onClick={() => activeFunc(0)}>
-                    EzenMusic
+                <Link to="/" className="logo mt-[5px]" onClick={() => activeFunc(0)}>
+                    
                 </Link>
                 <div className='header-link-area flex align-items-center justify-start px-10'>
                     <div className=''>
@@ -313,7 +302,7 @@ function Header() {
                                                     <div className={`character-info character${index}`}>
                                                         <div className='character-name'>{data.character_name}</div>
                                                         <div className='character-prefer-info'>
-                                                            { data.prefer_genre !== null && <span className='heart-icon'><BsSuitHeart /></span> }
+                                                            { data.prefer_genre !== null && <span className={`heart-icon`}><BsSuitHeart/></span> }
                                                             <p>
                                                                 {
                                                                     data.prefer_genre !== null ?
@@ -595,10 +584,11 @@ const StyledHeader = styled.div`
     background-color: var(--main-text-white);
     .header-left-side{
         .logo{
-            font-size: 24px;
-            color: var(--main-text-black);
-            text-decoration: none;
-            font-weight: 900;
+            width: 180px; 
+            height: 30px;
+            background-image: url(/Logo/Logo.svg);
+            background-repeat: no-repeat;
+            background-size: cover;
         }
         .header-link-area{
             div{

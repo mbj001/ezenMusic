@@ -2,7 +2,6 @@ const express = require("express");
 const conn = require("../config/mysql");
 const router = express.Router();
 const bcrypt = require('bcrypt');
-const mysql2 = require('mysql2/promise');
 const pool = require("../config/mysqlPool");
 
 router.post('/check', (req,res)=>{
@@ -352,9 +351,6 @@ router.post('/getPreferData', (req,res)=>{
                 console.log('/getPreferData -> prefer = [] :: empty array');
             }else{
                 const preferData = prefer[0];
-                console.log('******************************')
-                console.log(preferData)
-                console.log('******************************')
                 if(preferData.prefer_artist !== null){
                     let userSelectedArtistQuery = `select artist_id, org_artist_image, artist_name, genre from artist where `;
                     preferData.prefer_artist.forEach((data, index)=>{
@@ -433,35 +429,17 @@ router.post('/getArtistData', (req,res)=>{
                 if(error){
                     console.log(error);
                 }else{
-                    // console.log(artist);
-                    // console.log(genre);
                     artist.forEach((artist)=>{
-                        // artist의 genre 컬럼의 데이터가 여러개 들어있는 아티스트는 그냥 제일 앞의 장르 하나만
-                        // 여러개 장르 중복되지 않도록
                         if(artist.genre.indexOf(',') !== -1){
                             artist.genre = artist.genre.split(',')[0];
                         }
                     });
-                    genre.forEach((genre) => {
-                        // console.log(genre);
-                    });
+                    // genre.forEach((genre) => {
+                    // });
                     const sendData = [genre, artist];
-                    // console.log(sendData);
                     res.send(sendData);
                 }
             });
-        }
-    });
-});
-
-router.post('/getGenreData', (req,res)=>{
-    const getGernreQuery = `select * from genre_table`;
-    conn.query(getGernreQuery, (error, genre, fields)=>{
-        if(error){
-            console.log(error);
-        }else{
-            // console.log(genre);
-            res.send(genre);
         }
     });
 });
@@ -472,14 +450,12 @@ router.post('/getGenreTable', (req,res)=>{
         if(error){
             console.log(error);
         }else{
-            // console.log(genreTable);
             res.send(genreTable);
         }
     })
 })
 
 router.post('/updatePrefer', (req,res)=>{
-    // console.log(req.body);
     const selectedArtist = req.body.preferArtist;
     const selectedGenre = req.body.preferGenre;
     // 선택한 아티스트 업데이트 쿼리
@@ -533,7 +509,8 @@ router.post('/createPreferPlaylist', (req,res)=>{
         gender: [],
         class: []
     };
-    conn.query(`select prefer_artist, prefer_genre from characters where character_id = '${req.body.characterId}'`, (error, selectedArr, fields)=>{
+    const selectPreferDataQuery = `select prefer_artist, prefer_genre from characters where character_id = ?`;
+    conn.query(selectPreferDataQuery, [req.body.characterId], (error, selectedArr, fields)=>{
         if(error){
             console.log(error)
         }else{
@@ -581,7 +558,6 @@ router.post('/createPreferPlaylist', (req,res)=>{
                             if(error){
                                 console.log(error);
                             }else{
-                                // #################### ALGORITHM of prefer with genre ####################
                                 // ########################################################################
                                 // class (group / solo / duo)
                                 let group = 0;
@@ -792,7 +768,9 @@ router.post('/createPreferPlaylist', (req,res)=>{
                                                     conn.query(updatePreferPlaylistQuery, (err, result, fields)=>{
                                                         if(err){
                                                             console.log(err);
+                                                            return res.send({createSuccess: false});
                                                         }else{
+                                                            return res.send({createSuccess: true});
                                                         }
                                                     });
                                                 }
@@ -805,11 +783,9 @@ router.post('/createPreferPlaylist', (req,res)=>{
                     }
                 });
             }
-            
         }
     });
-    res.send('1');
-})
+});
 
 router.post('/getPrefer', (req,res)=>{
     const sendData = {
@@ -818,9 +794,9 @@ router.post('/getPrefer', (req,res)=>{
         music_list: []
     }
     const getPreferMusicIdQuery =`select music_list from prefer_playlist where character_id = ?`;
-    conn.query(getPreferMusicIdQuery, [req.body.characterId], (err,result,f)=>{
-        if(err){
-            console.log(err);
+    conn.query(getPreferMusicIdQuery, [req.body.characterId], (error, result, fields)=>{
+        if(error){
+            console.log(error);
         }else{
             const arr = result[0].music_list;
             if(arr.length === 0){   
@@ -861,6 +837,7 @@ router.post('/getBannerImage', async(req,res)=>{
             if(error){
                 console.error(error);
             }else{
+                console.log(artist)
                 if(artist[0].prefer_artist === null){
                     const preferMusicQuery = `select * from prefer_playlist where character_id = ?`;
                     conn.query(preferMusicQuery, [req.body.characterId], async(error, music, fields)=>{
@@ -903,153 +880,92 @@ router.post('/getBannerImage', async(req,res)=>{
                                 return res.json(-1);                                        
                             }else{
                                 const bannerImageArr = generateImage(distinctArray);
-                                // console.log(bannerImageArr)
-                                
-                                // const getBannerImageUrlQuery = `select artist.artist_id from music inner join artist on artist.artist_id = music.artist_id 
-                                // where (music.music_id = '${bannerImageArr[0]}') or (music.music_id = '${bannerImageArr[1]}') or (music.music_id = '${bannerImageArr[2]}')`;
-                                const getBannerImageUrlQuery = `select org_artist_image as img from artist where (artist_id = '${bannerImageArr[0]}') or (artist_id = '${bannerImageArr[1]}') or (artist_id = '${bannerImageArr[2]}')`;
-                                // console.log(getBannerImageUrlQuery);
-                                conn.query(getBannerImageUrlQuery, (error, imageUrl, fields)=>{
+                                const getBannerImageUrlQuery = `select org_artist_image as img from artist where (artist_id = ? ) or (artist_id = ? ) or (artist_id = ? )`;
+                                conn.query(getBannerImageUrlQuery, [bannerImageArr[0], bannerImageArr[1], bannerImageArr[2]], (error, imageUrl, fields)=>{
                                     if(error){
                                         console.error(error);
                                     }else{
-                                        // console.log(imageUrl);
                                         let sendData = [];
                                         imageUrl.forEach((data, index) => {
                                             sendData.push(imageUrl[index].img);
-                                            
-                                            // conn.query(`select org_artist_image as img from artist where artist_id = '${data.artist_id}'`,(error,result,fields)=>{
-                                                //     if(error){
-                                            //         console.error(error);
-                                            //     }else{
-                                            //         // console.log(result);
-                                                    
-                                            //         // console.log(sendData);
-                                            //         // console.log(index)
-                                            //         if(index === 2){
-                                            //             // console.log(sendData)
-                                                        
-                                            //         }
-                                            //     }
-                                            // });
                                         });
                                         res.send(sendData);
                                     }
-                                })
+                                });
                             }
-                            
-                            
-                            
                         }
                     });
-                }else{
-                    if(artist[0].prefer_artist !== null){
-                        if(artist[0].prefer_artist.length === 0){
-                            // prefer_playlist 에도 데이터 없음
-                        }else if(artist[0].prefer_artist.length >= 3){
-                            // 3개 이상일땐 아티스트 이미지 보여주고
-                            const artistArray = artist[0].prefer_artist;
-                            const getArtistImageQuery = `select org_artist_image from artist where artist_id = '${artistArray[0]}' or artist_id = '${artistArray[1]}' or artist_id = '${artistArray[2]}'`;
-                            conn.query(getArtistImageQuery, (error, result, fields)=>{
-                                if(error){
-                                    console.log(error)
-                                }else{
-                                    // console.log(result);
-                                    let sendData = [];
-                                    result.forEach((data) => {
-                                        sendData.push(data.org_artist_image);
-                                    });
-                                    return res.send(sendData);
-                                }
-                            })
-                        }else{
-                            // 0~3 사이일땐 어쩔수없이 추천 플레이리스트 중 가수 골라서 이미지 보여줌
-                            const preferMusicQuery = `select * from prefer_playlist where character_id = '${req.body.characterId}'`;
-                            conn.query(preferMusicQuery, async(error, music, fields)=>{
-                                if(error){
-                                    console.error(error)
-                                }else{
-                                    // console.log('@@@@@@@@@@@@@@@@@@@@ music');
-                                    // console.log(music);
-                                    let getMusicListFullDataQuery = `select distinct artist_id from music where`;
-                                    if(music[0]?.music_list?.length !== 0){
-                                        music[0].music_list.forEach((data, index)=>{
-                                            if(music[0].music_list.length - 1 === index){
-                                                getMusicListFullDataQuery += ` music_id = '${data} '`
-                                            }else{
-                                                getMusicListFullDataQuery += ` music_id = '${data}' or`
-                                            }
-                                        })
-                                    }
-    
-                                    // console.log(getMusicListFullDataQuery)
-                                    let [distinctData] = await pool.query(getMusicListFullDataQuery);
-                                    let distinctArray = [];
-                                    distinctData.forEach((data)=>{
-                                        distinctArray.push(data.artist_id);
+                }else if(artist[0].prefer_artist !== null){
+                    if(artist[0].prefer_artist.length >= 3){
+                        const artistArray = artist[0].prefer_artist;
+                        const getArtistImageQuery = `select org_artist_image from artist where artist_id = ? or artist_id = ? or artist_id = ?`;
+                        conn.query(getArtistImageQuery, [artistArray[0], artistArray[1], artistArray[2]], (error, result, fields)=>{
+                            if(error){
+                                console.log(error)
+                            }else{
+                                let sendData = [];
+                                result.forEach((data) => {
+                                    sendData.push(data.org_artist_image);
+                                });
+                                return res.send(sendData);
+                            }
+                        })
+                    }else{
+                        const preferMusicQuery = `select * from prefer_playlist where character_id = ?`;
+                        conn.query(preferMusicQuery, [req.body.characterId], async(error, music, fields)=>{
+                            if(error){
+                                console.error(error)
+                            }else{
+                                let getMusicListFullDataQuery = `select distinct artist_id from music where`;
+                                if(music[0]?.music_list?.length !== 0){
+                                    music[0].music_list.forEach((data, index)=>{
+                                        if(music[0].music_list.length - 1 === index){
+                                            getMusicListFullDataQuery += ` music_id = '${data} '`
+                                        }else{
+                                            getMusicListFullDataQuery += ` music_id = '${data}' or`
+                                        }
                                     })
-                                    // console.log('@@@@@@@@@@ distinctData @@@@@@@@@@')
-                                    // console.log(distinctArray)
-                                    // console.log('@@@@@@@@@@ distinctData @@@@@@@@@@')
-                                    // console.log(music[0].music.length);
-                                    const generateImage = (array) => {
-                                        let total = array.length - 1;
-                                        let random1;
-                                        let random2;
-                                        let random3;
-                                        do{
-                                            random1 = array[Math.round(Math.random() * total)];
-                                            random2 = array[Math.round(Math.random() * total)];
-                                            random3 = array[Math.round(Math.random() * total)];
-                                        }while(random1 === random2 || random2 === random3 || random3 === random1);
-                                        return [random1, random2, random3];
-                                    }
-                                    
-                                    if(music[0].music_list.length === 0){
-                                        return res.json(-1);                                        
-                                    }else{
-                                        const bannerImageArr = generateImage(distinctArray);
-                                        // console.log(bannerImageArr)
-                                        
-                                        // const getBannerImageUrlQuery = `select artist.artist_id from music inner join artist on artist.artist_id = music.artist_id 
-                                        // where (music.music_id = '${bannerImageArr[0]}') or (music.music_id = '${bannerImageArr[1]}') or (music.music_id = '${bannerImageArr[2]}')`;
-                                        const getBannerImageUrlQuery = `select org_artist_image as img from artist where (artist_id = '${bannerImageArr[0]}') or (artist_id = '${bannerImageArr[1]}') or (artist_id = '${bannerImageArr[2]}')`;
-                                        // console.log(getBannerImageUrlQuery);
-                                        conn.query(getBannerImageUrlQuery, (error, imageUrl, fields)=>{
-                                            if(error){
-                                                console.error(error);
-                                            }else{
-                                                // console.log(imageUrl);
-                                                let sendData = [];
-                                                imageUrl.forEach((data, index) => {
-                                                    sendData.push(imageUrl[index].img);
-                                                    
-                                                    // conn.query(`select org_artist_image as img from artist where artist_id = '${data.artist_id}'`,(error,result,fields)=>{
-                                                        //     if(error){
-                                                    //         console.error(error);
-                                                    //     }else{
-                                                    //         // console.log(result);
-                                                            
-                                                    //         // console.log(sendData);
-                                                    //         // console.log(index)
-                                                    //         if(index === 2){
-                                                    //             // console.log(sendData)
-                                                                
-                                                    //         }
-                                                    //     }
-                                                    // });
-                                                });
-                                                res.send(sendData);
-                                            }
-                                        })
-                                    }
                                 }
-                            });
-                        }
+                                let [distinctData] = await pool.query(getMusicListFullDataQuery);
+                                let distinctArray = [];
+                                distinctData.forEach((data)=>{
+                                    distinctArray.push(data.artist_id);
+                                });
+                                const generateImage = (array) => {
+                                    let total = array.length - 1;
+                                    let random1;
+                                    let random2;
+                                    let random3;
+                                    do{
+                                        random1 = array[Math.round(Math.random() * total)];
+                                        random2 = array[Math.round(Math.random() * total)];
+                                        random3 = array[Math.round(Math.random() * total)];
+                                    }while(random1 === random2 || random2 === random3 || random3 === random1);
+                                    return [random1, random2, random3];
+                                }
+                                if(music[0].music_list.length === 0){
+                                    return res.json(-1);                                        
+                                }else{
+                                    const bannerImageArr = generateImage(distinctArray);
+                                    const getBannerImageUrlQuery = `select org_artist_image as img from artist where (artist_id = '${bannerImageArr[0]}') or (artist_id = '${bannerImageArr[1]}') or (artist_id = '${bannerImageArr[2]}')`;
+                                    conn.query(getBannerImageUrlQuery, (error, imageUrl, fields)=>{
+                                        if(error){
+                                            console.error(error);
+                                        }else{
+                                            let sendData = [];
+                                            imageUrl.forEach((data, index) => {
+                                                sendData.push(imageUrl[index].img);
+                                            });
+                                            res.send(sendData);
+                                        }
+                                    })
+                                }
+                            }
+                        });
                     }
-                    else{
-                        res.send({recommend: false});
-                    }
+                }
+                else{
+                    res.send({recommend: false});
                 }
             }
         });
@@ -1057,8 +973,8 @@ router.post('/getBannerImage', async(req,res)=>{
 })
 
 router.post('/confirmPassword', (req,res)=>{
-    const getPasswordQuery = `select password from member where user_id = '${req.body.id}'`;
-    conn.query(getPasswordQuery, async(error, hashedPassword, fields)=>{
+    const getPasswordQuery = `select password from member where user_id = ?`;
+    conn.query(getPasswordQuery, [req.body.user_id], async(error, hashedPassword, fields)=>{
         if(error){console.log(error)}
         else{
             if(hashedPassword.length === 1){
@@ -1083,8 +999,8 @@ router.post('/changePassword', async(req,res)=>{
     await hashPassword(req.body.newPassword).then((hashedData)=>{
         encryptedPassword = hashedData;
     });
-    const insertNewPasswordQuery = `update member set password = '${encryptedPassword}' where user_id = '${req.body.id}'`;
-    conn.query(insertNewPasswordQuery, (error, result, fields)=>{
+    const insertNewPasswordQuery = `update member set password = ? where user_id = ?`;
+    conn.query(insertNewPasswordQuery, [encryptedPassword, req.body.user_id], (error, result, fields)=>{
         if(error){
             console.log(error);
             res.send({status: 500, success: false});
@@ -1137,9 +1053,6 @@ const dateTimeFormmater = (rawDate, str) => {
         let seconds = date.getSeconds();
         seconds = seconds >= 10 ? seconds : '0' + seconds;
         formattedDate = `${date.getFullYear()}-${month}-${day} ${hours}:${minutes}:${seconds} `;
-        // console.log('$$$$$$$$$$$ formattedData $$$$$$$$$$$')
-        // console.log(formattedDate)
-        // console.log('$$$$$$$$$$$ formattedData $$$$$$$$$$$')
     }
     return formattedDate;
 }
@@ -1149,7 +1062,6 @@ const dateTimeFormmater = (rawDate, str) => {
  * @return {string}
  */
 const getTimestamp = (date) => {
-    
     let year = date.getFullYear();
     let month = date.getMonth() + 1;
     month = month >= 10 ? month : '0' + month;
@@ -1224,9 +1136,8 @@ router.post('/buy' , (req,res)=>{
     const now = new Date();
     const currentVoucherEndDate = new Date(req.body.currentVoucherEndDate);
     let renewalDate;
-    console.log(req.body);
     const purchaseData = {
-        id: req.body.id,
+        id: req.body.user_id,
         purchaseDate: '',
         renewalDate: '',
         planType: req.body.type,
@@ -1301,14 +1212,14 @@ router.post('/buy' , (req,res)=>{
         purchaseData.purchaseDate = getTimestamp(new Date(req.body.currentVoucherEndDate));
         purchaseData.renewalDate = getTimestamp(renewalDate);
     }
-    const updateMemberPurchaseQuery = `update member set purchase = 1 where user_id ='${req.body.id}'`;
+    const updateMemberPurchaseQuery = `update member set purchase = 1 where user_id = ?`;
+
     let updateVoucherInformationQuery = `insert into ${req.body.database} (user_id, purchase_date, renewal_date, plan_type, remaining_number) values ('${purchaseData.id}', '${purchaseData.purchaseDate}', '${purchaseData.renewalDate}', '${purchaseData.planType}', ${purchaseData.remainingNumber})`;
     if(purchaseData.remainingNumber == null){
         updateVoucherInformationQuery = `insert into ${req.body.database} (user_id, purchase_date, renewal_date, plan_type, remaining_number) values ('${purchaseData.id}', '${purchaseData.purchaseDate}', '${purchaseData.renewalDate}', '${purchaseData.planType}', null)`;
     }
-    // console.log(updateVoucherInformationQuery);
-    
-    conn.query(updateMemberPurchaseQuery, (error, result, fields)=>{
+    console.log(updateVoucherInformationQuery)
+    conn.query(updateMemberPurchaseQuery, [req.body.user_id], (error, result, fields)=>{
         if(error){
             console.log(error); 
             res.send({success: false});
@@ -1320,14 +1231,13 @@ router.post('/buy' , (req,res)=>{
                     res.send({success: false});
                 }
                 else{
-                    console.log('success');
                     res.send({success: true});
                 }
-            })
+            });
         }
-    })
+    });
     
-})
+});
 
 router.post('/checkCurrentVoucher', (req,res)=>{
     const checkCurrentVoucherQuery = `select * from member a right join voucher b on a.user_id = b.user_id where a.user_id = ?`;
@@ -1335,8 +1245,8 @@ router.post('/checkCurrentVoucher', (req,res)=>{
         if(error){console.log(error)}
         else{
             if(result.length === 1){ // 현재 이용권 존재 => 사용대기 이용권 있는지도 확인해서 보내주자
-                const checkStandbyVoucherQuery = `select user_id from standby_voucher where user_id = '${req.body.id}'`;
-                conn.query(checkStandbyVoucherQuery, (error, standbyVoucher, fields)=>{
+                const checkStandbyVoucherQuery = `select user_id from standby_voucher where user_id = ? `;
+                conn.query(checkStandbyVoucherQuery, [req.body.user_id], (error, standbyVoucher, fields)=>{
                     if(error){console.log(error)}
                     else{
                         if(standbyVoucher.length === 1){
@@ -1368,8 +1278,8 @@ router.post('/logout', (req,res)=>{
 });
 
 router.post('/withdraw', (req,res)=>{
-    const withdrawQuery = `delete from member where user_id = '${req.body.id}'`;
-    conn.query(withdrawQuery, (error, result, fields)=>{
+    const withdrawQuery = `delete from member where user_id = ?`;
+    conn.query(withdrawQuery, [req.body.user_id], (error, result, fields)=>{
         if(error){
             console.log(error);
         }else{

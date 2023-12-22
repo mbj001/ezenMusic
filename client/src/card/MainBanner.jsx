@@ -23,18 +23,12 @@ const MainBanner = ({handleRender}) => {
     const [themeplaylist, setThemeplaylist] = useState([]);
     const [ loading, setLoading ] = useState(true);
     const [ date, setDate ] = useState('');
-
-    //LSR
     const [ recommend, setRecommend ] = useState(false);
     const [ bannerArtistImage, setBannerArtistImage ] = useState([]);
     const [ isPreferExist, setIsPreferExist ] = useState(false);
     const [ bannerUrl, setBannerUrl ] = useState('');
     const [ randomBannerIndex, setRandomBannerIndex ] = useState('');
-
-    // MBJ
-    // 플레이어 추가 베너
     const [playerBannerOn, setPlayerBannerOn] = useState(false);
-    // 로그인이 필요합니다 모달 변수
     const [loginRequestVal, setLoginrRequestVal] = useState(false);
 
     const getBannerImage = async() => {
@@ -88,12 +82,12 @@ const MainBanner = ({handleRender}) => {
         if(!recommend){
             Axios.get("/ezenmusic/mainbanner")
             .then(({data}) => {
-                console.log(data)
+                // console.log(data)
                 setThemeplaylist(data);
                 setLoading(false);
             })
             .catch((err) => {
-                console.log("에러");
+                console.log(err);
             })
         }
     }, []);
@@ -119,17 +113,17 @@ const MainBanner = ({handleRender}) => {
                 <div className="swiper-button-prev banner"></div>
                 <Swiper
                     modules={[Navigation, Pagination]}
-                    spaceBetween={0} // 슬라이드 간격
-                    slidesPerView={1} // 한 스와이퍼에 몇장 보여줄지
-                    slidesPerGroup={1} // 한번 넘길때 몇장 넘어갈지
-                    speed={300} // 페이지 넘어가는 속도
-                    touchRatio={0} // 클릭해서 드래그 막음
-                    navigation={{ // 버튼
+                    spaceBetween={0} 
+                    slidesPerView={1}
+                    slidesPerGroup={1}
+                    speed={300}
+                    touchRatio={0} 
+                    navigation={{
                         nextEl: '.swiper-button-next.banner',
                         prevEl: '.swiper-button-prev.banner'
                     }}
                     rewind={false}
-                    initialSlide={randomBannerIndex} // 시작하는 페이지 인덱스 조절 (0 ~ 마지막)
+                    initialSlide={randomBannerIndex}
                     centeredSlides={true}
                     pagination={{ clickable: true }}
                     >

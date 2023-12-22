@@ -94,7 +94,7 @@ const Footer = () => {
                     </ul>
                     <div className='copyright-and-available-browser'>
                         <p className='copyright'>
-                            EZEN FULLSTACK-재호병준건우승렬 &copy; ALL RIGHTS RESERVED
+                            이젠아카데미 풀스택반 ezenmusic &copy; ALL RIGHTS RESERVED
                         </p>
                         <p className='available-browser'>
                             본 사이트는 Chrome 및 Microsoft Edge 브라우저에서 사용 가능합니다.
@@ -111,6 +111,7 @@ export default Footer
 
 const StyledFooter = styled.footer`
     border-top: 1px solid #e0e1e5;
+    margin-bottom: 40px;
     .footer-menu-area{
         div{
             .footer-ul{

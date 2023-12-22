@@ -23,10 +23,10 @@ const WithDraw = ({setModalOpen}) => {
     }
 
     const withdraw = async() => {
-        console.log('*')
+        // console.log('*')
         if(window.confirm('정말 탈퇴하시겠습니까?')){
-            const res = await axios.post('/verifiedClient/withdraw', {token: getCookie('connect.sid'), id: getCookie('client.sid')});
-            console.log(res);
+            const res = await axios.post('/verifiedClient/withdraw', {token: getCookie('connect.sid'), user_id: getCookie('client.sid')});
+            // console.log(res);
             if(res.data.withdraw){
                 window.location = '/';
                 window.localStorage.setItem('login', false);
@@ -98,7 +98,7 @@ const WithDraw = ({setModalOpen}) => {
 export default WithDraw
 
 const StyledModal = styled.div`
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     right: 0;

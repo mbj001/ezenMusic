@@ -59,8 +59,8 @@ const EmailSignUp = () => {
 
     return (
         <MainStyledSection>
-            <Logo className='logo mx-auto mt-5 mb-5'>
-                EzenMusic
+            <Logo className='logo mx-auto mt-[50px] mb-[50px]'>
+                
             </Logo>
             <div className="overflow-hidden">
                 <TermBox>
@@ -115,10 +115,11 @@ const EmailSignUp = () => {
 
 export default EmailSignUp
 const Logo = styled.div`
-    font-size: 30px;
-    color: var(--main-theme-color);
-    text-decoration: none;
-    font-weight: 900;
+    width: 180px; 
+    height: 30px;
+    background-image: url(/Logo/Logo.svg);
+    background-repeat: no-repeat;
+    background-size: cover;
 `;
 
 const TermBox = styled.div`

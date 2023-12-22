@@ -3,9 +3,8 @@ import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { getCookie } from '../config/cookie';
 import MainStyledSection from '../layout/MainStyledSection';
-import { MdArrowForwardIos } from "react-icons/md";
 import { TfiClose } from "react-icons/tfi";
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import Loading from '../components/Loading';
 import SelectFailure from '../modal/SelectFailure';
 import { Link as ScrollLink, Element, Events, animateScroll as scroll, scrollSpy, scroller } from 'react-scroll';
@@ -14,33 +13,18 @@ const Discovery = () => {
     const [ selectedArtist, setSelectedArtist ] = useState([]); // map 돌아가는 artist 배열
     const [ selectedGenre, setSelectedGenre ] = useState([]); // map 돌아가는 genre 배열
     const [ emptyData, setEmptyData ] = useState(true);
-    
-    // MBJ
-    const [genreChoiceArray, setGenreChoiceArray] = useState([]);
 
     const [ artist, setArtist ] = useState([]);
-    const [ genre, setGenre ] = useState([]);
     const [ genreTable, setGenreTable ] = useState([]);
     const [ modalOpen, setModalOpen ] = useState(false);
     const [ loading, setLoading ] = useState(false);
 
-    const [activeSection, setActiveSection] = useState('');
-
-    const navigate = useNavigate();
+    const [activeSection, setActiveSection] = useState('');    
     
-    // ##########################################################################
-    // db에 저장된 데이터 가져오기
     const getArtistData = async() => {
         const response = await axios.post('/verifiedClient/getArtistData',{token: getCookie('connect.sid')});
-        // console.log(response)
         const arr = (response.data[1]);
         setArtist(arr);
-    }
-
-    const getGenreData = async() => {
-        const response = await axios.post('/verifiedClient/getGenreData',{token: getCookie('connect.sid')});
-        const arr = (response.data);
-        setGenre(arr);
     }
 
     const getGenreTableData = async() => {
@@ -48,8 +32,7 @@ const Discovery = () => {
         const arr = (response.data);
         setGenreTable(arr);
     }
-    // ##########################################################################
-    // characters 테이블 prefer data
+
     const getCharacterPrefer = async() =>{
         const response = await axios.post('/verifiedClient/getPreferData', {token: getCookie('connect.sid'), characterId: getCookie('character.sid')});
         // console.log(response)
@@ -61,16 +44,13 @@ const Discovery = () => {
             setSelectedGenre(response.data[0].prefer_genre);
         }
     }
-    // ##########################################################################
-    // 클릭하면 state에 담아주는 함수
+
     const likeThisArtist = (e) => {
         if(selectedArtist.some(selectedData=>{return selectedData.artist_id === e.artist_id})){
-            // console.log('이미 들어있어서 뺄게요');
             setSelectedArtist((selected)=>{
                 return selected.filter(data=>data.artist_id!==e.artist_id);
             });
         }else{
-            // console.log('안들어있어서 넣을게요')
             setSelectedArtist((selected)=>{
                 const addArray = [e, ...selected];
                 return addArray;
@@ -81,12 +61,10 @@ const Discovery = () => {
     const likeThisGenre = (e) => {
         if(selectedGenre.length < 3){
             if(selectedGenre.some(selectedData=>{return selectedData.genre_id === e.genre_id})){
-                // console.log('이미 들어있어서 뺄게요');
                 setSelectedGenre((selected)=>{
                     return selected.filter(data=>data.genre_id!==e.genre_id);
                 });
             }else{
-                // console.log('안들어있어서 넣을게요')
                 setSelectedGenre((selected)=>{
                     const addArray = [e, ...selected];
                     return addArray;
@@ -94,38 +72,28 @@ const Discovery = () => {
             }
         }else{
             if(selectedGenre.some(selectedData=>{return selectedData.genre_id === e.genre_id})){
-                // console.log('이미 들어있어서 뺄게요');
                 setSelectedGenre((selected)=>{
                     return selected.filter(data=>data.genre_id!==e.genre_id);
                 });
             }else{
-                // console.log('담으면 안돼요');
                 setModalOpen(true);
             }
         }
     }
-    // ##########################################################################
-    // 저장하기 누르면 characters prefer 에 담아줌
+
     const updatePrefer = async() =>{
         setLoading(true);
         const response = await axios.post('/verifiedClient/updatePrefer', {token: getCookie('connect.sid'), characterId: getCookie('character.sid'), preferArtist: selectedArtist, preferGenre: selectedGenre});
-        // console.log(response);
         if(response.data.success){
-            setLoading(false);
             const response = await axios.post('/verifiedClient/createPreferPlaylist', {token: getCookie('connect.sid'), characterId: getCookie('character.sid')});
-            // navigate('/character');
-            window.location='/character';
-            // console.log(response);
+            setLoading(false);
+            if(response.data.createSuccess){
+                window.location='/character';
+            }else{
+                alert('취향 반영 재생목록 생성에 실패했습니다.');
+            }
         }
     }
-    // ##########################################################################
-
-    // useEffect(()=>{
-    //     console.log(selectedGenre);
-    // }, [selectedGenre]);
-    // useEffect(()=>{
-    //     console.log(genreTable);
-    // }, [genreTable]);
 
     useEffect(()=>{
         if(selectedArtist.length >= 1 || selectedGenre.length >= 1){
@@ -136,7 +104,6 @@ const Discovery = () => {
     useEffect(()=>{
         getCharacterPrefer();
         getArtistData();
-        getGenreData();
         getGenreTableData();
     },[]);
 
@@ -196,9 +163,6 @@ const Discovery = () => {
                             아티스트
                         </ScrollLink>
                     </button>
-                    {/* <button type='button' className='tab-menu' >
-                        차트
-                    </button> */}
                     <button type='button'  className={scrollGenre ? 'tab-menu active' : 'tab-menu'} >
                         <ScrollLink
                             to="genre"
@@ -218,11 +182,6 @@ const Discovery = () => {
                 {
                     !emptyData && 
                     <div className='selected-artist-section'>
-                        {/* <div>
-                            <button type='button'>
-                                내 취향 전체보기 <MdArrowForwardIos />
-                            </button>
-                        </div> */}
                         <div className='selected-cover'>
                             <div>
                                 {
@@ -311,15 +270,10 @@ const Discovery = () => {
                                 </div>
                                 </>
                             }
-                                
-
                             </>
                         )
                     })
                 }
-
-                {/* <div className='maping chart-section'></div> */}
-
                 <Element name="genre" className="genre"></Element>
                 
                 <SelectionTitle id='genre-tab'>
@@ -329,8 +283,7 @@ const Discovery = () => {
                 <div className='maping genre-section'>
                     <div className='grid-cover'>
                         {
-                            // 장르 선택
-                            genre.map((data)=>{
+                            genreTable.map((data)=>{
                                 return (
                                     <>
                                         <div className='genre-grid-box' onClick={() => likeThisGenre(data)}>

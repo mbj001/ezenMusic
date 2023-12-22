@@ -22,7 +22,7 @@ const ConfirmFailure = ({setModalOpen}) => {
 export default ConfirmFailure
 
 const StyledModal = styled.div`
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     right: 0;

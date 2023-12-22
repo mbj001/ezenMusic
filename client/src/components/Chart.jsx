@@ -155,7 +155,7 @@ function Chart({genre_id, handleRender}) {
                         <div className="flex items-center p-[30px]">
                             <div className='relative'>
                                 <div className='w-[230px] h-[230px] rounded-[6px] hover:brightness-75 overflow-hidden border-1 M-img-border'>
-                                    <img src={"/image/album/"+firstchartImg} alt="cover_image" className="w-[230px] h-[230px] rounded-[6px]" />
+                                    {firstchartImg !== "" && <img src={"/image/album/"+firstchartImg} alt="cover_image" className="w-[230px] h-[230px] rounded-[6px]" />}
                                 </div>
                                 <PlayButton onClick={isSessionValid?  ()=>{playerAddGenre("mainbanner_genre", item.area, item.genre, handleRender, setPlayerBannerOn); } : () => setLoginrRequestVal(true)}></PlayButton>
                             </div>

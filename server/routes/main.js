@@ -18,6 +18,6 @@ router.get("/", (req, res) => {
 
 //아래 두줄 추가
 router.post('/login', isNotLoggedIn, login); 
-// router.get('/logout', isLoggedIn, logout);
+router.get('/logout', isLoggedIn, logout);
 
 module.exports = router;

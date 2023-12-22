@@ -11,21 +11,7 @@ export const AppContext = createContext();
 export const SetAppContext = createContext();
 
 const App = () => {
-    // const [ isSessionValid, setIsSessionValid ] = useState(JSON.parse(window.localStorage.getItem('login')));
-    const [ isSessionValid, setIsSessionValid ] = useState();
-    
-    // const [ isSessionValid, setIsSessionValid ] = useState();
-    // useEffect(() => {
-    //     if(JSON.parse(window.localStorage.getItem('login'))){
-    //         console.log("있")
-    //         // setIsSessionValid(JSON.parse(window.localStorage.getItem('login')));
-    //     }
-    //     else{
-    //         console.log("없");
-    //         window.localStorage.setItem('login', false);
-    //         setIsSessionValid(JSON.parse(window.localStorage.getItem('login')));
-    //     }
-    // }, [])
+    const [ isSessionValid, setIsSessionValid ] = useState(JSON.parse(window.localStorage.getItem('login')));
     const [ sessionExpiredModalOpen, setSessionExpiredModalOpen ] = useState(false);
     const [ loading, setLoading ] = useState(true);
 
@@ -51,13 +37,35 @@ const App = () => {
                 removeSession();
                 return;
             }
-            const response = await axios.post('/verifiedClient/check' , {token: getCookie('connect.sid')});
-            if(response.data.valid){
-                if(getCookie('pfimg') < 1 || getCookie('pfimg') > 3 || !validDataSet(getCookie('pfimg'))){
-                    removeSession();
-                    return;
 
-                }else if(getCookie('character.sid').indexOf('undefined') !== -1){
+            const reIssuance = await axios.post('/verifiedClient/reissuance', {token: getCookie('connect.sid'), id: getCookie('client.sid')});
+            if(reIssuance.data.valid === false){
+                removeSession();
+                return;
+            }else{
+                if(getCookie('client.sid') !== reIssuance.data.user_id){
+                    setCookie('client.sid', reIssuance.data.user_id, {
+                        path: '/',
+                        secure: false,
+                        secret: process.env.COOKIE_SECRET
+                    });
+                    window.location = '/';
+                }
+                if(getCookie("character.sid").split("#")[0] !== reIssuance.data.user_id){
+                    console.log("캐릭터 아이디 다름");
+                    setCookie('character.sid', reIssuance.data.user_id+"#ch0"+getCookie("pfimg"), {
+                        path: '/',
+                        secure: false,
+                        secret: process.env.COOKIE_SECRET
+                    });
+                    window.location = '/';
+                }
+
+            }
+            
+            const response = await axios.post('/verifiedClient/check' , {token: getCookie('connect.sid')});
+            if(response.data.valid === true){
+                if(getCookie('pfimg') < 1 || getCookie('pfimg') > 3 || !validDataSet(getCookie('pfimg'))){
                     removeSession();
                     return;
                 }else{
@@ -91,7 +99,8 @@ const App = () => {
                     // ok
                 }
             }else{
-                removeSession();
+                sessionExpiredLogoutMethod(true);
+                setSessionExpiredModalOpen(true);
                 return;
             }
         }else{
@@ -126,68 +135,39 @@ const App = () => {
                 secret: process.env.COOKIE_SECRET
             });
         }
-        
-        if(window.localStorage.getItem('login') === 'true'){
-            const check = await axios.post('/verifiedClient/check', {token: getCookie('connect.sid')});
-            if(check.data.valid === false){
-                removeSession();
-                return;
-            }else{
-                const reIssuance = await axios.post('/verifiedClient/reissuance', {token: getCookie('connect.sid'), id: getCookie('client.sid')});
-                if(reIssuance.data.valid === false){
-                    removeSession();
-                    return;
-                }else{
-                    if(getCookie('client.sid') !== reIssuance.data.user_id){
-                        setCookie('client.sid', reIssuance.data.user_id, {
-                            path: '/',
-                            secure: false,
-                            secret: process.env.COOKIE_SECRET
-                        });
-                        window.location = '/';
-                    }
-                }
-            }
-        }
         setLoading(false);
     }
-    
+
     useEffect(()=>{
-        if(!JSON.parse(window.localStorage.getItem('login'))){
+        if(isSessionValid === true || isSessionValid === false){
+            preventInvalidLogin();
+            check();
+        }else{
+            // isSessionValid 에 초기값 할당했을때 boolean이 아닌 경우 localstorage false 저장
             window.localStorage.setItem('login', false);
-            if(getCookie("connect.sid")){
-                removeCookie('connect.sid', {
-                    path: '/',
-                    secure: false,
-                    secret: process.env.COOKIE_SECRET
-                });
-            }
-            if(getCookie("client.sid")){
-                removeCookie('client.sid', {
-                    path: '/',
-                    secure: false,
-                    secret: process.env.COOKIE_SECRET
-                }); 
-            }
-            if(getCookie("character.sid")){
-                removeCookie('character.sid', {
-                    path: '/',
-                    secure: false,
-                    secret: process.env.COOKIE_SECRET
-                });
-            }
-            if(getCookie("pfimg")){
-                removeCookie('pfimg', {
-                    path: '/',
-                    secure: false,
-                    secret: process.env.COOKIE_SECRET
-                });
-            }
+            removeCookie('connect.sid', {
+                path: '/',
+                secure: false,
+                secret: process.env.COOKIE_SECRET
+            });
+            removeCookie('client.sid', {
+                path: '/',
+                secure: false,
+                secret: process.env.COOKIE_SECRET
+            });
+            removeCookie('character.sid', {
+                path: '/',
+                secure: false,
+                secret: process.env.COOKIE_SECRET
+            });
+            removeCookie('pfimg', {
+                path: '/',
+                secure: false,
+                secret: process.env.COOKIE_SECRET
+            });
+            window.location = '/';
         }
-        setIsSessionValid(JSON.parse(window.localStorage.getItem('login')));
-        preventInvalidLogin();
-        check();
-    }, []);
+    },[isSessionValid]);
 
     if(loading){
         return null;

@@ -5,7 +5,7 @@ export function playerAdd(page, id, handleRender, setPlayerBannerOn){
     const cookies = new Cookies();
     const userid_cookies = cookies.get("character.sid");
 
-    if(page === "mainbanner_theme")
+    if(page === "mainbanner_theme" || page === "theme")
     {
         Axios.post("/playerHandle/playerAdd", {
             character_id: userid_cookies,

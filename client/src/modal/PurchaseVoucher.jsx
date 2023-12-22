@@ -39,15 +39,13 @@ const PurchaseVoucher = ({setModalOpen, plan_type}) => {
     }
 
     const buy = async(e) => {
-        if(!userConfirm){
-            e.preventDefault();
-        }else{
+        if(userConfirm){
             if(alreadyHave && !keepGoing){
                 setNewModalOpen(true);
             }else{
                 const userData = {
                     token: getCookie('connect.sid'),
-                    id: getCookie('client.sid'),
+                    user_id: getCookie('client.sid'),
                     type: plan_type,
                     database: '',
                     currentVoucher: alreadyHave,
@@ -162,7 +160,7 @@ const Logo = styled.div`
 `;
 
 const StyledModal = styled.div`
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     right: 0;

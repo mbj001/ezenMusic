@@ -67,7 +67,7 @@ const ChangePhone = () => {
     const confirmPassword = async(e) => {
         e.preventDefault();
         if(password !== ''){
-            const response = await axios.post('/verifiedClient/confirmPassword', {token: getCookie('connect.sid'), id: getCookie('client.sid'), password: password});
+            const response = await axios.post('/verifiedClient/confirmPassword', {token: getCookie('connect.sid'), user_id: getCookie('client.sid'), password: password});
             if(response.data.confirmed){
                 setConfirmed(true);
             }else{
@@ -104,7 +104,7 @@ const ChangePhone = () => {
         }else{
             setInvalid(false);
         }
-      }, [newPhone]);
+    }, [newPhone]);
 
     return (
         <UserInfoBox>
@@ -117,7 +117,7 @@ const ChangePhone = () => {
                             {currentPasswordType.visible ? <AiFillEyeInvisible/> : <AiFillEye/>}
                         </span>
                         <input type={currentPasswordType.type} id='current-password' name='signUpPw' className={confirmed ? 'input-text confirmed' : 'input-text'} 
-                               disabled={confirmed ? true : false} placeholder='비밀번호 입력' onChange={e=>setPassword(e.target.value)} autoComplete="off"/>
+                                disabled={confirmed ? true : false} placeholder='비밀번호 입력' onChange={e=>setPassword(e.target.value)} autoComplete="off"/>
                     </div>
                     <button type='submit'>확인</button>
                 </div>
@@ -131,7 +131,7 @@ const ChangePhone = () => {
                 <div>
                     <div className='password-input-cover'>
                         <input type={chekcNewPhoneType.type} id='check-new-password' className='input-text' disabled={confirmed ? false : true} 
-                               placeholder='변경할 휴대폰 번호 (-포함)' value={newPhone} onChange={e=>setNewPhone(e.target.value)} autoComplete="off"/>
+                                placeholder='변경할 휴대폰 번호 (-포함)' value={newPhone} onChange={e=>setNewPhone(e.target.value)} autoComplete="off"/>
                         { newPhone !== '' && invalid && <span className='invalid-text'>올바르지 않은 전화번호 형식입니다.</span> }
                     </div>
                     <button type='submit'>변경</button>

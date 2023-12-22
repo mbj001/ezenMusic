@@ -22,7 +22,7 @@ const DuplicatedPassword = ({setModalOpen}) => {
 export default DuplicatedPassword
 
 const StyledModal = styled.div`
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     right: 0;

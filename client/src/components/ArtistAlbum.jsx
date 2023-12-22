@@ -70,7 +70,7 @@ function ArtistAlbum({artist_id, handleRender, sortType}) {
                             }
                         }
                     }
-                    console.log(album_array);
+                    // console.log(album_array);
                     setArtistAlbum(album_array);
                 })
                 .catch((err) => {

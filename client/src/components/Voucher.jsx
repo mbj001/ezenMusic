@@ -12,8 +12,6 @@ const Voucher = () => {
     const [ type, setType ] = useState('');
     const [ modalOpen, setModalOpen ] = useState(false);
     const [loginRequestVal, setLoginrRequestVal] = useState(false);
-    
-    // MBJ
     const [detailModapOpen, setDetailModalOpen] = useState(false);
     const [detailDivision, setDetailDivision] = useState("");
 
@@ -21,7 +19,6 @@ const Voucher = () => {
         setType(value);
         setModalOpen(true);
     }
-
 
     return (
         <div>

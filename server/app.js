@@ -77,7 +77,7 @@ app.use("/artist", isLoggedIn, ArtistRouter);
 app.use("/client", isLoggedIn, ClientRouter);
 app.use("/likey", isLoggedIn, LikeyRouter);
 app.use("/music", isLoggedIn, MusicRouter);
-app.use("/playlist", isLoggedIn, PlaylistRouter);
+app.use("/playlist", PlaylistRouter);
 app.use("/themeplaylist", isLoggedIn, ThemeplaylistRouter);
 
 app.use("/ezenmusic", EzenmusicRouter);

@@ -10,24 +10,21 @@ import CancelEdit from '../modal/CancelEdit'
 import { Link } from 'react-router-dom'
 import DeleteFailure from '../modal/DeleteFailure'
 import CharacterNameLengthCheck from '../modal/CharacterNameLengthCheck'
+import ConfirmDeleteCharacter from '../modal/ConfirmDeleteCharacter'
 
 const Character = () => {
     const [ currentCharacter, setCurrentCharcter ] = useState({});
-    const [ thisCharacterPrefer, setThisCharacterPrefer ] = useState('');
-
     const [ preferGenre, setPreferGenre ] = useState([]);
     const [ newName, setNewname ] = useState('');
     const [ edit, setEdit ] = useState(false);
     const [ modalOpen, setModalOpen ] = useState(false);
     const [ deleteFailModalOpen, setDeleteFailModalOpen ] = useState(false);
-
-    // MBJ
-    // 글자수 0일때 모달 변수
+    const [ confirmModalOpen, setConfirmModalOpen ] = useState(false);
+    const [ keepGoing, setKeepGoing ] = useState(false);
     const [ nameLengthModalOpen, setNameLengthModalOpen ] = useState(false);
     
     const getCharacter = async() => {
         const response = await axios.post('/verifiedClient/characterControl', {token:getCookie('connect.sid'), characterId: getCookie('character.sid'), characterNum: getCookie('pfimg')});
-        // console.log(response)
         setPreferGenre(response.data.prefer_genre);
         setNewname(response.data.character_name);
         setCurrentCharcter(response.data);
@@ -41,10 +38,10 @@ const Character = () => {
         }else{
             const response = await axios.post('/verifiedClient/updateCharacterName', {token: getCookie('connect.sid'), characterId: getCookie('character.sid'), newName: newName});
             if(response.data.success){
-                console.log('업데이트 성공');
+                // console.log('업데이트 성공');
                 window.location = '/character';
             }else{
-                console.log('업데이트 실패');
+                // console.log('업데이트 실패');
             }
         }
     }
@@ -61,17 +58,24 @@ const Character = () => {
         setModalOpen(true);
     }
 
+    const confirmDeleteCharacter = () => {
+        setConfirmModalOpen(true);
+    }
+
+    useEffect(()=>{
+        if(keepGoing){
+            deleteCharacter();
+        }
+    }, [keepGoing])
+
     const deleteCharacter = async() => {
         const response = await axios.post('/verifiedClient/deleteCharacter' ,{token: getCookie('connect.sid'), id: getCookie('client.sid'), characterId: getCookie('character.sid'), characterNum: getCookie('pfimg')});
-        // console.log(response);
-        if(response?.success === false){
+        if(response.data.success === false){
             setDeleteFailModalOpen(true);
         }else{
             const status = response.data.pop();
             if(status.success){
-                // console.log('삭제 성공');
                 const changeTo = response.data[0];
-                // console.log(changeTo)
                 if(changeTo.character_id === undefined){
                     setCookie('character.sid', getCookie('client.sid')+'#ch01',{
                         path: '/',
@@ -98,19 +102,18 @@ const Character = () => {
                 window.location = '/';
                 
             }else{
-                console.log('삭제 실패');
+                // console.log('삭제 실패');
             }
         }
     }
 
     useEffect(()=>{
         getCharacter();
-        
-        // getPrefer();
     }, [])
     
     return (
         <>
+        {confirmModalOpen && <ConfirmDeleteCharacter setModalOpen={setConfirmModalOpen} setKeepGoing={setKeepGoing}/>}
         {nameLengthModalOpen && <CharacterNameLengthCheck setNameLengthModalOpen={setNameLengthModalOpen} /> }
         <MainStyledSection>
             <CharacterInfoPage>
@@ -160,7 +163,7 @@ const Character = () => {
                         <Link to={'../discovery'} className='button submit'>
                                 취향관리
                         </Link>
-                        <button type='button' onClick={() => deleteCharacter()} className='button cancel'>
+                        <button type='button' onClick={() => confirmDeleteCharacter()} className='button cancel'>
                             캐릭터 삭제
                         </button>
                     </div>

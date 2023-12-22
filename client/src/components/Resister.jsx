@@ -263,7 +263,6 @@ const Resister = () => {
             {modalOpen && <ConfirmedId setModalOpen={setModalOpen} useable={confirmedId}/> }
             {resisterFailure && <ResisterFailure setResisterFailure={setResisterFailure}/>}
             <Logo className='logo mx-auto mt-5 mb-5'>
-                EzenMusic
             </Logo>
             <ResisterForm>
                 <div className='resister-form-cover w-full'>
@@ -350,10 +349,11 @@ const Resister = () => {
 
 export default Resister
 const Logo = styled.div`
-    font-size: 30px;
-    color: var(--main-theme-color);
-    text-decoration: none;
-    font-weight: 900;
+    width: 180px; 
+    height: 30px;
+    background-image: url(/Logo/Logo.svg);
+    background-repeat: no-repeat;
+    background-size: cover;
 `;
 const ResisterForm = styled.div`
     width: 700px;

@@ -12,12 +12,12 @@ const SignUp = () => {
         <MainStyledSection>
             <div className="">
                 <div className="h-[550px] flex align-items-center justify-center flex-col">
-                    <Logo className='logo mb-10' >
-                        EzenMusic
+                    <Logo className='logo mb-[50px]' >
+                        
                     </Logo>
-                    <p>
+                    {/* <p>
                         다음 가입방법 중 하나를 선택하세요.
-                    </p>
+                    </p> */}
                     <div className='sign-up-choice w-full flex flex-col align-items-center justify-start'>
                         <SignUpWithEmail to={'email'} className='sign-up-with-email mt-12 flex flex-row align-items-center justify-center'>
                             <AiOutlineMail/>이메일 아이디로 가입하기
@@ -35,10 +35,11 @@ const SignUp = () => {
 export default SignUp
 
 const Logo = styled.div`
-    font-size: 30px;
-    color: var(--main-theme-color);
-    text-decoration: none;
-    font-weight: 900;
+    width: 180px; 
+    height: 30px;
+    background-image: url(/Logo/Logo.svg);
+    background-repeat: no-repeat;
+    background-size: cover;
 `;
 
 const SignUpWithEmail = styled(Link)`

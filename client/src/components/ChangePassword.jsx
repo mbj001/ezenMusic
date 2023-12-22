@@ -74,7 +74,7 @@ const ChangePassword = () => {
     const confirmPassword = async(e) => {
         e.preventDefault();
         if(password !== ''){
-            const response = await axios.post('/verifiedClient/confirmPassword', {token: getCookie('connect.sid'), id: getCookie('client.sid'), password: password});
+            const response = await axios.post('/verifiedClient/confirmPassword', {token: getCookie('connect.sid'), user_id: getCookie('client.sid'), password: password});
             if(response.data.confirmed){
                 setConfirmed(true);
             }else{
@@ -88,7 +88,7 @@ const ChangePassword = () => {
             setDuplicatedPasswordModalOpen(true);
         }else{
             if(!invalid && doesMatch){
-                const response = await axios.post('/verifiedClient/changePassword', {token: getCookie('connect.sid'), id: getCookie('client.sid'), newPassword: newPassword});
+                const response = await axios.post('/verifiedClient/changePassword', {token: getCookie('connect.sid'), user_id: getCookie('client.sid'), newPassword: newPassword});
                 if(response.data.success){
                     setSuccess(true);
                 }

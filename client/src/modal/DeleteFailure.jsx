@@ -25,7 +25,7 @@ const DeleteFailure = ({setModalOpen}) => {
 export default DeleteFailure
 
 const StyledInnerModal = styled.div`
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     right: 0;

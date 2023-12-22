@@ -35,7 +35,7 @@ const CancelEdit = ({setModalOpen, setKeepGoing}) => {
 export default CancelEdit
 
 const StyledInnerModal = styled.div`
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     right: 0;

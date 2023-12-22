@@ -801,7 +801,7 @@ router.post("/voucherConfirm", (req, res) => {
                                 // expired voucher 테이블에 정보 insert
                                 const insert_expiredVoucher_query = `insert into expired_voucher (user_id, purchase_date, renewal_date, plan_type, remaining_number) values (?, ?, ?, ?, ?);`;
                                 conn.query(insert_expiredVoucher_query, [select_voucher_result[0].user_id, select_voucher_result[0].purchase_date, 
-                                select_voucher_result[0].renewal_date, select_voucher_result[0].plan_type, select_voucher_result[0].remaining_number], (err, insert_expiredVoucher_result, fields) => {
+                                    getTimestamp(new Date()), select_voucher_result[0].plan_type, select_voucher_result[0].remaining_number], (err, insert_expiredVoucher_result, fields) => {
                                     if(err){
                                         console.error(err)
                                     }

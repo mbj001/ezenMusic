@@ -84,7 +84,7 @@ function AllCheckedModal({setAllcheckVal, selectedMusicList, setSelectedMusicLis
     };
 
     const clickToDeleteMylistMusic = () =>{
-        console.log(selectedMusicList);
+        // console.log(selectedMusicList);
         Axios.post("/playlist/detail/detailmylist/deletemusic", {
             music_id: selectedMusicList,
             playlist_id: playlist_id,

@@ -22,7 +22,7 @@ function MylistSelectModal({clickToSelectdelAllPlaylist, handleDeleteConfirm}) {
 export const StyledAllCheckModal = styled.div`
     position: fixed;
     bottom: 150px;
-    background-color: #2563eb;
+    background-color: #3f3fff;
     left: 50%;
     transform: translate(-50%, 0);  
     z-index: 500; 

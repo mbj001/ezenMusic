@@ -7,12 +7,12 @@ export const loginCheck = async () =>{
     const checkId = getCookie('client.sid');
     const token = getCookie('connect.sid');
 
-    console.log("loginCheck.js");
+    // console.log("loginCheck.js");
     await Axios.post(`/verifiedClient/info`,{userid: checkId, token: token}).then((res)=>{
         if(res.data.valid == false){
             return false;
         }else{
-            console.log("checkId: " + checkId);
+            // console.log("checkId: " + checkId);
             return checkId;
         }
     }).catch((error)=>{console.log(error)});

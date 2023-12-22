@@ -223,7 +223,16 @@ function LikeArtist({division, handleRender}) {
                             </div>
                             <div className="ml-[20px]">
                                 <Link to={"/detail/artist/"+item.artist_id+"/track?sortType=POPULARITY"}><p className="font-bold mb-[7px] hover-text-blue">{item.artist_name}</p></Link>
-                                <p className="text-[11px] mb-[10px] flex items-center text-gray">{item.artist_class} <span className="px-[5px] text-[7px]">|</span> {item.artist_gender} <span className="px-[5px] text-[7px]">|</span> {item.genre}</p>
+                                <p className="text-[11px] mb-[10px] flex items-center text-gray">
+                                    {item.artist_class === "solo" && "솔로"} 
+                                    {item.artist_class === "duo" && "듀오"} 
+                                    {item.artist_class === "group" && "그룹"}  
+                                    <span className="px-[5px] text-[7px]">|</span>                                     
+                                    {item.artist_gender === "male" && "남성"}
+                                    {item.artist_gender === "duo" && "듀오"}
+                                    {item.artist_gender === "female" && "여성"} 
+                                    <span className="px-[5px] text-[7px]">|</span> {item.genre}
+                                </p>
                                 <p className="text-[13px] mb-[2px]">{item.album_size}</p>
                                 <p className="text-[12px] text-gray">{item.release_date_format}</p>
                             </div>

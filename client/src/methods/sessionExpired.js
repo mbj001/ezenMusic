@@ -23,6 +23,7 @@ export const sessionExpiredLogoutMethod = (e) => {
             secret: process.env.COOKIE_SECRET
         });
         window.localStorage.setItem('login', false);
+        console.log('세션, 쿠키 삭제 완료')
         // alert('세션이 만료되었거나 유효하지 않은 요청입니다.');
         //세션이 만료되었습니다. 계속하려면 다시 로그인 하세요
         

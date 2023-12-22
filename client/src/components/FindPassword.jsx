@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from 'react'
 import styled from 'styled-components'
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-
 import ConfirmFailure from '../modal/ConfirmFailure';
 import DuplicatedPassword from '../modal/DuplicatedPassword'
 import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai'
@@ -14,8 +13,6 @@ const FindPassword = () => {
     const [ userInputEmail, setUserInputEmail ] = useState('');
     const [ userInputBirth, setUserInputBirth ] = useState('');
     const [ valid, setValid ] = useState(false);
-
-    // $$$$$$$$$$$$$$$$$$$$$$$$$$
     const [ newPassword, setNewPassword ] = useState('');
     const [ checkNewPassword, setCheckNewPassword ] = useState('');
     const [ confirmFailureModalOpen, setConfirmFailureModalOpen ] = useState(false);
@@ -35,8 +32,6 @@ const FindPassword = () => {
     });
 
     const newPasswordRef = useRef();
-    const notConfirmedPasswordRef = useRef();
-// $$$$$$$$$$$$$$$$$$$$$$$$$$
 
     const findPassword = async(e) =>{
         e.preventDefault();
@@ -50,13 +45,10 @@ const FindPassword = () => {
             birth: userInputBirth
         }
         const validateResult = await axios.post(`/guest/validateBeforeChangePassword`,validateData);
-        console.log(validateResult);
         if(validateResult.data.valid === true){
-            // console.log('client에 등록된 사용자');
             setSubmit(true);
             setValid(true);
         }else if(validateResult.data.valid === false){
-            // console.log('누구세요? ');   
             setSubmit(true);
             setValid(false);
         }else{
@@ -64,7 +56,6 @@ const FindPassword = () => {
         }
     }
 
-    // $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
     const handlePasswordType = (str) => {
         if(str === 'new'){
             setNewPasswordType(()=>{
@@ -94,16 +85,14 @@ const FindPassword = () => {
 
     const resetPassword = async(e) => {
         e.preventDefault();
-        // console.log(newPassword)
         if(!invalid && doesMatch){
             const response = await axios.post('/guest/changePassword', {user_id: userInputId, newPassword: newPassword});
-            console.log(response)
             if(response.data.success === true){
                 setSuccess(true);
             }else if(response.data.haveUsed){
                 setDuplicatedPasswordModalOpen(true);
             }else{
-                console.log('서버와의 연결이 원활하지 않습니다. 잠시후에 시도해주세요.')
+                // console.log('서버와의 연결이 원활하지 않습니다. 잠시후에 시도해주세요.')
             }
         }
     };
@@ -129,12 +118,10 @@ const FindPassword = () => {
 
         }
     },[invalid, doesMatch])
-    // $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
     return (
         <div className="h-[700px] flex align-items-center justify-center flex-col">
-            <Logo className='logo mt-5 mb-10' >
-                EzenMusic
+            <Logo className='logo mt-[40px] mb-[30px]' >
             </Logo>
             <div className='mb-10'>
                 
@@ -149,13 +136,11 @@ const FindPassword = () => {
                             <input type="text" id='birth' className='input-text' placeholder='생년월일' onChange={e=>setUserInputBirth(e.target.value)}/>
                             <button type='submit' id='loginButton' className='submit-able'>
                                 확인
-                                {/* button-active 라는 클래스 주어져야 넘어갈 수 있게 처리할 예정 */}
                             </button>
                         </form>
                     :
                     valid === true?
                         <UserInfoBox className='w-[500px] mx-auto'>
-                            {/* {success && <ChangePasswordSuccess setModalOpen={setSuccess}/>} */}
                             {success && <FindPasswordModal setModalOpen={setSuccess}/>}
                             {duplicatedPasswordModalOpen && <DuplicatedPassword setModalOpen={setDuplicatedPasswordModalOpen}/>}
                             {confirmFailureModalOpen && <ConfirmFailure setModalOpen={setConfirmFailureModalOpen}/>}
@@ -221,10 +206,11 @@ const FindPassword = () => {
 export default FindPassword
 
 const Logo = styled.div`
-    font-size: 30px;
-    color: var(--main-theme-color);
-    text-decoration: none;
-    font-weight: 900;
+    width: 180px; 
+    height: 30px;
+    background-image: url(/Logo/Logo.svg);
+    background-repeat: no-repeat;
+    background-size: cover;
 `;
 const FindFormCover = styled.div`
     display: flex;

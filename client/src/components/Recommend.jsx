@@ -10,32 +10,32 @@ import { getCookie } from '../config/cookie'
 import styled from 'styled-components';
 import PlayerBanner from '../card/PlayerBanner';
 import { AppContext } from '../App'
+import { TinyPlayButton as PlayButton } from '../style/StyledIcons';
 
 import { MusicListCardAddMyListButton as AddMyListButton } from '../style/StyledIcons';
 import { MusicListCardAddPlaylistButton as AddPlaylistButton } from '../style/StyledIcons';
 
 const Recommend = ({handleRender}) => {
-
     const cookies = new Cookies();
     const userid_cookies = cookies.get("character.sid");
     const isSessionValid = JSON.parse(useContext(AppContext));
 
     const [allcheckVal, setAllcheckVal] = useState(false);
-
     const [ titleData, setTitleData ] = useState('');
     const [ recommendedMusic, setRecommendedMusic ] = useState([]);
     const [ recommendedPlaylist, setRecommendedPlaylist] = useState([]);
-
     const [ loading, setLoading ] = useState(false);
-    
     const [ updateDate, setUpdateDate ] = useState('');
+    const [playlistModalOpen, setPlaylistModalOpen] = useState(false);
+    const [playlistModalData, setPlaylistModalData] = useState([]);
+    const [addPlaylistBannerOn, setAddPlaylistBannerOn] = useState(false);
+    const [playerBannerOn, setPlayerBannerOn] = useState(false);
 
     let music_list_array = [];
 
     const getPlaylistData = async(array) =>{
         const response = await axios.post('/verifiedClient/getPrefer', {token: getCookie('connect.sid'), characterId: getCookie('character.sid')});
         setTitleData(response.data);
-        console.log(response.data.music_list);
         setLoading(false);
 
         response.data.music_list.forEach((data)=>{
@@ -46,25 +46,17 @@ const Recommend = ({handleRender}) => {
         response.data.music_list.forEach((data)=>{
             data.likey = false;
         })
-
-        // userid_cookies 없으면 for 문을 안돌면서 true 값 저장안됨.
         for(let i=0; i<array.length; i++){
             for(let j=0; j<response.data.music_list.length; j++){
                 if(array[i] === Number(response.data.music_list[j].music_id)){
-                    // 좋아요 해당 object 의 값 true 로 변경
                     response.data.music_list[j].likey = true;
                 }
             }
         }
-
         setRecommendedMusic(response.data.music_list);
-        
     }
 
-    ////////// 건우 //////////
-    const [playlistModalOpen, setPlaylistModalOpen] = useState(false);
-    const [playlistModalData, setPlaylistModalData] = useState([]);
-    const [addPlaylistBannerOn, setAddPlaylistBannerOn] = useState(false);
+    
     
     function handleplaylistModal(){
         setPlaylistModalOpen(playlistModalOpen => {return !playlistModalOpen;})
@@ -80,12 +72,8 @@ const Recommend = ({handleRender}) => {
         });
         setPlaylistModalOpen(true);
     }
-    ///////////////////////////////
-
-    // 2023-12-13 Recommend 플레이어 추가 MBJ
-    // 플레이어 추가 베너
-    const [playerBannerOn, setPlayerBannerOn] = useState(false);
-    function playerAdd(){
+    
+    function playerAdd(change_now_play){
         let array = [];
 
         for(let i=0; i<recommendedMusic.length; i++){
@@ -95,7 +83,7 @@ const Recommend = ({handleRender}) => {
         axios.post("/playerHandle/playerAdd", {
             character_id: userid_cookies,
             music_list: array,
-            change_now_play: false
+            change_now_play: change_now_play
         })
 
         .then(({data}) => {
@@ -118,7 +106,6 @@ const Recommend = ({handleRender}) => {
                 division: "liketrack"
             })
             .then(({data}) => {
-                console.log(data)
                 if(data === -1){
 
                 }
@@ -134,7 +121,6 @@ const Recommend = ({handleRender}) => {
         else{
             getPlaylistData(array);
         }
-        // return 에 날짜는 오늘 날짜로 해도 좋을 듯 해서 넣어붐
         const today = new Date();
         const year = today.getFullYear();
         const month = ('0' + (today.getMonth() + 1)).slice(-2);
@@ -161,6 +147,7 @@ const Recommend = ({handleRender}) => {
                 <div className="header-cover flex items-center p-[30px]">
                     <div className='image-cover'>
                         <img src={ loading? `/image/loading.png` : `/image/album/${titleData.coverImage}`} alt="loading.png"/>
+                        <PlayButton title='플레이리스트 재생하기' onClick={() => playerAdd(true)}></PlayButton>
                     </div>
                     <div className="m-[30px]">
                         <p className="detail-title mb-[10px]">{titleData.description}</p>
@@ -172,7 +159,7 @@ const Recommend = ({handleRender}) => {
                             <p className="text-[14px] ml-[10px] text-gray">{updateDate}</p>
                         </div>
                         <div className="ml-[-10px] mt-[15px]">
-                            <AddPlaylistButton onClick={() => playerAdd()}/>
+                            <AddPlaylistButton onClick={() => playerAdd(false)}/>
                             <AddMyListButton onClick={(e) => clickPlaylistModalOpen(e)} ></AddMyListButton>
                         </div>
                     </div>

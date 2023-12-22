@@ -21,7 +21,6 @@ const SignIn = () => {
     const idInput = useRef();
     const passwordInput = useRef();
     const iconRef = useRef();
-    const checkBoxRef = useRef();
 
     const showpass = () =>{ 
         iconRef.current.classList.toggle('d-none');
@@ -66,7 +65,7 @@ const SignIn = () => {
                 secret: process.env.COOKIE_SECRET
             });
 
-            if(checkBoxRef.current.checked){
+            if(remember){
                 window.localStorage.setItem('remember', true);
                 window.localStorage.setItem('ID', idInput.current.value);
             }else{
@@ -81,6 +80,14 @@ const SignIn = () => {
             setModalOpen(true);
         }
     };
+
+    const changeRemember = () =>{
+        if(remember === false){
+            setRemember(true);
+        }else{
+            setRemember(false)
+        }
+    }
 
     useEffect(()=>{
         if(userInputId !== '' && userInputPassword !== ''){
@@ -103,7 +110,11 @@ const SignIn = () => {
         <MainStyledSection>
             {modalOpen && <LoginFailure setModalOpen={setModalOpen}/>}
             <div className="h-[700px] flex align-items-center justify-center pt-10">
+                
                 <LoginFormCover className='login-form border-2 w-[700px] h-[600px]'>
+                <Logo className='logo mt-[-20px] mb-[40px]'>
+
+                </Logo>
                     {
                         isSessionValid === false? 
                         <>
@@ -120,7 +131,7 @@ const SignIn = () => {
                                 </div>
                                 
                                 <div className='checkbox-cover'>
-                                    <input type="checkbox" id='rememberId' name='remember-id' className='remember-login-info' ref={checkBoxRef} checked={remember? true : false}/>
+                                <input type="checkbox" id='rememberId' name='remember-id' className='remember-login-info' onChange={changeRemember} checked={remember ? true : false}/>
                                     <span className='ml-5 text-md'>아이디 저장</span>
                                 </div>
                                 <button type='submit' id='loginButton' className={active ? 'submit-able active' : 'submit-able'}>
@@ -153,6 +164,14 @@ const SignIn = () => {
 }
 
 export default SignIn
+
+const Logo = styled.div`
+    width: 180px; 
+    height: 30px;
+    background-image: url(/Logo/Logo.svg);
+    background-repeat: no-repeat;
+    background-size: cover;
+`;
 
 const LoginFormCover = styled.div`
     display: flex;

@@ -68,7 +68,7 @@ function DetailMylist({playlist_id, handleRender}) {
         
         await Axios.post(`/playlist/detail/detailmylist/changeplaylistname`, userData)
         .then(({data}) =>{
-            console.log(data);
+            // console.log(data);
             if(data === 1){
                 // 플레이 리스트 이름 중복
                 setDuplicatedModalOpen(true);
@@ -86,8 +86,8 @@ function DetailMylist({playlist_id, handleRender}) {
 
     const clickToAddMusicModalOpen = (e, playlist_id, playlist_name) =>{
         e.preventDefault()
-        console.log(playlist_id);
-        console.log(playlist_name);
+        // console.log(playlist_id);
+        // console.log(playlist_name);
         setDetailMylistAddMusicModalData([playlist_id, playlist_name]);
         setDetailMylistAddMusicOpen(true)
     }

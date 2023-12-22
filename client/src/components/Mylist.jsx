@@ -331,10 +331,10 @@ const Mylist = ({handleRender}) => {
                                 </div>
                             </button>
                         
-                            <div className='flex ml-[20px]'>
+                            <div className='flex ml-[-10px]'>
                                 <input type="hidden" name='userid' value={userid_cookies} />
                                 <input type="hidden" name="date" value={date} />
-                                <button type='submit' className='text-[15px] justify-between items-center ' style={{color: "var(--main-theme-color)"}}><span>새로운 리스트 만들기</span></button>
+                                <button type='submit' className='text-[15px] w-[200px] justify-between items-center ' style={{color: "var(--main-theme-color)"}}>새로운 리스트 만들기</button>
                             </div>
                         </form>
                     </div>

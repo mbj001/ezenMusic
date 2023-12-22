@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 
-const AlreadyHaveVoucher = ({setModalOpen, setKeepGoing}) => {
+const ConfirmDeleteCharacter = ({setModalOpen, setKeepGoing}) => {
     const closeModal = () =>{
         setModalOpen(false);
     }
@@ -9,7 +9,7 @@ const AlreadyHaveVoucher = ({setModalOpen, setKeepGoing}) => {
         setKeepGoing(false);
         closeModal();
     }
-    const buy = () =>{
+    const keepGo = () =>{
         setKeepGoing(true);
         closeModal();
     }
@@ -17,18 +17,14 @@ const AlreadyHaveVoucher = ({setModalOpen, setKeepGoing}) => {
         <StyledInnerModal>
             <div className='inner-modal-box'>
                 <p>
-                    이미 사용중인 이용권이 존재합니다.<br/>
-                    계속해서 진행하려면 확인 버튼 클릭 후 결제해주세요!<br />
-                </p>
-                <p className='inner-text'>
-                    새로운 이용권은 사용대기함에 넣어둘게요
+                    캐릭터를 삭제하시겠습니까?
                 </p>
                 <div className='button-box'>
                     <button type='button' className='cancel' onClick={() => cancel()}>
-                        취소
+                        취소하기
                     </button>
-                    <button type='button' className='buy' onClick={() => buy()}>
-                        확인
+                    <button type='button' className='submit' onClick={() => keepGo()}>
+                        삭제하기
                     </button>
                 </div>
             </div>
@@ -36,7 +32,7 @@ const AlreadyHaveVoucher = ({setModalOpen, setKeepGoing}) => {
     )
 }
 
-export default AlreadyHaveVoucher
+export default ConfirmDeleteCharacter
 
 const StyledInnerModal = styled.div`
     position: fixed;
@@ -51,7 +47,7 @@ const StyledInnerModal = styled.div`
         top: 40%;
         left: 50%;
         transform: translate(-50%, -50%);
-        width: 450px;
+        width: 400px;
         height: 200px;
         border-radius: 5px;
         background-color: var(--main-background-white);
@@ -67,43 +63,36 @@ const StyledInnerModal = styled.div`
             color: #484848;
             text-align: center;
         }
-        .inner-text{
-            margin-top: 10px;
-            margin-bottom: 28px;
-            font-size: 15px;
-            color: #3c3c3c;
-        }
         .button-box{
-            width: 60%;
+            width: 100%;
+            margin-top: 30px;
             display: flex;
-            flex-direction: row;
             align-items: center;
             justify-content: center;
-            button.buy{
-                width: 85px;
+            button{
+                width: 100px;
                 height: 36px;
                 padding: 0 15px;
                 font-size: 14px;
                 line-height: 36px;
-                color: #fff;
                 text-align: center;
-                background-color: #3f3fff;
+                border-radius: 5px;
+            }
+            .submit{
+                margin-left: 15px;
+                background-color: var(--main-theme-color);
+                color: #fff;
                 &:hover{
-                    opacity: 0.9;
+                    background-color: var(--main-theme-color-hover);
                 }
             }
-            button.cancel{
-                width: 85px;
-                height: 36px;
-                padding: 0 15px;
-                font-size: 14px;
-                line-height: 36px;
-                color: #fff;
-                text-align: center;
-                background-color: var(--main-text-gray);
-                margin-right: 30px;
+            .cancel{
+                background-color: var(--main-text-white);
+                color: var(--main-text-black);
+                border: 1px solid var(--main-text-gray-lighter);
                 &:hover{
-                    opacity: 0.9;
+                    color: var(--main-theme-color);
+                    border: 1px solid var(--main-theme-color);
                 }
             }
         }

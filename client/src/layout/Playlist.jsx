@@ -299,7 +299,7 @@ function Playlist({handleRender, render}) {
 
         <StyledPlaylist $showval={listenMusic.length === 0? true : showPlaylist} $img={listenMusic.org_cover_image}>
             <div className="blur-box">
-                <div className="flex items-center">
+                <div className="flex items-center justify-center">
                     {
                         listenMusic.length === 0?
                         <div className="col-7">
@@ -321,7 +321,7 @@ function Playlist({handleRender, render}) {
                         <div>
                             <div className="flex justify-between border-b-[1px] border-b-gray-500 mb-[15px]">
                                 <div className="flex">
-                                    <p className="text-white border-b-[2px] border-b-blue-600 mr-[20px] cursor-pointer">음악</p>
+                                    <p className="text-white border-b-[2px] border-b-[#3f3fff] mr-[20px] cursor-pointer">음악</p>
                                 </div>
                             </div>
                             {
@@ -400,7 +400,6 @@ const StyledPlaylist = styled.div`
     height: 100%;
     background-image: ${(props) => "url(/image/album/"+props.$img+")"};
     background-size: 90% 90%;
-
 
     transform: ${(props) => props.$showval? "translateY(100%)" : "translateY(0%)"};
     transition: 0.5s;

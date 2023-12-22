@@ -17,6 +17,7 @@ import { MusicListCardAddMyListButton as AddMyListButton } from '../style/Styled
 import { MusicListCardAddPlaylistButton as AddPlaylistButton } from '../style/StyledIcons';
 import { ArtistLikeButton as LikeButton } from '../style/StyledIcons';
 import { ArtistFilledHeartButton as FilledHeart } from '../style/StyledIcons';
+import { TinyPlayButton as PlayButton } from '../style/StyledIcons';
 
 function Channel({themeplaylist_id, details, handleRender}) {
     
@@ -82,7 +83,7 @@ function Channel({themeplaylist_id, details, handleRender}) {
     }
 
     // 2023-12-01 channel 플레이어 추가
-    function playerAdd(){
+    function playerAdd(change_now_play){
         let array = [];
 
         for(let i=0; i<channelMusic.length; i++){
@@ -92,7 +93,7 @@ function Channel({themeplaylist_id, details, handleRender}) {
         Axios.post("/playerHandle/playerAdd", {
             character_id: userid_cookies,
             music_list: array,
-            change_now_play: false
+            change_now_play: change_now_play
         })
 
         .then(({data}) => {
@@ -218,14 +219,19 @@ function Channel({themeplaylist_id, details, handleRender}) {
                 <StyledDetail key={index} className='md:w-[1000px] xl:w-[1280px] 2xl:w-[1440px]'>
                     <div className="mb-[40px]">
                         <div className="flex items-center p-[30px]">
-                            <img src={"/image/themeplaylist/"+item.org_cover_image} alt="cover_image" className="w-[230px] h-[230px] rounded-[6px]"/>
+                            <div className='relative'>
+                                <div className='w-[230px] h-[230px] rounded-[6px] hover:brightness-75 overflow-hidden border-1 M-img-border'>
+                                    <img src={"/image/themeplaylist/"+item.org_cover_image} alt="cover_image" className="w-[230px] h-[230px] rounded-[6px]"/>
+                                </div>
+                                <PlayButton onClick={isSessionValid ? ()=>{playerAdd(true);} : () => setLoginrRequestVal(true)}></PlayButton>
+                            </div>
                             <div className="m-[30px]">
                                 <p className="detail-title mb-[10px]">{item.themeplaylist_title}</p>
                                 <p className="text-[14px] text-gray mb-[20px]">{item.description}</p>  
                                 <p>총 {totalMusicNum}곡</p>
                                 <p className="text-[14px] text-gray">{item.release_date_format}</p>
                                 <div className="flex mt-[30px] ml-[-9px]">
-                                    <AddPlaylistButton onClick={isSessionValid? () => playerAdd() : () => setLoginrRequestVal()}></AddPlaylistButton>
+                                    <AddPlaylistButton onClick={isSessionValid? () => playerAdd(false) : () => setLoginrRequestVal()}></AddPlaylistButton>
                                     <AddMyListButton onClick={isSessionValid? (e) => clickPlaylistModalOpen(e, item.themeplaylist_id) : () => setLoginrRequestVal()}></AddMyListButton>
                                     {
                                         islikey?
@@ -240,16 +246,16 @@ function Channel({themeplaylist_id, details, handleRender}) {
                     </div>
                     <div className="mb-[40px]">
                         {
-                            initNum === ""?
-                                <div>
-                                    <Link to={"/detail/channel/" + item.themeplaylist_id + ""} className="active rounded-[20px] px-[15px] py-[7px] mr-[10px] text-gray font-normal" onClick={(e) => setInitNum("")}>곡</Link>
-                                    <Link to={"/detail/channel/" + item.themeplaylist_id + "/comments"} className="rounded-[20px] px-[15px] py-[7px] mr-[10px] text-gray font-normal" onClick={(e) => setInitNum("comments")}>댓글</Link>
-                                </div>
-                                :
-                                <div>
-                                    <Link to={"/detail/channel/" + item.themeplaylist_id + ""} className="rounded-[20px] px-[15px] py-[7px] mr-[10px] text-gray font-normal" onClick={(e) => setInitNum("")}>곡</Link>
-                                    <Link to={"/detail/channel/" + item.themeplaylist_id + "/comments"} className="active rounded-[20px] px-[15px] py-[7px] mr-[10px] text-gray font-normal" onClick={(e) => setInitNum("comments")}>댓글</Link>
-                                </div>
+                            // initNum === ""?
+                            //     <div>
+                            //         <Link to={"/detail/channel/" + item.themeplaylist_id + ""} className="active rounded-[20px] px-[15px] py-[7px] mr-[10px] text-gray font-normal" onClick={(e) => setInitNum("")}>곡</Link>
+                            //         {/* <Link to={"/detail/channel/" + item.themeplaylist_id + "/comments"} className="rounded-[20px] px-[15px] py-[7px] mr-[10px] text-gray font-normal" onClick={(e) => setInitNum("comments")}>댓글</Link> */}
+                            //     </div>
+                            //     :
+                            //     <div>
+                            //         <Link to={"/detail/channel/" + item.themeplaylist_id + ""} className="rounded-[20px] px-[15px] py-[7px] mr-[10px] text-gray font-normal" onClick={(e) => setInitNum("")}>곡</Link>
+                            //         {/* <Link to={"/detail/channel/" + item.themeplaylist_id + "/comments"} className="active rounded-[20px] px-[15px] py-[7px] mr-[10px] text-gray font-normal" onClick={(e) => setInitNum("comments")}>댓글</Link> */}
+                            //     </div>
 
                         }
                     </div>

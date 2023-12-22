@@ -27,7 +27,7 @@ function ArtistTrack({artist_id, handleRender, sortType}) {
                 }
                 else{
                     array = data[0].music_list;
-                    console.log(array);
+                    // console.log(array);
                 }
             })
             .catch((err) => {
@@ -51,7 +51,7 @@ function ArtistTrack({artist_id, handleRender, sortType}) {
                     }
                 }
             }
-            console.log(data);
+            // console.log(data);
             setartistTrackMusic(data);
         })
         .catch((err) => {

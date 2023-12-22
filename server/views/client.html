@@ -23,16 +23,16 @@
         <div class="col-5">
             <div class="form-group">
                 <label>이름</label>
-                <input type="text" id="username" name="username" placeholder="username" class="form-control">
+                <input type="text" id="username" name="username" placeholder="name" class="form-control">
             </div>
             <div class="form-group">
                 <label>아이디</label>
-                <input type="text" id="userid" name="userid" placeholder="userid" class="form-control">
+                <input type="text" id="userid" name="userid" placeholder="user_id" class="form-control">
             </div>
-            <div class="form-group">
+            <!-- <div class="form-group">
                 <label>비밀번호</label>
                 <input type="text" id="userpw" name="userpw" placeholder="userpw" class="form-control">
-            </div>
+            </div> -->
             <div class="form-group">
                 <label>생년월일 yyyy-mm-dd</label>
                 <input type="text" id="birth" name="birth" placeholder="birth" class="form-control">
@@ -44,10 +44,14 @@
         </div>
         <div class="col-5">
             <div class="form-group">
-                <label>전화번호 000-0000-0000</label>
-            <input type="text" id="phone" name="phone" placeholder="phone" class="form-control">
+                <label>전화번호</label>
+            <input type="text" id="phone" name="phone" placeholder="phone ( 000-0000-0000 )" class="form-control">
             </div>
             <div class="form-group">
+                <label>이용권 구매여부</label>
+                <input type="text" id="purchase" name="purchase" placeholder="purchase ( 1 or 0 )" class="form-control">
+            </div>
+            <!-- <div class="form-group">
                 <label>이용권 구매일 yyyy-mm-dd</label>
                 <input type="text" id="ticket_date" name="ticket_date" placeholder="ticket_date" class="form-control">
             </div>
@@ -66,7 +70,7 @@
                     <option value="50songs">50곡</option>
                     <option value="100songs">100곡</option>
                 </select>
-            </div>
+            </div> -->
             <div class="col-12 d-flex justify-content-between">
                 <button type="button" class="btn btn-outline-dark L-insert">등록</button>
                 <button type="button" class="btn btn-warning L-btn-close-addForm">닫기</button>
@@ -80,15 +84,17 @@
             <thead>
                 <tr>
                     <th scope="col">#</th>
-                    <th scope="col">username</th>
-                    <th scope="col" class="text-danger">userid(PK)</th>
-                    <th scope="col">userpw</th>
+                    <th scope="col">name</th>
+                    <th scope="col" class="text-danger">user_id(PK)</th>
+                    <!-- <th scope="col">userpw</th> -->
                     <th scope="col">birth</th>
                     <th scope="col">email</th>
                     <th scope="col">phone</th>
-                    <th scope="col">ticket_date</th>
+                    <th scope="col">purchase</th>
+                    <!-- <th scope="col">ticket_date</th>
                     <th scope="col">ticket_num</th>
-                    <th scope="col">ticket_type</th>
+                    <th scope="col">ticket_type</th> -->
+                    <th scope="col">이용권</th>
                     <th scope="col">수정</th>
                     <th scope="col">삭제</th>
                 </tr>
@@ -97,32 +103,41 @@
                 {% for list in sqlData %}
                 <tr class="bg-light">    
                     <th scope="row">{{loop.index}}</th>
-                    <td>{{list.username}}</td>
-                    <td class="text-danger">{{list.userid}}</td>
-                    <td>{{list.userpw}}</td>
+                    <td>{{list.name}}</td>
+                    <td class="text-danger">{{list.user_id}}</td>
+                    <!-- <td>{{list.userpw}}</td> -->
                     <td>{{list.birth}}</td>
                     <td>{{list.email}}</td>
                     <td>{{list.phone}}</td>
-                    <td>{{list.ticket_date}}</td>
-                    <td>{{list.ticket_num}}</td>
-                    <td>{{list.ticket_type}}</td>
                     <td>
-                        <button type="button" class="btn btn-info L-btn-show-editForm" value="{{list.userid}}">수정</button>
+                        {{list.purchase}} 
                     </td>
                     <td>
-                        <button type="button" class="btn btn-danger L-delete" value="{{list.userid}}">삭제</button>
+                        <button type="button" class="btn btn-primary show-voucher-info" value="{{list.user_id}}" data-toggle="modal" data-target="#exampleModalCenter">
+                            정보
+                        </button>
+                    </td>
+                    <!-- <td>{{list.ticket_date}}</td>
+                    <td>{{list.ticket_num}}</td>
+                    <td>{{list.ticket_type}}</td> -->
+                    <td>
+                        <button type="button" class="btn btn-info L-btn-show-editForm" value="{{list.user_id}}">수정</button>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-danger L-delete" value="{{list.user_id}}">삭제</button>
                     </td>
                 </tr>
                 <!-- edit form -->
-                    <tr class="d-none bg-white text-white">
-                        <th scope="row">></th>
-                        <td><input type="text" name="username{{loop.index}}" value="{{list.username}}" class="username_update form-control" /></td>
-                        <td><input type="text" name="userid{{loop.index}}" disabled value="{{list.userid}}" class="userid_update form-control"/></td>
-                        <td><input type="text" name="userpw{{loop.index}}" value="{{list.userpw}}" class="userpw_update form-control"/></td>
+                    <tr class="d-none bg-info text-white">
+                        <td scope="row"></td>
+                        <td><input type="text" name="name{{loop.index}}" value="{{list.name}}" class="username_update form-control" /></td>
+                        <td><input type="text" name="user_id{{loop.index}}" disabled value="{{list.user_id}}" class="userid_update form-control"/></td>
+                        <!-- <td><input type="text" name="userpw{{loop.index}}" value="{{list.userpw}}" class="userpw_update form-control"/></td> -->
                         <td><input type="text" name="birth{{loop.index}}" value="{{list.birth}}" class="birth_update form-control"/></td>
                         <td><input type="text" name="email{{loop.index}}" value="{{list.email}}" class="email_update form-control"/></td>
                         <td><input type="text" name="phone{{loop.index}}" value="{{list.phone}}" class="phone_update form-control"/></td>
-                        <td><input type="text" name="ticket_date{{loop.index}}" value="{{list.ticket_date}}" class="ticket_date_update form-control"/></td>
+                        <td><input type="text" name="purchase{{loop.index}}" value="{{list.purchase}}" class="purchase_update form-control"/></td>
+                        <!-- <td><input type="text" name="ticket_date{{loop.index}}" value="{{list.ticket_date}}" class="ticket_date_update form-control"/></td>
                         <td><input type="text" name="ticket_num{{loop.index}}" value="{{list.ticket_num}}" class="ticket_num_update form-control"/></td>
                         <td>
                             <select name="ticket_type{{loop.index}}" class="ticket_type_update form-control" >
@@ -135,7 +150,8 @@
                                 <option value="50songs">50곡</option>
                                 <option value="100songs">100곡</option>
                             </select>
-                        </td>
+                        </td> -->
+                        <td></td>
                         <td><button type="button" class="btn btn-outline-dark L-btn-close-editForm">닫기</button></td>
                         <td><button type="button" class="btn btn-outline-dark L-update">완료</button></td>
                     </tr>
@@ -147,11 +163,116 @@
     <!--bootstrap table layout-->
 </div>
 
+<!-- modal -->
+<button type="button" class="btn btn-primary show-voucher-info" value="tmdfuf1201" data-toggle="modal" data-target="#exampleModalCenter">
+    이용권 정보
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLongTitle">
+                <p id="user-id"><!--사용자 아이디--></p>
+            </h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div class="modal-body">
+                <!--이용권 정보-->
+                <input type="hidden" id="have-voucher">
+                <label class="form-control">이용권 종류
+                    <select name="voucher" class="voucher-update form-control" id="update-plan-type" onchange="changeVoucher()">
+                        <option value="" id="update-user-voucher" selected></option>
+                        <option value="none">이용권 없음</option>
+                        <option value="oneday">1일 이용권</option>
+                        <option value="oneweek">1주 이용권</option>
+                        <option value="twoweek">2주 이용권</option>
+                        <option value="onemonth">1개월 이용권</option>
+                        <option value="onlyfifty">50곡 이용권</option>
+                        <option value="onlyhundred">100곡 이용권</option>
+                    </select>
+                </label>
+                <label class="form-control">잔여 곡 수(곡 제한 이용권)
+                    <input type="text" id="update-remaining-number" class="form-control" placeholder="잔여 곡 수">
+                </label>
+                <label class="form-control">이용 시작일 (yyyy-mm-dd)
+                    <input type="text" id="update-purchase-date" class="form-control" placeholder="시작일">
+                </label>
+                <label class="form-control">이용 종료일 (yyyy-mm-dd)
+                    <input type="text" id="update-renewal-date" class="form-control" placeholder="종료일">
+                </label>
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">닫기</button>
+            <button type="button" class="btn btn-primary update-voucher">저장</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block script %}
 <script>
+    const voucherSwitch = (str) => {
+        let resultStr;
+        switch(str){
+            case 'oneday':
+                resultStr = '1일 이용권'
+                break;
+            case 'oneweek':
+                resultStr = '1주 이용권'
+                break;
+            case 'twoweek':
+                resultStr = '2주 이용권'
+                break;
+            case 'onemonth':
+                resultStr = '1개월 이용권'
+                break;
+            case 'onlyfifty':
+                resultStr = '50곡 이용권'
+                break;
+            case 'onlyhundred':
+                resultStr = '100곡 이용권'
+                break;
+            default: 
+                resultStr = '이용권 없음'
+                break;
+        }
+        return resultStr;
+    } 
+    const changeVoucher = () => {
+        // console.log($('.voucher-update').val());
+        if($('.voucher-update').val() === 'onlyfifty'){
+            $('#update-remaining-number').val(50);
+            $('#update-remaining-number').attr('disabled', false);
+            $('#update-purchase-date').attr('disabled', false);
+            $('#update-renewal-date').attr('disabled', false);
+        }else if($('.voucher-update').val() === 'onlyhundred'){
+            $('#update-remaining-number').val(100);
+            $('#update-remaining-number').attr('disabled', false);
+            $('#update-purchase-date').attr('disabled', false);
+            $('#update-renewal-date').attr('disabled', false);
+        }else if($('.voucher-update').val() === 'none'){
+            $('#update-remaining-number').val('');
+            $('#update-remaining-number').attr('disabled', true);
+            $('#update-purchase-date').val('');
+            $('#update-purchase-date').attr('disabled', true);
+            $('#update-renewal-date').val('');
+            $('#update-renewal-date').attr('disabled', true);
+        }else{
+            $('#update-remaining-number').val('');
+            $('#update-remaining-number').attr('disabled', true);
+            $('#update-purchase-date').attr('disabled', false);
+            $('#update-renewal-date').attr('disabled', false);
+        }
+        console.log($('#update-remaining-number').val())
+    }
     $(function(){
+        
         $(".L-btn-show-editForm").click(function(e){
             e.preventDefault();
             $(this).parents("tr").next().removeClass("d-none");
@@ -182,15 +303,12 @@
             const insertConfirm = confirm("이대로 추가할까용");
             if(insertConfirm == true){
                 const sendData = {
-                username : $("#username").val(),
-                userid : $("#userid").val(),
-                userpw : $("#userpw").val(),
+                name : $("#username").val(),
+                user_id : $("#userid").val(),
                 birth : $("#birth").val(),
                 email : $("#email").val(),
                 phone : $("#phone").val(),
-                ticket_date : $("#ticket_date").val(),
-                ticket_num : $("#ticket_num").val(),
-                ticket_type : $("#ticket_type").val()
+                purchase : $("#purchase").val()
                 };
                 $.ajax({
                     type: "post",
@@ -220,7 +338,7 @@
             if(deleteConfirm == true){
                 const deleteId = $(this).val();
                 const sendData = {
-                    userid: deleteId
+                    user_id: deleteId
                 };
                 console.log(deleteId);
                 $.ajax({
@@ -250,15 +368,12 @@
             const updateConfirm = confirm("이대로 업데이트할까용");
             if(updateConfirm == true){
                 const sendData = {
-                    username : $(this).parents("td").siblings().find(".username_update").val(),
-                    userid : $(this).parents("td").siblings().find(".userid_update").val(),
-                    userpw : $(this).parents("td").siblings().find(".userpw_update").val(),
+                    name : $(this).parents("td").siblings().find(".username_update").val(),
+                    user_id : $(this).parents("td").siblings().find(".userid_update").val(),
                     birth : $(this).parents("td").siblings().find(".birth_update").val(),
                     email : $(this).parents("td").siblings().find(".email_update").val(),
                     phone : $(this).parents("td").siblings().find(".phone_update").val(),
-                    ticket_date : $(this).parents("td").siblings().find(".ticket_date_update").val(),
-                    ticket_num : $(this).parents("td").siblings().find(".ticket_num_update").val(),
-                    ticket_type : $(this).parents("td").siblings().find(".ticket_type_update").val()
+                    purchase : $(this).parents("td").siblings().find(".purchase_update").val()
                 };
                 $.ajax({
                     type: "post",
@@ -281,6 +396,78 @@
                 console.log("업데이트 취소");
             }
         });
+        //################## VOUCHER ##################
+        $(".show-voucher-info").click(function(e){
+            e.preventDefault();
+            
+            $.ajax({
+                type: "post",
+                url: "/client/showVoucher",
+                dataType: "json",
+                data: {
+                    user_id: $(this).val()
+                },
+                success: function(obj){
+                    console.log(obj[0]);
+                    const voucherInfo = obj[0];
+                    $('#user-id').text(voucherInfo.user_id);
+                    $('#user-id').val(voucherInfo.user_id);
+                    $('#update-user-voucher').val(voucherInfo.plan_type);
+                    $('#update-user-voucher').text(voucherSwitch(voucherInfo.plan_type));
+                    $('#have-voucher').val(voucherInfo.haveVoucher);
+                    if(voucherInfo.haveVoucher){
+                        $('#update-remaining-number').val(voucherInfo.remaining_number);
+                        $('#update-remaining-number').text(voucherInfo.remaining_number);
+                        if(voucherInfo.remaining_number === null){
+                            $('#update-remaining-number').attr('disabled', true);
+                        }else{
+                            $('#update-remaining-number').attr('disabled', false);
+                        }
+                        $('#update-purchase-date').val(voucherInfo.purchase_date);
+                        $('#update-purchase-date').text(voucherInfo.purchase_date);
+                        $('#update-renewal-date').val(voucherInfo.renewal_date);
+                        $('#update-renewal-date').text(voucherInfo.renewal_date);
+                    }else{
+                        $('#update-remaining-number').attr('disabled', true);
+                        $('#update-purchase-date').val('');
+                        $('#update-purchase-date').attr('disabled', true);
+                        $('#update-renewal-date').val('');
+                        $('#update-renewal-date').attr('disabled', true);
+                    }
+                },
+                error: function(err){
+                    alert('에러: ajax did not success' +err );
+                }
+            });
+        });
+        $('.update-voucher').click(function(e){
+            e.preventDefault();
+            const sendData = {
+                user_id: $('#user-id').val(),
+                plan_type: $('#update-plan-type').val(),
+                purchase_date: $('#update-purchase-date').val(),
+                renewal_date: $('#update-renewal-date').val(),
+                remaining_number: $('#update-remaining-number').val(),
+                haveVoucher: $('#have-voucher').val()
+            }
+            $.ajax({
+                type: "post",
+                url: "/client/updateVoucher",
+                dataType: "json",
+                data: sendData,
+                success: function(rs){
+                    if(rs == 1){
+                        alert("업데이트 ok");
+                        location.href="/client";
+                    }else{
+                        alert("sql 에러!");
+                    }
+                },
+                error: function(err){
+                    alert('에러: ajax did not success' +err );
+                }
+            });
+        })
     });
 </script>
 {% endblock %}

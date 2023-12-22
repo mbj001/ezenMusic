@@ -90,9 +90,10 @@ function TodayReleaseBanner({handleRender}) {
                                         }
                                     </div>
                                     <p className="album-title">{moodplaylist_first[index].album_title}</p>
-                                    <p className="artist">{moodplaylist_first[index].artist_name}</p>
+                                    <Link to={"/detail/artist/"+moodplaylist_first[index].artist_id+"/track?sortType=POPULARITY"} ><p className="artist">{moodplaylist_first[index].artist_name}</p></Link>
+
                                 </StyledMoodLink>
-                                <TinyPlayButton onClick={isSessionValid? ()=>{playerAdd("mainbanner_album", item.album_id, handleRender, setPlayerBannerOn);} : () => setLoginrRequestVal(true)}></TinyPlayButton>
+                                <TinyPlayButton onClick={isSessionValid? ()=>{playerAdd("mainbanner_album", moodplaylist_first[index].album_id, handleRender, setPlayerBannerOn);} : () => setLoginrRequestVal(true)}></TinyPlayButton>
                             </div>
                             <div className='relative'>
                                 <StyledMoodLink to={"/detail/album/" + moodplaylist_twice[index].album_id + "/albumtrack"} className='row mb-[30px]'>
@@ -105,9 +106,9 @@ function TodayReleaseBanner({handleRender}) {
                                         }
                                     </div>
                                     <p className="album-title">{moodplaylist_twice[index].album_title}</p>
-                                    <p className="artist">{moodplaylist_twice[index].artist_name}</p>
+                                    <Link to={"/detail/artist/"+moodplaylist_twice[index].artist_id+"/track?sortType=POPULARITY"} ><p className="artist">{moodplaylist_twice[index].artist_name}</p></Link>
                                 </StyledMoodLink>
-                                <TinyPlayButton onClick={isSessionValid? (()=>{playerAdd("mainbanner_album", item.album_id, handleRender, setPlayerBannerOn); }) : () => setLoginrRequestVal(true)}></TinyPlayButton>
+                                <TinyPlayButton onClick={isSessionValid? (()=>{playerAdd("mainbanner_album", moodplaylist_twice[index].album_id, handleRender, setPlayerBannerOn); }) : () => setLoginrRequestVal(true)}></TinyPlayButton>
                             </div>
                         </SwiperSlide>
                     ))

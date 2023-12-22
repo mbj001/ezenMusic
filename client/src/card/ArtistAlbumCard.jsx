@@ -130,7 +130,7 @@ const ArtistAlbumCard = ({artistAlbum, setArtistAlbum, handleRender}) => {
             <StyledTablediv className="d-flex w-[450px] items-center">
                 <div className="album-cover-image relative">
                     <Link to={"/detail/album/" + item.album_id + "/albumtrack"}> 
-                        <img src={"/image/album/" + item.org_cover_image} alt={item.org_cover_image}/>
+                        <img src={"/image/album/" + item.org_cover_image} alt={item.org_cover_image} className="hover:brightness-75" />
                     </Link>
                     <PlayButton onClick={isSessionValid? () => playerAdd(item.album_id, true) : () => setLoginrRequestVal(true)} > </PlayButton>
                 </div>

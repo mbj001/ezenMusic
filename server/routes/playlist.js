@@ -4,9 +4,9 @@ const { route } = require("./main");
 const router = express.Router();
 const mysql2 = require('mysql2/promise');
 const pool = require("../config/mysqlPool");
+const { isLoggedIn, isNotLoggedIn} = require("../middleWares/index");
 
-
-router.get("/", (req, res) => {
+router.get("/", isLoggedIn, (req, res) => {
     console.log("routes => playlist.js => router.get('/')");
     const sql = 'select playlist.* from playlist order by update_date desc';
     conn.query(sql, (err, row, fields) =>{
@@ -19,7 +19,7 @@ router.get("/", (req, res) => {
     })
 });
 
-router.post('/insert', (req, res) =>{
+router.post('/insert', isLoggedIn, (req, res) =>{
     console.log("routes => playlist.js => router.post('/insert')");
     // console.log(req.body);
     const sql = `select playlist_name from playlist where character_id = '${req.body.character_id}'`;
@@ -52,7 +52,7 @@ router.post('/insert', (req, res) =>{
     })
 });
 
-router.post('/delete', (req, res) =>{
+router.post('/delete', isLoggedIn, (req, res) =>{
     console.log("routes => playlist.js => router.post('/delete')");
     // console.log(req.body);
     const sql = `delete from playlist where playlist_id = ${req.body.playlist_id}`;
@@ -65,7 +65,7 @@ router.post('/delete', (req, res) =>{
     })
 });
 
-router.post('/playlist_detail', (req, res) =>{
+router.post('/playlist_detail', isLoggedIn, (req, res) =>{
     console.log("routes => playlist.js => router.post('/playlist_detail')");
     // console.log(req.body);
     let array = [];
@@ -113,7 +113,7 @@ router.post('/playlist_detail', (req, res) =>{
     })
 });
 
-router.post('/playlist_detail/insert', (req, res) =>{
+router.post('/playlist_detail/insert', isLoggedIn, (req, res) =>{
     console.log("routes => playlist.js => router.post('/playlist_detail/insert')");
     // console.log(req.body);
 
@@ -140,7 +140,7 @@ router.post('/playlist_detail/insert', (req, res) =>{
     });
 });
 
-router.post('/playlist_detail/delete', (req, res) =>{
+router.post('/playlist_detail/delete', isLoggedIn, (req, res) =>{
     console.log("routes => playlist.js => router.post('/playlist_detail/delete')");
     // console.log(req.body);
     const sql = `select music_list from playlist where playlist_id = ${req.body.playlist_id}`;

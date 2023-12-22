@@ -169,9 +169,6 @@ input[type='radio']:checked {
 .hover-border-gray-dark:hover{ border-color: var(---main-text-gray-darker);}
 
 .M-img-border{ border-color: var(--mylist-null-image-before); }
-
-.bg-gray-morelight{ background-color: var(--mylist-null-image-before);}
-.text-red{ color: var(--red-color);}
 /* ~ 병준 ~ */
 
 
